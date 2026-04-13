@@ -1,0 +1,1 @@
+CLASS /pyxs/bp_sovosbranchdata DEFINITION PUBLIC ABSTRACT FINAL FOR BEHAVIOR OF /pyxs/sovosbranchdata.
