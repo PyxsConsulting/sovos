@@ -3276,7 +3276,6 @@ CLASS lcl_process IMPLEMENTATION.
       gv_proc = 'Nenhum documento processado'.
     ENDIF.
     popu(  ).
-
     LOOP AT t_nfdocs INTO DATA(p_nfdoc)  WHERE doc-br_nfismunicipal = 'X' OR doc-br_nfhasserviceitem = 'X'.
 
       """"""""""""""""""""""""""""""""""""""""""""""""""""""""""
