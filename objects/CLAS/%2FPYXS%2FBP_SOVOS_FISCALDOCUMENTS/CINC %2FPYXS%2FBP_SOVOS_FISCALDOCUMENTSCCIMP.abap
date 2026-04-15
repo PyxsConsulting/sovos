@@ -2236,10 +2236,13 @@ CLASS lcl_process IMPLEMENTATION.
       ls_objeto-knwc100-serie_subserie     = p_nfdoc-doc-br_nfseries.
       ls_objeto-knwc100-nr_documento       = p_nfdoc-doc-br_nfenumber.
 
-      ls_objeto-knwc100-dt_emissao_doc     = |{ p_nfdoc-doc-br_nfissuedate(4) }-{ p_nfdoc-doc-br_nfissuedate+4(2) }-{ p_nfdoc-doc-br_nfissuedate+6 }T| &&
-      |{ p_nfdoc-doc-creationtime(2) }:{ p_nfdoc-doc-creationtime+2(2) }:{ p_nfdoc-doc-creationtime+4(2) }+03:00|.
-      ls_objeto-knwc100-dt_entrada         = |{ p_nfdoc-doc-br_nfpostingdate(4) }-{ p_nfdoc-doc-br_nfpostingdate+4(2) }-{ p_nfdoc-doc-br_nfpostingdate+6 }T| &&
-      |{ p_nfdoc-doc-creationtime(2) }:{ p_nfdoc-doc-creationtime+2(2) }:{ p_nfdoc-doc-creationtime+4(2) }+03:00|.
+*      ls_objeto-knwc100-dt_emissao_doc     = |{ p_nfdoc-doc-br_nfissuedate(4) }-{ p_nfdoc-doc-br_nfissuedate+4(2) }-{ p_nfdoc-doc-br_nfissuedate+6 }T| &&
+*      |{ p_nfdoc-doc-creationtime(2) }:{ p_nfdoc-doc-creationtime+2(2) }:{ p_nfdoc-doc-creationtime+4(2) }+03:00|.
+*      ls_objeto-knwc100-dt_entrada         = |{ p_nfdoc-doc-br_nfpostingdate(4) }-{ p_nfdoc-doc-br_nfpostingdate+4(2) }-{ p_nfdoc-doc-br_nfpostingdate+6 }T| &&
+*      |{ p_nfdoc-doc-creationtime(2) }:{ p_nfdoc-doc-creationtime+2(2) }:{ p_nfdoc-doc-creationtime+4(2) }+03:00|.
+      ls_objeto-knwc100-dt_emissao_doc     = |{ p_nfdoc-doc-br_nfissuedate(4) }-{ p_nfdoc-doc-br_nfissuedate+4(2) }-{ p_nfdoc-doc-br_nfissuedate+6 }T00:00:00+03:00|.
+      ls_objeto-knwc100-dt_entrada         = |{ p_nfdoc-doc-br_nfpostingdate(4) }-{ p_nfdoc-doc-br_nfpostingdate+4(2) }-{ p_nfdoc-doc-br_nfpostingdate+6 }T00:00:00+03:00|.
+
       ls_objeto-knwc100-cd_modelo_doc      = p_nfdoc-doc-br_nfmodel.
       ls_objeto-knwc100-nr_chave_eletr     = |{ p_nfdoc-act-region }{ p_nfdoc-act-br_nfeissueyear }{ p_nfdoc-act-br_nfeissuemonth }{ p_nfdoc-act-br_nfeaccesskeycnpjorcpf }| &&
       |{ p_nfdoc-act-br_nfemodel }{ p_nfdoc-act-br_nfeseries }{ p_nfdoc-act-br_nfenumber }{ p_nfdoc-act-br_nferandomnumber }{ p_nfdoc-act-br_nfecheckdigit }|.
@@ -2687,8 +2690,10 @@ CLASS lcl_process IMPLEMENTATION.
           <item>-knw0400-cod_empresa  = ls_objeto-knwc100-cod_empresa.
           <item>-knw0400-cod_filial   = ls_objeto-knwc100-cod_filial.
           <item>-knw0400-cod_grupoempresa   = ls_nfitem-nf-br_efdreinfservicecode.
-          <item>-knw0400-dt_movimento   = |{ p_nfdoc-doc-br_nfpostingdate(4) }-{ p_nfdoc-doc-br_nfpostingdate+4(2) }-{ p_nfdoc-doc-br_nfpostingdate+6 }T| &&
-                                             |{ p_nfdoc-doc-creationtime(2) }:{ p_nfdoc-doc-creationtime+2(2) }:{ p_nfdoc-doc-creationtime+4(2) }+03:00|.
+*          <item>-knw0400-dt_movimento   = |{ p_nfdoc-doc-br_nfpostingdate(4) }-{ p_nfdoc-doc-br_nfpostingdate+4(2) }-{ p_nfdoc-doc-br_nfpostingdate+6 }T| &&
+*                                             |{ p_nfdoc-doc-creationtime(2) }:{ p_nfdoc-doc-creationtime+2(2) }:{ p_nfdoc-doc-creationtime+4(2) }+03:00|.
+          <item>-knw0400-dt_movimento   = |{ p_nfdoc-doc-br_nfpostingdate(4) }-{ p_nfdoc-doc-br_nfpostingdate+4(2) }-{ p_nfdoc-doc-br_nfpostingdate+6 }T00:00:00+03:00|.
+
           <item>-knw0400-cd_fiscal      = ls_nfitem-nf-br_cfopcode. "ls_nfitem-nf-ncmcode.
           <item>-knw0400-ds_cd_fiscal   = p_nfdoc-doc-br_nfoperationtypedesc.
           <item>-knw0400-dt_inicial   = '1900-01-01T00:00:00+03:00'.
