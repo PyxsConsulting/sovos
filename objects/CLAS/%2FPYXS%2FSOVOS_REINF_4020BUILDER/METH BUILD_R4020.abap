@@ -6,6 +6,10 @@
           ls_knw_info_pgto_ret TYPE  ty_info_pgto_ret.
 
     LOOP AT mt_doc INTO DATA(ms_doc).
+
+      ms_doc-companycode = gs_branch_sov-sov_company.
+      ms_doc-businessplace = gs_branch_sov-sov_branch.
+
       READ TABLE ls_root-knw_r4020 INTO ls_knw_r4020 WITH KEY id_referencia = |{ ms_doc-br_nfpostingdate(6) }{  ms_doc-br_nfpartner }|.
       IF sy-subrc IS NOT INITIAL.
         ls_knw_r4020-cd_empresa         = ms_doc-companycode.
@@ -53,7 +57,7 @@
           <itm>-cd_filial     = ms_doc-businessplace.
           <itm>-id_referencia = |{ ls_itm-br_lc116servicecode }{ ms_doc-br_nfpostingdate(6) }{  ms_doc-br_nfpartner }|.
           <itm>-id_seq_pagto  = '1'.
-          <itm>-nr_nat_rend   = '10012'.
+          <itm>-nr_nat_rend   = get_nat_ren( |{ ls_itm-br_lc116servicecode }| ).
           <itm>-ds_observacao = ms_doc-br_nfobservationtext.
         ENDIF.
 
@@ -80,6 +84,9 @@
               WHEN 'PIS' OR 'WHPI' OR 'WAPI'.
                 <tax>-vl_pis_pasep      = ls_tax-br_nfitemtaxamount.
                 <tax>-vl_base_pis_pasep = ls_tax-br_nfitembaseamount.
+              WHEN 'WAT' OR 'WHT'.
+                <tax>-vl_agreg             = ls_tax-br_nfitemtaxamount.
+                <tax>-vl_base_agreg        = ls_tax-br_nfitembaseamount.
             ENDCASE.
           ELSE.
             CASE ls_tax-taxgroup.
@@ -95,6 +102,9 @@
               WHEN 'PIS' OR 'WHPI' OR 'WAPI'.
                 <tax>-vl_pis_pasep      += ls_tax-br_nfitemtaxamount.
                 <tax>-vl_base_pis_pasep += ls_tax-br_nfitembaseamount.
+              WHEN 'WAT' OR 'WHT'.
+                <tax>-vl_agreg          += ls_tax-br_nfitemtaxamount.
+                <tax>-vl_base_agreg     += ls_tax-br_nfitembaseamount.
             ENDCASE.
           ENDIF.
 

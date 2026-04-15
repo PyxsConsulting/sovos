@@ -1,0 +1,1 @@
+CLASS /pyxs/bp_sovos_naturezarendime DEFINITION PUBLIC ABSTRACT FINAL FOR BEHAVIOR OF /pyxs/sovos_naturezarendimento.

@@ -2508,19 +2508,22 @@ CLASS lcl_process IMPLEMENTATION.
                 <item>-knwc170-vl_icms_rem      = ls_tax_itm-br_nfitemtaxamount.
               ENDIF.
             WHEN  'ICST'.
-              IF ls_tax_itm-br_nfitembaseamount > 0.
-                <item>-knwc170-vl_ba_calc_subs  = ls_tax_itm-br_nfitembaseamount.
-                <item>-knwc170-vl_icms_substit = ls_tax_itm-br_nfitemtaxamount.
-              ELSEIF ls_tax_itm-br_nfitemotherbaseamount > 0.
-                <item>-knwc170-vl_ba_calc_subs  = ls_tax_itm-br_nfitemotherbaseamount.
-                <item>-knwc170-vl_icms_substit = ls_tax_itm-br_nfitemtaxamount.
-              ELSE.
-                <item>-knwc170-vl_ba_calc_subs  = ls_tax_itm-br_nfitemexcludedbaseamount.
-                <item>-knwc170-vl_icms_substit = ls_tax_itm-br_nfitemtaxamount.
+              IF ls_tax_type-br_icmspartilhasubdivisioncode IS INITIAL.
+                IF ls_tax_itm-br_nfitembaseamount > 0.
+                  <item>-knwc170-vl_ba_calc_subs  = ls_tax_itm-br_nfitembaseamount.
+                  <item>-knwc170-vl_icms_substit = ls_tax_itm-br_nfitemtaxamount.
+                ELSEIF ls_tax_itm-br_nfitemotherbaseamount > 0.
+                  <item>-knwc170-vl_ba_calc_subs  = ls_tax_itm-br_nfitemotherbaseamount.
+                  <item>-knwc170-vl_icms_substit = ls_tax_itm-br_nfitemtaxamount.
+                ELSE.
+                  <item>-knwc170-vl_ba_calc_subs  = ls_tax_itm-br_nfitemexcludedbaseamount.
+                  <item>-knwc170-vl_icms_substit = ls_tax_itm-br_nfitemtaxamount.
+                ENDIF.
+                <item>-knwc170-aliq_icms_sub = ls_tax_itm-br_nfitemtaxrate.
+                <item>-knwc170-vl_contabil += ls_tax_itm-br_nfitemtaxamount.
+              ELSEIF ls_tax_type-br_icmspartilhasubdivisioncode = '004'.
+                <item>-knwc170-vl_fcp_st = ls_tax_itm-br_nfitemtaxamount.
               ENDIF.
-              <item>-knwc170-aliq_icms_sub = ls_tax_itm-br_nfitemtaxrate.
-              <item>-knwc170-vl_contabil += ls_tax_itm-br_nfitemtaxamount.
-
             WHEN 'ICOP'.
               "c195 e c197
 

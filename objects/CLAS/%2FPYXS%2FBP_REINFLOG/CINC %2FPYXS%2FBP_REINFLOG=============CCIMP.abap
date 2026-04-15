@@ -30,7 +30,7 @@ CLASS lsc_/pyxs/reinflog IMPLEMENTATION.
 
   METHOD save.
 
-    MODIFY /pyxs/sov_reinf FROM TABLE @/PYXS/BP_REINFLOG=>lt_log.
+    MODIFY /pyxs/sov_reinf FROM TABLE @/pyxs/bp_reinflog=>lt_log.
 
   ENDMETHOD.
 
@@ -59,7 +59,7 @@ CLASS lhc_reinflog DEFINITION INHERITING FROM cl_abap_behavior_handler.
       IMPORTING keys FOR LOCK /pyxs/reinflog.
 
 
-  METHODS last_day_of_months
+    METHODS last_day_of_months
       IMPORTING day_in                   TYPE datum
       RETURNING VALUE(last_day_of_month) TYPE datum.
 
@@ -73,30 +73,84 @@ CLASS lhc_reinflog IMPLEMENTATION.
 
 
 
-  METHOD SendIntegration.
+  METHOD sendintegration.
     DATA: lv_begin TYPE datum,
-          lv_end TYPE datum.
+          lv_end   TYPE datum.
 
     DATA(key) = keys[ 1 ].
-    lv_begin = |{ key-%param-AnoMes }01|.
+
+    " ── Validação de campos obrigatórios ──────────────────────────────
+    IF key-%param-comapnycode IS INITIAL
+    OR key-%param-businessplace IS INITIAL
+    OR key-%param-anomes IS INITIAL.
+
+      APPEND INITIAL LINE TO failed-/pyxs/reinflog ASSIGNING FIELD-SYMBOL(<failed>).
+      <failed>-%cid       = key-%cid.
+      <failed>-%action-sendintegration = if_abap_behv=>mk-on.
+
+      APPEND INITIAL LINE TO reported-/pyxs/reinflog ASSIGNING FIELD-SYMBOL(<reported>).
+      <reported>-%cid     = key-%cid.
+      <reported>-%action-sendintegration = if_abap_behv=>mk-on.
+      <reported>-%msg = new_message(
+                          id       = '/PYXS/SOVOS_REINF'
+                          number   = '001'
+                          severity = if_abap_behv_message=>severity-error
+                          v1       = key-%param-comapnycode  " placeholders opcionais
+                        ).
+
+      RETURN.
+    ENDIF.
+
+    IF key-%param-anomes CA sy-abcde  " contém letras
+    OR strlen( key-%param-anomes ) <> 6.
+      APPEND INITIAL LINE TO failed-/pyxs/reinflog ASSIGNING <failed>.
+      <failed>-%cid       = key-%cid.
+      <failed>-%action-sendintegration = if_abap_behv=>mk-on.
+
+      APPEND INITIAL LINE TO reported-/pyxs/reinflog ASSIGNING <reported>.
+      <reported>-%cid     = key-%cid.
+      <reported>-%action-sendintegration = if_abap_behv=>mk-on.
+      <reported>-%msg = new_message(
+                          id       = '/PYXS/SOVOS_REINF'
+                          number   = '002'
+                          severity = if_abap_behv_message=>severity-error
+                        ).
+      RETURN.
+    ELSEIF key-%param-anomes(2) <> '20' OR key-%param-anomes+4(2) LT '01' OR key-%param-anomes+4(2) GT '12'.
+      APPEND INITIAL LINE TO failed-/pyxs/reinflog ASSIGNING <failed>.
+      <failed>-%cid       = key-%cid.
+      <failed>-%action-sendintegration = if_abap_behv=>mk-on.
+
+      APPEND INITIAL LINE TO reported-/pyxs/reinflog ASSIGNING <reported>.
+      <reported>-%cid     = key-%cid.
+      <reported>-%action-sendintegration = if_abap_behv=>mk-on.
+      <reported>-%msg = new_message(
+                          id       = '/PYXS/SOVOS_REINF'
+                          number   = '002'
+                          severity = if_abap_behv_message=>severity-error
+                        ).
+      RETURN.
+    ENDIF.
+
+    lv_begin = |{ key-%param-anomes }01|.
 
     lv_end = last_day_of_months( day_in = lv_begin ).
 
-    DATA(lo_proc) = new /pyxs/sovos_reinf_4020builder(
+    DATA(lo_proc) = NEW /pyxs/sovos_reinf_4020builder(
 *      iv_br_notafiscal  =
       iv_date_begin     = lv_begin
       iv_date_end       = lv_end
-      iv_company_doce   = key-%param-ComapnyCode
-      iv_business_place = key-%param-BusinessPlace
+      iv_company_doce   = key-%param-comapnycode
+      iv_business_place = key-%param-businessplace
     ).
 
-    DATA(ls_reinf) = /PYXS/BP_REINFLOG=>lt_log[ 1 ].
+    DATA(ls_reinf) = /pyxs/bp_reinflog=>lt_log[ 1 ].
     APPEND INITIAL LINE TO result ASSIGNING FIELD-SYMBOL(<res>).
-    <res>-%param-AnoMes = ls_reinf-ano_mes.
-    <res>-%param-Evento = ls_reinf-evento.
-    <res>-%param-Id = ls_reinf-id.
-    <res>-%param-Partner = ls_reinf-partner.
-    <res>-%param-Resultado = ls_reinf-resultado.
+    <res>-%param-anomes = ls_reinf-ano_mes.
+    <res>-%param-evento = ls_reinf-evento.
+    <res>-%param-id = ls_reinf-id.
+    <res>-%param-partner = ls_reinf-partner.
+    <res>-%param-resultado = ls_reinf-resultado.
     <res>-%param-retorno = ls_reinf-retorno.
 
     "/PYXS/BP_REINFLOG=>lt_log = lo_proc->get_return(  ).
