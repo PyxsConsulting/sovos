@@ -1032,6 +1032,7 @@ CLASS lcl_process DEFINITION FRIENDS lhc_sovos_fiscaldocuments.
         referenceproducttype TYPE i_producttype-referenceproducttype,
         unitofmeasureisocode TYPE i_unitofmeasure-unitofmeasureisocode,
         unitofmeasure_e      TYPE i_unitofmeasure-unitofmeasure_e,
+        unitofmeasurename    TYPE i_unitofmeasuretext-unitofmeasurename,
         glaccountname        TYPE i_glaccounttextincompanycode-glaccountname,
         chartofaccounts      TYPE i_glaccount-chartofaccounts,
       END OF ty_nfitem,
@@ -2413,7 +2414,7 @@ CLASS lcl_process IMPLEMENTATION.
         <item>-knwc170-cd_pessoa_rem_dest = ls_objeto-knwc100-cd_pessoa_remet_dest.
 
         <item>-knwc170-cd_produto_serv  = ls_nfitem-nf-material.
-        <item>-knwc170-unidade           = ls_nfitem-nf-baseunit.
+        <item>-knwc170-unidade          = ls_nfitem-unitofmeasure_e. "ls_nfitem-nf-baseunit.
         <item>-knwc170-qtde             = ls_nfitem-nf-quantityinbaseunit.
         <item>-knwc170-vl_unitario      = ls_nfitem-nf-netpriceamount.
 
@@ -2654,8 +2655,8 @@ CLASS lcl_process IMPLEMENTATION.
           "Unidade de medida
           <item>-knw0190-cod_empresa        = ls_objeto-knwc100-cod_empresa.
           <item>-knw0190-cod_filial         = ls_objeto-knwc100-cod_filial.
-          <item>-knw0190-ds_unidade         = ls_nfitem-baseunit.
-          <item>-knw0190-ds_descricao         = ls_nfitem-unitofmeasure_e.
+          <item>-knw0190-ds_unidade         = ls_nfitem-unitofmeasure_e. "ls_nfitem-baseunit.
+          <item>-knw0190-ds_descricao       = ls_nfitem-unitofmeasurename."ls_nfitem-unitofmeasure_e.
           <item>-knw0190-dt_inicial         = '1900-01-01T00:00:00+03:00'.
 
           " Material/Produto
@@ -2663,7 +2664,7 @@ CLASS lcl_process IMPLEMENTATION.
           <item>-knw0200-cod_filial         = ls_objeto-knwc100-cod_filial.
           <item>-knw0200-cd_produto_serv    = ls_nfitem-nf-material.
           <item>-knw0200-ds_produto_serv    = ls_nfitem-nf-materialname.
-          <item>-knw0200-unidade            = ls_nfitem-baseunit.
+          <item>-knw0200-unidade            = ls_nfitem-unitofmeasure_e. "ls_nfitem-baseunit.
           <item>-knw0200-dt_inicial         = '1900-01-01T00:00:00+03:00'.
           "<item>-knw0200-dm_tipo_item       = '09'.
           <item>-knw0200-cd_ncm             = normalize( p_str = ls_nfitem-nf-ncmcode ).
@@ -2973,7 +2974,7 @@ CLASS lcl_process IMPLEMENTATION.
     SELECT nf~*, a~product, a~producttype, a~baseunit,
             c~plant, c~iscoproduct,
             a~\_producttype-referenceproducttype,
-            nf~\_baseunit-unitofmeasureisocode, nf~\_baseunit-unitofmeasure_e,
+            nf~\_baseunit-unitofmeasureisocode, nf~\_baseunit-unitofmeasure_e, nf~\_baseunit\_text[ language = 'P' ]-unitofmeasurename,
             i_glaccount~\_text[ language = 'P' ]-glaccountname, i_glaccount~chartofaccounts
       FROM i_br_nfitem AS nf
       LEFT OUTER JOIN i_product AS a
