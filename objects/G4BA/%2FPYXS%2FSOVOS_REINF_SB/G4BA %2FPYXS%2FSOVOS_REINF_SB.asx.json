@@ -25,7 +25,7 @@
     "CREATED_BY":"SAP_CUSTOMER",
     "CHANGED_BY":"SAP_CUSTOMER",
     "CREATED_TS":"+020260316190923",
-    "CHANGED_TS":"+020260316190923",
+    "CHANGED_TS":"+020260416170517",
     "ASSIGNMENT_REPO_ID":"SADL",
     "EXTERNAL_GROUP_ID":"/PYXS/SOVOS_REINF_SB",
     "ABAP_LANGUAGE_VERSION":"5"
@@ -38,8 +38,8 @@
   [
    {
     "GROUP_ID":"/PYXS/SOVOS_REINF_SB",
-    "LANGUAGE":"E",
-    "DESCRIPTION":"SERVICE BINDING FOR REINF"
+    "LANGUAGE":"P",
+    "DESCRIPTION":""
    }
   ]
  },
@@ -59,7 +59,7 @@
     "GENFLAG":"",
     "EDTFLAG":"",
     "CPROJECT":" L",
-    "MASTERLANG":"E",
+    "MASTERLANG":"P",
     "VERSID":"",
     "PAKNOCHECK":"",
     "OBJSTABLTY":"",
@@ -67,8 +67,8 @@
     "CRELEASE":"",
     "DELFLAG":"",
     "TRANSLTTXT":"",
-    "CREATED_ON":"2026-03-16",
-    "CHECK_DATE":"2026-03-16",
+    "CREATED_ON":"2026-04-16",
+    "CHECK_DATE":"2026-04-16",
     "CHECK_CFG":""
    }
   ]
