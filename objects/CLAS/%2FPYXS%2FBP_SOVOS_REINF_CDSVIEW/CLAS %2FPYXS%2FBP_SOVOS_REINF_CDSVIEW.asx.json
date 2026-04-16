@@ -1,5 +1,16 @@
 [
  {
+  "table":"DDTYPES",
+  "data":
+  [
+   {
+    "TYPENAME":"/PYXS/BP_SOVOS_REINF_CDSVIEW",
+    "STATE":"A",
+    "TYPEKIND":"CLAS"
+   }
+  ]
+ },
+ {
   "table":"SEOCLASS",
   "data":
   [
@@ -8,6 +19,50 @@
     "CLSTYPE":0,
     "UUID":"+hY+e3q1H9GIrBCdwjhVsA==",
     "REMOTE":""
+   }
+  ]
+ },
+ {
+  "table":"SEOCLASSDF",
+  "data":
+  [
+   {
+    "CLSNAME":"/PYXS/BP_SOVOS_REINF_CDSVIEW",
+    "VERSION":1,
+    "CATEGORY":0,
+    "EXPOSURE":2,
+    "STATE":1,
+    "RELEASE":0,
+    "AUTHOR":"",
+    "CREATEDON":"2026-03-16",
+    "CHANGEDBY":"",
+    "CHANGEDON":"0000-00-00",
+    "CHGDANYBY":"",
+    "CHGDANYON":"0000-00-00",
+    "CLSEMBED":"",
+    "CLSABSTRCT":"X",
+    "CLSFINAL":"X",
+    "CLSCCINCL":"X",
+    "CLSDEFATT":"",
+    "CLSDEFMTD":"",
+    "REFCLSNAME":"",
+    "FIXPT":"X",
+    "VARCL":"",
+    "UNICODE":"5",
+    "RSTAT":"",
+    "CLSBCIMPL":"",
+    "R3RELEASE":"918",
+    "CLSBCTRANS":"",
+    "CLSBCCAT":0,
+    "CLSBCNODEL":"",
+    "CLSADDON":"",
+    "MSG_ID":"",
+    "CLSPROXY":"",
+    "CLSSHAREDMEMORY":"",
+    "WITH_UNIT_TESTS":"X",
+    "DURATION_TYPE":"0",
+    "RISK_LEVEL":"0",
+    "WITHIN_PACKAGE":""
    }
   ]
  },
@@ -70,6 +125,7 @@
   [
    {
     "NAME":"/PYXS/BP_SOVOS_REINF_CDSVIEW==CCAU",
+    "VARCL":"X",
     "DBAPL":"S",
     "DBNA":"D$",
     "SUBC":"I",
@@ -80,6 +136,7 @@
    },
    {
     "NAME":"/PYXS/BP_SOVOS_REINF_CDSVIEW==CCDEF",
+    "VARCL":"X",
     "DBAPL":"S",
     "DBNA":"D$",
     "SUBC":"I",
@@ -90,6 +147,7 @@
    },
    {
     "NAME":"/PYXS/BP_SOVOS_REINF_CDSVIEW==CCIMP",
+    "VARCL":"X",
     "DBAPL":"S",
     "DBNA":"D$",
     "SUBC":"I",
@@ -100,6 +158,7 @@
    },
    {
     "NAME":"/PYXS/BP_SOVOS_REINF_CDSVIEW==CCMAC",
+    "VARCL":"X",
     "DBAPL":"S",
     "DBNA":"D$",
     "SUBC":"I",
@@ -110,6 +169,7 @@
    },
    {
     "NAME":"/PYXS/BP_SOVOS_REINF_CDSVIEW==CI",
+    "VARCL":"X",
     "DBAPL":"S",
     "DBNA":"D$",
     "SUBC":"I",
@@ -120,6 +180,7 @@
    },
    {
     "NAME":"/PYXS/BP_SOVOS_REINF_CDSVIEW==CO",
+    "VARCL":"X",
     "DBAPL":"S",
     "DBNA":"D$",
     "SUBC":"I",
@@ -131,6 +192,7 @@
    {
     "NAME":"/PYXS/BP_SOVOS_REINF_CDSVIEW==CP",
     "EDTX":"X",
+    "VARCL":"X",
     "DBAPL":"S",
     "DBNA":"D$",
     "SUBC":"K",
@@ -151,6 +213,7 @@
    },
    {
     "NAME":"/PYXS/BP_SOVOS_REINF_CDSVIEW==CU",
+    "VARCL":"X",
     "DBAPL":"S",
     "DBNA":"D$",
     "SUBC":"I",
