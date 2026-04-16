@@ -2526,6 +2526,14 @@ CLASS lcl_process IMPLEMENTATION.
                 <item>-knwc170-vl_contabil += ls_tax_itm-br_nfitemtaxamount.
               ELSEIF ls_tax_type-br_icmspartilhasubdivisioncode = '004'.
                 <item>-knwc170-vl_fcp_st = ls_tax_itm-br_nfitemtaxamount.
+                <item>-knwc170-aliq_fcp_st = ls_tax_itm-br_nfitemtaxrate.
+                IF ls_tax_itm-br_nfitembaseamount > 0.
+                  <item>-knwc170-vl_bc_fcp_st = ls_tax_itm-br_nfitembaseamount.
+                ELSEIF ls_tax_itm-br_nfitemotherbaseamount > 0.
+                  <item>-knwc170-vl_bc_fcp_st = ls_tax_itm-br_nfitemotherbaseamount.
+                ELSE.
+                  <item>-knwc170-vl_bc_fcp_st = ls_tax_itm-br_nfitemexcludedbaseamount.
+                ENDIF.
               ENDIF.
             WHEN 'ICOP'.
               "c195 e c197
@@ -2764,7 +2772,7 @@ CLASS lcl_process IMPLEMENTATION.
             ls_objeto-knwc120-dt_registro = |{ ls_imp_di-br_nfimportdocregistrationdate(4) }-{ ls_imp_di-br_nfimportdocregistrationdate+4(2) }-{ ls_imp_di-br_nfimportdocregistrationdate+6 }|.
           ENDIF.
 
-          ls_objeto-knwc120-dm_importacao = ''.
+          ls_objeto-knwc120-dm_importacao = ls_imp_di-br_nfimportdeclarationtype.
           ls_objeto-knwc120-chave_registro = ''.
           ls_objeto-knwc120-id_usuario_imp = ''.
 

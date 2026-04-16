@@ -9,10 +9,10 @@
     "AS4USER":"SAP_CUSTOMER",
     "AS4DATE":"0000-00-00",
     "AS4TIME":"00:00:00",
-    "SOURCE":"@AccessControl.authorizationCheck: #NOT_REQUIRED\r\n@EndUserText.label: 'Natureza de Rendimento x LC116'\r\n@Metadata.ignorePropagatedAnnotations: true\r\ndefine root view entity /PYXS/SOVOS_NaturezaRendimento as select from /pyxs/sov_natren\r\n{\r\n    @UI.lineItem: [{ position: 10 }]\r\n    @UI.selectionField : [{position: 10}]\r\n    key lc116 as Lc116,\r\n    @UI.lineItem: [{ position: 20 }]\r\n    @UI.selectionField : [{position: 20}]\r\n    nat_res as NaturezaRendimento\r\n}\r\n/*+[internal] {\n\"BASEINFO\":\n{\n\"FROM\":\n[\n\"/PYXS/SOV_NATREN\"\n],\n\"ASSOCIATED\":\n[],\n\"BASE\":\n[],\n\"ANNO_REF\":\n[],\n\"SCALAR_FUNCTION\":\n[],\n\"VERSION\":0,\n\"ANNOREF_EVALUATION_ERROR\":\"\"\n}\n}*/",
+    "SOURCE":"@AccessControl.authorizationCheck: #NOT_REQUIRED\r\n@EndUserText.label: 'Natureza de Rendimento x LC116'\r\n@Metadata.ignorePropagatedAnnotations: true\r\ndefine root view entity /PYXS/SOVOS_NaturezaRendimento as select from /pyxs/sov_natren\r\n{\r\n    @UI.lineItem: [{ position: 10 }]\r\n    @UI.selectionField : [{position: 10}]\r\n    @EndUserText.label: 'LC 116'\r\n    key lc116 as Lc116,\r\n    @UI.lineItem: [{ position: 20 }]\r\n    @UI.selectionField : [{position: 20}]\r\n    @EndUserText.label: 'Natureza de Rendimento'\r\n    nat_res as NaturezaRendimento\r\n}\r\n/*+[internal] {\n\"BASEINFO\":\n{\n\"FROM\":\n[\n\"/PYXS/SOV_NATREN\"\n],\n\"ASSOCIATED\":\n[],\n\"BASE\":\n[],\n\"ANNO_REF\":\n[],\n\"SCALAR_FUNCTION\":\n[],\n\"VERSION\":0,\n\"ANNOREF_EVALUATION_ERROR\":\"\"\n}\n}*/",
     "PARENTNAME":"",
     "ACTFLAG":"",
-    "CHGFLAG":"34",
+    "CHGFLAG":"",
     "SOURCE_TYPE":"W",
     "SOURCE_ORIGIN":"0",
     "ABAP_LANGUAGE_VERSION":"5"
@@ -33,6 +33,36 @@
   ]
  },
  {
+  "table":"DDDDLSRC03NT",
+  "data":
+  [
+   {
+    "DDLNAME":"/PYXS/SOVOS_NATUREZARENDIMENTO",
+    "STRUCOBJN":"/PYXS/SOVOS_NATUREZARENDIMENTO",
+    "NODENAME":".NODE1",
+    "DDLANGUAGE":"P",
+    "AS4LOCAL":"N",
+    "FIELDNAME":"LC116",
+    "DEPTH":0,
+    "DDTEXT":"",
+    "FIELDLABEL":"LC 116",
+    "QUICKINFO":""
+   },
+   {
+    "DDLNAME":"/PYXS/SOVOS_NATUREZARENDIMENTO",
+    "STRUCOBJN":"/PYXS/SOVOS_NATUREZARENDIMENTO",
+    "NODENAME":".NODE1",
+    "DDLANGUAGE":"P",
+    "AS4LOCAL":"N",
+    "FIELDNAME":"NATUREZARENDIMENTO",
+    "DEPTH":0,
+    "DDTEXT":"",
+    "FIELDLABEL":"Natureza de Rendimento",
+    "QUICKINFO":""
+   }
+  ]
+ },
+ {
   "table":"DDDDLSRCT",
   "data":
   [
@@ -48,6 +78,20 @@
   "table":"DDFIELDANNO",
   "data":
   [
+   {
+    "STRUCOBJN":"/PYXS/SOVOS_NATUREZARENDIMENTO",
+    "LFIELDNAME":"LC116",
+    "NAME":"ENDUSERTEXT",
+    "POSITION":7,
+    "VALUE":""
+   },
+   {
+    "STRUCOBJN":"/PYXS/SOVOS_NATUREZARENDIMENTO",
+    "LFIELDNAME":"LC116",
+    "NAME":"ENDUSERTEXT.LABEL",
+    "POSITION":8,
+    "VALUE":"'LC 116'"
+   },
    {
     "STRUCOBJN":"/PYXS/SOVOS_NATUREZARENDIMENTO",
     "LFIELDNAME":"LC116",
@@ -93,9 +137,16 @@
    {
     "STRUCOBJN":"/PYXS/SOVOS_NATUREZARENDIMENTO",
     "LFIELDNAME":"NATUREZARENDIMENTO",
-    "NAME":"UI",
-    "POSITION":7,
+    "NAME":"ENDUSERTEXT",
+    "POSITION":13,
     "VALUE":""
+   },
+   {
+    "STRUCOBJN":"/PYXS/SOVOS_NATUREZARENDIMENTO",
+    "LFIELDNAME":"NATUREZARENDIMENTO",
+    "NAME":"ENDUSERTEXT.LABEL",
+    "POSITION":14,
+    "VALUE":"'Natureza de Rendimento'"
    },
    {
     "STRUCOBJN":"/PYXS/SOVOS_NATUREZARENDIMENTO",
@@ -107,15 +158,22 @@
    {
     "STRUCOBJN":"/PYXS/SOVOS_NATUREZARENDIMENTO",
     "LFIELDNAME":"NATUREZARENDIMENTO",
+    "NAME":"UI",
+    "POSITION":11,
+    "VALUE":""
+   },
+   {
+    "STRUCOBJN":"/PYXS/SOVOS_NATUREZARENDIMENTO",
+    "LFIELDNAME":"NATUREZARENDIMENTO",
     "NAME":"UI.LINEITEM$1$.POSITION",
-    "POSITION":8,
+    "POSITION":10,
     "VALUE":"20"
    },
    {
     "STRUCOBJN":"/PYXS/SOVOS_NATUREZARENDIMENTO",
     "LFIELDNAME":"NATUREZARENDIMENTO",
     "NAME":"UI.SELECTIONFIELD$1$.POSITION",
-    "POSITION":10,
+    "POSITION":12,
     "VALUE":"20"
    }
   ]

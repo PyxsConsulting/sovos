@@ -4,7 +4,7 @@ with draft;
 define behavior for /PYXS/SOVOS_NaturezaRendimento //alias <alias_name>
 persistent table /pyxs/sov_natren
 draft table /pyxs/sov_natr_d
-lock master  total etag  Lc116
+lock master total etag Lc116
 authorization master ( instance )
 //etag master <field_name>
 {
@@ -16,12 +16,14 @@ authorization master ( instance )
   draft action Discard;
   draft action Edit;
   draft action Resume;
-  draft determine action Prepare{
+  draft determine action Prepare
+  {
   }
 
-  field ( readonly ) Lc116;
-  mapping for /pyxs/sov_natren {
-    Lc116 = lc116;
-    NaturezaRendimento = nat_res;
-  }
+  field ( readonly : update ) Lc116;
+  mapping for /pyxs/sov_natren
+    {
+      Lc116              = lc116;
+      NaturezaRendimento = nat_res;
+    }
 }
