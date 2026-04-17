@@ -7,9 +7,9 @@
     "SRVDNAME":"/PYXS/SOVOS",
     "VERSION":"A",
     "CHANGED_BY":"SAP_CUSTOMER",
-    "CHANGED_ON":"2026-04-15",
-    "CHANGED_AT":"07:58:57",
-    "DT_UUID":"FA163E7B7AB51FD18E941E7B07AD9602",
+    "CHANGED_ON":"2026-04-17",
+    "CHANGED_AT":"12:50:55",
+    "DT_UUID":"FA163E7B7AB51FD18ECB825B2DC3D60B",
     "SOURCE_ORIGIN":"0",
     "SRVD_SOURCE_TYPE":"S",
     "ABAP_LANGUAGE_VERSION":"5"
@@ -35,7 +35,7 @@
    {
     "SRVDNAME":"/PYXS/SOVOS",
     "VERSION":"A",
-    "SOURCE":"@EndUserText.label: 'Definição de serviço para SOVOS'\r\ndefine service /PYXS/SOVOS {\r\n  expose /PYXS/SOVOS_FiscalDocuments;\r\n  expose /PYXS/SovosBranchData;\r\n  expose /PYXS/SOVOS_NaturezaRendimento;\r\n}"
+    "SOURCE":"@EndUserText.label: 'Definição de serviço para SOVOS'\r\ndefine service /PYXS/SOVOS {\r\n  expose /PYXS/SOVOS_FiscalDocuments;\r\n  expose /PYXS/SovosBranchData;\r\n  expose /PYXS/SOVOS_NaturezaRendimento;\r\n  expose /PYXS/ReinfLog;\r\n}"
    }
   ]
  },
@@ -66,6 +66,15 @@
   "table":"SRVD_RT_ENTITIES",
   "data":
   [
+   {
+    "SRVDNAME":"/PYXS/SOVOS",
+    "SERVICE":"/PYXS/SOVOS",
+    "EXPOSED_ARTIFACT":"/PYXS/REINFLOG",
+    "EXPOSED_ARTIFACT_TYPE":"E",
+    "EXPOSED_ALIAS":"",
+    "EXPOSED_ALIAS_RAW":"",
+    "INCL_SERVICE":""
+   },
    {
     "SRVDNAME":"/PYXS/SOVOS",
     "SERVICE":"/PYXS/SOVOS",
@@ -104,8 +113,8 @@
     "SERVICE":"/PYXS/SOVOS",
     "SERVICE_RAW":"/PYXS/SOVOS",
     "SOURCE_TYPE":"S",
-    "DT_UUID":"FA163E7B7AB51FD18E941E7B07AD9602",
-    "RT_HASH":"C7717F150A1317E49CEE48F325823614F9A0904D",
+    "DT_UUID":"FA163E7B7AB51FD18ECB825B2DC3D60B",
+    "RT_HASH":"74950215972F7724F6ABF0DFB676AB4A412F5960",
     "GEN_VERSION":"0"
    }
   ]

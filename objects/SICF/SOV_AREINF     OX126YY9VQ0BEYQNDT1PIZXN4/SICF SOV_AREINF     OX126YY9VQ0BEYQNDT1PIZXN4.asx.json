@@ -4,7 +4,7 @@
   "data":
   [
    {
-    "ICF_NAME":"SOV_REINF",
+    "ICF_NAME":"SOV_AREINF",
     "ICFPARGUID":"OX126YY9VQ0BEYQNDT1PIZXN4",
     "ICF_LANGU":"E",
     "ICF_DOCU":"Deployed with SAP Fiori tools"
@@ -16,9 +16,9 @@
   "data":
   [
    {
-    "ICF_NAME":"SOV_REINF",
+    "ICF_NAME":"SOV_AREINF",
     "ICFPARGUID":"OX126YY9VQ0BEYQNDT1PIZXN4",
-    "ICFNODGUID":"MZG53V8DORCM3ZWPWA111FOTC",
+    "ICFNODGUID":"SZC2OOLECX8WITFSP1ZBBPF41",
     "ICFALIFLAG":"",
     "ICFCHILDNO":0,
     "ICFALIASNO":0,
@@ -44,7 +44,7 @@
     "ICF_REDIR":"",
     "ICF_TIME":"00:00:00",
     "ICF_CUSER":"SAP_CUSTOMER",
-    "ICF_CDATE":"2026-03-29",
+    "ICF_CDATE":"2026-04-17",
     "ICF_MUSER":"SAP_CUSTOMER",
     "ICF_MDATE":"0000-00-00",
     "ICF_HTTPS":"",
@@ -92,7 +92,7 @@
     "ICF_ESI_LOGON":"",
     "ICF_REAUTH_OFF":"",
     "NO_SESSION_MANAGEMENT":"",
-    "ORIG_NAME":"sov_reinf",
+    "ORIG_NAME":"sov_areinf",
     "ICFALTNME":"",
     "ICFALTNME_ORIG":""
    }
@@ -105,12 +105,12 @@
    {
     "PGMID":"R3TR",
     "OBJECT":"SICF",
-    "OBJ_NAME":"SOV_REINF      OX126YY9VQ0BEYQNDT1PIZXN4",
+    "OBJ_NAME":"SOV_AREINF     OX126YY9VQ0BEYQNDT1PIZXN4",
     "KORRNUM":"",
     "SRCSYSTEM":"...",
     "AUTHOR":"SAP_CUSTOMER",
     "SRCDEP":"",
-    "DEVCLASS":"/PYXS/SOVOS_REINF",
+    "DEVCLASS":"/PYXS/SOVOS",
     "GENFLAG":"",
     "EDTFLAG":"",
     "CPROJECT":" L",
@@ -122,8 +122,8 @@
     "CRELEASE":"",
     "DELFLAG":"",
     "TRANSLTTXT":"",
-    "CREATED_ON":"2026-03-29",
-    "CHECK_DATE":"2026-03-29",
+    "CREATED_ON":"2026-04-17",
+    "CHECK_DATE":"2026-04-17",
     "CHECK_CFG":""
    }
   ]

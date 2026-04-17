@@ -4,7 +4,7 @@
   "data":
   [
    {
-    "APP_ID":"/PYXS/SOVOS_REINF_EXT",
+    "APP_ID":"/PYXS/SOV_AREINF_UI5R_EXT",
     "APP_TYPE":"EXT",
     "ABAP_LANGUAGE_VERSION":"5",
     "REL_FOR_CUST_CAT_EXT":"",
@@ -18,11 +18,24 @@
     "BSP_APPL_NAME":"",
     "EXT_OBJECT_ID":"",
     "TCODE":"",
-    "UI_APP_ID":"/PYXS/SOV_REINF_UI5R",
+    "UI_APP_ID":"/PYXS/SOV_AREINF_UI5R",
     "CREATE_USER":"SAP_CUSTOMER",
-    "CREATE_TIMESTAMP":"+020260330080727",
+    "CREATE_TIMESTAMP":"+020260417140848",
     "CHANGE_USER":"SAP_CUSTOMER",
-    "CHANGE_TIMESTAMP":"+020260416193136"
+    "CHANGE_TIMESTAMP":"+020260417140858"
+   }
+  ]
+ },
+ {
+  "table":"APS_IAM_W_APPSRV",
+  "data":
+  [
+   {
+    "APP_ID":"/PYXS/SOV_AREINF_UI5R_EXT",
+    "SRVC_NAME":"E502EE5000F19A9633760F95C9DEB9",
+    "SRVC_TYPE":"HT",
+    "UIAD_SRC":"/PYXS/SOV_AREINF_UI5R",
+    "ACTIVE":""
    }
   ]
  },
@@ -32,8 +45,8 @@
   [
    {
     "LANGU":"P",
-    "APP_ID":"/PYXS/SOVOS_REINF_EXT",
-    "TEXT":"Reinf"
+    "APP_ID":"/PYXS/SOV_AREINF_UI5R_EXT",
+    "TEXT":"Reinf - LOG"
    }
   ]
  },
@@ -44,12 +57,12 @@
    {
     "PGMID":"R3TR",
     "OBJECT":"SIA6",
-    "OBJ_NAME":"/PYXS/SOVOS_REINF_EXT",
+    "OBJ_NAME":"/PYXS/SOV_AREINF_UI5R_EXT",
     "KORRNUM":"",
     "SRCSYSTEM":"...",
     "AUTHOR":"SAP_CUSTOMER",
     "SRCDEP":"",
-    "DEVCLASS":"/PYXS/SOVOS_REINF",
+    "DEVCLASS":"/PYXS/SOVOS",
     "GENFLAG":"",
     "EDTFLAG":"",
     "CPROJECT":" L",
@@ -61,8 +74,8 @@
     "CRELEASE":"",
     "DELFLAG":"",
     "TRANSLTTXT":"",
-    "CREATED_ON":"2026-03-30",
-    "CHECK_DATE":"2026-03-30",
+    "CREATED_ON":"2026-04-17",
+    "CHECK_DATE":"2026-04-17",
     "CHECK_CFG":""
    }
   ]
