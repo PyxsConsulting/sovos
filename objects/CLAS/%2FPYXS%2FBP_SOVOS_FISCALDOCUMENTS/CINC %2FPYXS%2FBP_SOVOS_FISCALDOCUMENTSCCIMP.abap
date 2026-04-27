@@ -2630,7 +2630,7 @@ CLASS lcl_process IMPLEMENTATION.
             WHEN 'PIS'.
               IF ls_tax_itm-br_nfitembaseamount > 0.
                 <item>-knwc170-aliq_pis = ls_tax_itm-br_nfitemtaxrate.
-                <item>-knwc170-vl_aliq_pis = ls_tax_itm-br_nfitemtaxrate.
+                "<item>-knwc170-vl_aliq_pis = ls_tax_itm-br_nfitemtaxrate.
                 <item>-knwc170-vl_ba_calc_pis = ls_tax_itm-br_nfitembaseamount.
                 <item>-knwc170-vl_pis = ls_tax_itm-br_nfitemtaxamount.
                 "<item>-knwc170-qtde_ba_calc_pis = '0.000'.
@@ -2639,7 +2639,7 @@ CLASS lcl_process IMPLEMENTATION.
             WHEN 'COFI'.
               IF ls_tax_itm-br_nfitembaseamount > 0.
                 <item>-knwc170-aliq_cof = ls_tax_itm-br_nfitemtaxrate.
-                <item>-knwc170-vl_aliq_cofins = ls_tax_itm-br_nfitemtaxrate.
+                "<item>-knwc170-vl_aliq_cofins = ls_tax_itm-br_nfitemtaxrate.
                 <item>-knwc170-vl_ba_calc_cof  = ls_tax_itm-br_nfitembaseamount.
                 <item>-knwc170-vl_cof = ls_tax_itm-br_nfitemtaxamount.
               ENDIF.
