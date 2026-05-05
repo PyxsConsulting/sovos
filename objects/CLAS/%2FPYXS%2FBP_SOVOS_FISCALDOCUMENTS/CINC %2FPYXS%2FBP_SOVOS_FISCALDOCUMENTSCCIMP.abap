@@ -2249,9 +2249,10 @@ CLASS lcl_process IMPLEMENTATION.
       |{ p_nfdoc-act-br_nfemodel }{ p_nfdoc-act-br_nfeseries }{ p_nfdoc-act-br_nfenumber }{ p_nfdoc-act-br_nferandomnumber }{ p_nfdoc-act-br_nfecheckdigit }|.
       ls_objeto-knwc100-ds_natureza        = p_nfdoc-doc-br_nfoperationtypedesc.
       ls_objeto-knwc100-cod_empresa        = p_nfdoc-doc-companycode.
-      ls_objeto-knwc100-cd_sit_documento        = COND #( WHEN p_nfdoc-doc-br_nfsituationcode IS NOT INITIAL
-                                                           THEN p_nfdoc-doc-br_nfsituationcode
-                                                           ELSE '00' ).
+      "ls_objeto-knwc100-cd_sit_documento        = COND #( WHEN p_nfdoc-doc-br_nfsituationcode IS NOT INITIAL
+      "                                                           THEN p_nfdoc-doc-br_nfsituationcode
+      "                                                           "ELSE '00' ).
+      ls_objeto-knwc100-cd_sit_documento     = p_nfdoc-doc-br_nfsituationcode.
       ls_objeto-knwc100-cod_filial         = p_nfdoc-doc-businessplace.
       ls_objeto-knwc100-cd_pessoa_remet_dest         = p_nfdoc-doc-br_nfpartner.
       ls_objeto-knwc100-dm_modal_frete = p_nfdoc-doc-freightpayer.
@@ -2416,12 +2417,13 @@ CLASS lcl_process IMPLEMENTATION.
         <item>-knwc170-cd_produto_serv  = ls_nfitem-nf-material.
         <item>-knwc170-unidade          = ls_nfitem-unitofmeasure_e. "ls_nfitem-nf-baseunit.
         <item>-knwc170-qtde             = ls_nfitem-nf-quantityinbaseunit.
-        <item>-knwc170-vl_unitario      = ls_nfitem-nf-netpriceamount.
+        <item>-knwc170-vl_unitario      = ls_nfitem-nf-br_nfpriceamountwithtaxes. "ls_nfitem-nf-netpriceamount.
 
 
-        <item>-knwc170-vl_total_item    = ls_nfitem-nf-netpriceamount * ls_nfitem-nf-quantityinbaseunit.
+        <item>-knwc170-vl_total_item    = ls_nfitem-nf-br_nfvalueamountwithtaxes. "ls_nfitem-nf-netpriceamount * ls_nfitem-nf-quantityinbaseunit.
         <item>-knwc170-vl_desc_item     = ls_nfitem-nf-br_nfdiscountamountwithtaxes.
-        <item>-knwc170-vl_contabil      = ls_nfitem-nf-br_nfvalueamountwithtaxes + ls_objeto-knwc100-vl_frete + ls_objeto-knwc100-vl_seguro + ls_objeto-knwc100-vl_outras_desp - ls_objeto-knwc100-vl_desconto + ls_nfitem-nf-br_nfexemptedicmswithtaxes.
+        <item>-knwc170-vl_contabil      = ls_nfitem-nf-br_nfvalueamountwithtaxes + ls_objeto-knwc100-vl_frete + ls_objeto-knwc100-vl_seguro + ls_objeto-knwc100-vl_outras_desp - ls_objeto-knwc100-vl_desconto
+                                        + ls_nfitem-nf-br_nfexemptedicmswithtaxes + ls_nfitem-nf-br_pissttaxamount + ls_nfitem-nf-br_cofinssttaxamount.
 
         IF ls_nfitem-nf-br_materialorigin IS NOT INITIAL.
           <item>-knwc170-cd_sit_trib_icms   = ls_nfitem-nf-br_materialorigin && ls_nfitem-nf-br_icmstaxsituation.
@@ -2467,26 +2469,28 @@ CLASS lcl_process IMPLEMENTATION.
           ENDIF.
 
           CHECK ls_tax_type-br_taxtype <> 'ISUP'. "Apenas para cálculo do custo, não compoe NF
+          CHECK ls_tax_type-br_taxtype <> 'ICZF'. "Ignora ICMS Zona Franca
 
           CASE ls_tax_itm-taxgroup.
             WHEN 'ICMS'.
+
               IF ls_tax_type-br_icmspartilhasubdivisioncode IS INITIAL.
-                IF ls_tax_itm-br_nfitemtaxamount > 0.
-                  IF ls_tax_itm-br_nfitembaseamount > 0.
-                    <item>-knwc170-vl_ba_calc_icms  = ls_tax_itm-br_nfitembaseamount.
-                    <item>-knwc170-vl_icms = ls_tax_itm-br_nfitemtaxamount.
-                  ELSEIF ls_tax_itm-br_nfitemotherbaseamount > 0.
-                    <item>-knwc170-vl_ba_calc_icms  = ls_tax_itm-br_nfitemotherbaseamount.
-                    <item>-knwc170-vl_icms_outro = ls_tax_itm-br_nfitemtaxamount.
-                  ELSE.
-                    <item>-knwc170-vl_ba_calc_icms  = ls_tax_itm-br_nfitemexcludedbaseamount.
-                    <item>-knwc170-vl_icms_isento = ls_tax_itm-br_nfitemtaxamount.
-                  ENDIF.
-                  <item>-knwc170-aliq_icms = ls_tax_itm-br_nfitemtaxrate.
+                "IF ls_tax_itm-br_nfitemtaxamount > 0.
+                IF ls_tax_itm-br_nfitembaseamount > 0.
+                  <item>-knwc170-vl_ba_calc_icms  = ls_tax_itm-br_nfitembaseamount.
+                  <item>-knwc170-vl_icms = ls_tax_itm-br_nfitemtaxamount.
+                ELSEIF ls_tax_itm-br_nfitemotherbaseamount > 0.
+                  <item>-knwc170-vl_ba_calc_icms  = ls_tax_itm-br_nfitemotherbaseamount.
+                  <item>-knwc170-vl_icms_outro = ls_tax_itm-br_nfitemtaxamount.
+                ELSE.
+                  <item>-knwc170-vl_ba_calc_icms  = ls_tax_itm-br_nfitemexcludedbaseamount.
+                  <item>-knwc170-vl_icms_isento = ls_tax_itm-br_nfitemtaxamount.
+                ENDIF.
+                <item>-knwc170-aliq_icms = ls_tax_itm-br_nfitemtaxrate.
 *                <item>-knwc170-vl_icms_isento
 *               <item>-knwc170-vl_icms_outro
 *               <item>-knwc170-vl_icms_observ
-                ENDIF.
+                "ENDIF.
               ELSEIF ls_tax_type-br_icmspartilhasubdivisioncode = '004'.
                 "IF ls_tax_itm-br_nfitembaseamount > 0.
                 "  <item>-knwc170-vl_bc_fcp_op  = ls_tax_itm-br_nfitembaseamount.
@@ -2511,22 +2515,25 @@ CLASS lcl_process IMPLEMENTATION.
               ELSEIF ls_tax_type-br_icmspartilhasubdivisioncode = '002'.
                 <item>-knwc170-vl_icms_rem      = ls_tax_itm-br_nfitemtaxamount.
               ENDIF.
+
             WHEN  'ICST'.
               IF ls_tax_type-br_icmspartilhasubdivisioncode IS INITIAL.
                 IF ls_tax_itm-br_nfitembaseamount > 0.
                   <item>-knwc170-vl_ba_calc_subs  = ls_tax_itm-br_nfitembaseamount.
-                  <item>-knwc170-vl_icms_substit = ls_tax_itm-br_nfitemtaxamount.
+                  <item>-knwc170-vl_icms_substit += ls_tax_itm-br_nfitemtaxamount.
                 ELSEIF ls_tax_itm-br_nfitemotherbaseamount > 0.
                   <item>-knwc170-vl_ba_calc_subs  = ls_tax_itm-br_nfitemotherbaseamount.
-                  <item>-knwc170-vl_icms_substit = ls_tax_itm-br_nfitemtaxamount.
+                  <item>-knwc170-vl_icms_substit  += ls_tax_itm-br_nfitemtaxamount.
                 ELSE.
                   <item>-knwc170-vl_ba_calc_subs  = ls_tax_itm-br_nfitemexcludedbaseamount.
-                  <item>-knwc170-vl_icms_substit = ls_tax_itm-br_nfitemtaxamount.
+                  <item>-knwc170-vl_icms_substit  += ls_tax_itm-br_nfitemtaxamount.
                 ENDIF.
                 <item>-knwc170-aliq_icms_sub = ls_tax_itm-br_nfitemtaxrate.
                 <item>-knwc170-vl_contabil += ls_tax_itm-br_nfitemtaxamount.
+                ls_objeto-knwc100-vl_total_mercad -= ls_tax_itm-br_nfitemtaxamount.
               ELSEIF ls_tax_type-br_icmspartilhasubdivisioncode = '004'.
                 <item>-knwc170-vl_fcp_st = ls_tax_itm-br_nfitemtaxamount.
+                <item>-knwc170-vl_icms_substit  += ls_tax_itm-br_nfitemtaxamount.
                 <item>-knwc170-aliq_fcp_st = ls_tax_itm-br_nfitemtaxrate.
                 IF ls_tax_itm-br_nfitembaseamount > 0.
                   <item>-knwc170-vl_bc_fcp_st = ls_tax_itm-br_nfitembaseamount.
@@ -2618,6 +2625,7 @@ CLASS lcl_process IMPLEMENTATION.
 
                 <item>-knwc170-vl_contabil += ls_tax_itm-br_nfitemtaxamount.
                 <item>-knwc170-dm_apur_ipi = '0'.
+                ls_objeto-knwc100-vl_total_mercad -= ls_tax_itm-br_nfitemtaxamount.
               ENDIF.
 *              IF ls_tax_itm-br_nfitemotherbaseamount IS NOT INITIAL.
 *                ls_objeto-knwc100-vl_abat_n_trib += ls_tax_itm-br_nfitemtaxamount.
@@ -2650,6 +2658,10 @@ CLASS lcl_process IMPLEMENTATION.
             WHEN 'IRRF'.
               ls_objeto-knwc100-vl_bc_irrf += ls_tax_itm-br_nfitembaseamount.
               ls_objeto-knwc100-vl_irrf += ls_tax_itm-br_nfitemtaxamount.
+
+            WHEN 'II'.
+              <item>-knwc170-vl_contabil += ls_tax_itm-br_nfitemtaxamount.
+              <item>-knwc170-vl_ii = ls_tax_itm-br_nfitemtaxamount.
           ENDCASE.
 
           "Unidade de medida
@@ -2801,6 +2813,7 @@ CLASS lcl_process IMPLEMENTATION.
 
           " COFINS – soma base e valor
           ls_objeto-knwc120-vl_cofins += CONV #( <itm_c120>-knwc170-vl_cof ).
+          ls_objeto-knwc120-vl_ii     += CONV #( <itm_c120>-knwc170-vl_ii ).
 
         ENDLOOP.
 

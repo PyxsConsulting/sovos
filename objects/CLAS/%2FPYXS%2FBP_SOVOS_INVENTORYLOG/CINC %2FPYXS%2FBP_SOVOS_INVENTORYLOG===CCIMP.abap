@@ -198,20 +198,20 @@ CLASS lcl_process DEFINITION FRIENDS lhc_sovos_inventorylog.
         vl_unitario     TYPE p LENGTH 15 DECIMALS 2,
       END OF ty_knwh010,
 
-      BEGIN OF ty_knwK200,
-        COD_EMPRESA TYPE string,
-        COD_FILIAL TYPE string,
-        CD_PESSOA TYPE string,
-        CD_PRODUTO_SERVICO TYPE c lenGTH 40,
-        DM_ESTOQUE TYPE string,
-        DT_EST_FINAL TYPE string,
-        QTDE TYPE string,
-      END OF ty_knwK200,
+      BEGIN OF ty_knwk200,
+        cod_empresa        TYPE string,
+        cod_filial         TYPE string,
+        cd_pessoa          TYPE string,
+        cd_produto_servico TYPE c LENGTH 40,
+        dm_estoque         TYPE string,
+        dt_est_final       TYPE string,
+        qtde               TYPE string,
+      END OF ty_knwk200,
 
 
 
       BEGIN OF ty_objetos,
-        knwK200                        TYPE ty_knwK200,
+        knwk200                        TYPE ty_knwk200,
         knwh010                        TYPE ty_knwh010,
         knw0150                        TYPE ty_knw0150,
         knw0190                        TYPE ty_knw0190,
@@ -263,7 +263,7 @@ CLASS lcl_process DEFINITION FRIENDS lhc_sovos_inventorylog.
 
       ty_t_accounts TYPE TABLE OF ty_accounts WITH DEFAULT KEY,
 
-      ty_c TYPE c LENGTH 50,
+      ty_c          TYPE c LENGTH 50,
 
       BEGIN OF ty_sel,
         companycode     TYPE i_companycode-companycode,
@@ -276,17 +276,17 @@ CLASS lcl_process DEFINITION FRIENDS lhc_sovos_inventorylog.
         timestamp       TYPE RANGE OF timestamp,
       END OF ty_sel.
 
-    CLASS-DATA: sel         TYPE ty_sel,
-                data        TYPE d,
-                hora        TYPE t,
-                t_out       TYPE TABLE OF ty_t_main,
-                t_ibge      TYPE TABLE OF ty_ibge,
-                t_tax_type  TYPE TABLE OF ty_tax_type,
-                gv_proc     TYPE string,
-                gs_company  TYPE ty_companycode,
-                gt_accounts TYPE ty_t_accounts,
+    CLASS-DATA: sel          TYPE ty_sel,
+                data         TYPE d,
+                hora         TYPE t,
+                t_out        TYPE TABLE OF ty_t_main,
+                t_ibge       TYPE TABLE OF ty_ibge,
+                t_tax_type   TYPE TABLE OF ty_tax_type,
+                gv_proc      TYPE string,
+                gs_company   TYPE ty_companycode,
+                gt_accounts  TYPE ty_t_accounts,
                 s_branch_sov TYPE /pyxs/sov_branch,
-                gt_sel2     TYPE TABLE OF ty_stock_value2.
+                gt_sel2      TYPE TABLE OF ty_stock_value2.
 
 
   PRIVATE SECTION.
@@ -310,7 +310,7 @@ CLASS lcl_process DEFINITION FRIENDS lhc_sovos_inventorylog.
                   p_country   TYPE clike
         RETURNING VALUE(ibge) TYPE string,
       popu,
-    format_date
+      format_date
         IMPORTING
           iv_date        TYPE d
           iv_with_time   TYPE abap_bool DEFAULT abap_true
@@ -351,8 +351,9 @@ CLASS lhc_sovos_inventorylog IMPLEMENTATION.
     " Validação: Company e Branch obrigatórios
     "-----------------------------------------------------------------------
     lcl_process=>sel-companycode = keys[ 1 ]-%param-company.
+    lcl_process=>sel-businessplace = keys[ 1 ]-%param-branch.
     lcl_process=>sel-fiscalperiod = keys[ 1 ]-%param-anomes+4.
-    lcl_process=>sel-fiscalyear = keys[ 1 ]-%param-anomes.
+    lcl_process=>sel-fiscalyear = keys[ 1 ]-%param-anomes(4).
 
     "lcl_process=>sel-branch = keys[ 1 ]-%param-branch.
 
@@ -372,9 +373,21 @@ CLASS lhc_sovos_inventorylog IMPLEMENTATION.
     CHECK failed-/pyxs/sovos_inventorylog IS INITIAL.
 
     lcl_process=>read_db(  ).
-    lcl_process=>new_out(  ).
-    lcl_process=>send_integration( ).
+    IF lcl_process=>gt_sel2 IS INITIAL.
+      APPEND INITIAL LINE TO /pyxs/bp_sovos_inventorylog=>lt_log ASSIGNING FIELD-SYMBOL(<log>).
+      GET TIME STAMP FIELD DATA(time).
+      <log>-timedate = time.
+      <log>-anomes = keys[ 1 ]-%param-anomes.
+      <log>-id = 1.
 
+      "READ TABLE t_nfdocs INTO DATA(ls_nf) WITH KEY doc-br_nfenumber = ls_doc-objetos[ 1 ]-knwc100-nr_documento.
+      <log>-response = 'Cenário de comunicação não encontrado'.
+      <log>-returncode = '999'.
+      <log>-returnreason = 'Erro de configuração'.
+    ELSE.
+      lcl_process=>new_out(  ).
+      lcl_process=>send_integration( ).
+    ENDIF.
     APPEND INITIAL LINE TO reported-/pyxs/sovos_inventorylog ASSIGNING FIELD-SYMBOL(<fs>).
     <fs>-%cid = key-%cid.
     <fs>-%msg = new_message_with_text(
@@ -422,8 +435,12 @@ CLASS lsc_sovos_inventorylog IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD save.
-    MODIFY /pyxs/sov_invlog FROM TABLE @/pyxs/bp_sovos_inventorylog=>lt_log.
+
+    MODIFY /pyxs/sov_invlog FROM TABLE
+    @/pyxs/bp_sovos_inventorylog=>lt_log.
     CLEAR /pyxs/bp_sovos_inventorylog=>lt_log.
+
+
   ENDMETHOD.
 
   METHOD cleanup.
@@ -611,6 +628,7 @@ CLASS lcl_process IMPLEMENTATION.
         APPEND INITIAL LINE TO /pyxs/bp_sovos_inventorylog=>lt_log ASSIGNING FIELD-SYMBOL(<log>).
         GET TIME STAMP FIELD DATA(time).
         <log>-timedate = time.
+        <log>-anomes = |{ sel-fiscalyear }{ sel-fiscalperiod+1 }|.
         "READ TABLE t_nfdocs INTO DATA(ls_nf) WITH KEY doc-br_nfenumber = ls_doc-objetos[ 1 ]-knwc100-nr_documento.
         <log>-material = ls_doc-objetos[ 1 ]-knwh010-cd_produto_serv.
         <log>-response = 'Cenário de comunicação não encontrado'.
@@ -645,6 +663,7 @@ CLASS lcl_process IMPLEMENTATION.
 
           lo_request->set_uri_path(
             EXPORTING
+*              i_uri_path = '/api/knw/v2/estoqueEscriturado'
               i_uri_path = '/api/knw/v2/inventario'
 *              multivalue = 0
 *            RECEIVING
@@ -726,6 +745,7 @@ CLASS lcl_process IMPLEMENTATION.
 
 
     ENDLOOP.
+
   ENDMETHOD.
 
 
@@ -1148,29 +1168,31 @@ CLASS lcl_process IMPLEMENTATION.
       CLEAR ls_out.
       CLEAR ls_objeto.
 
-      ls_objeto-knwK200-cod_empresa = s_branch_sov-sov_company.
-      ls_objeto-knwK200-COD_FILIAL = s_branch_sov-sov_branch.
-      ls_objeto-knwK200-cd_produto_servico = ls_data-product .
-      ls_objeto-knwK200-DT_EST_FINAL = format_date(
+      ls_objeto-knwk200-cod_empresa = s_branch_sov-sov_company.
+      ls_objeto-knwk200-cod_filial = s_branch_sov-sov_branch.
+      ls_objeto-knwk200-cd_produto_servico = ls_data-product .
+      ls_objeto-knwk200-dt_est_final = format_date(
                                          iv_date      = cl_abap_context_info=>get_system_date(  )
 *                                         iv_with_time = abap_true
                                        ).
-      ls_objeto-knwK200-QTDE = CONV ty_c( ls_data-stock ) .
+      ls_objeto-knwk200-qtde = CONV ty_c( ls_data-stock ) .
 
-      ls_objeto-knw0150-DT_INICIAL = format_date( iv_date  = |01{ sel-fiscalperiod(2) }{ sel-fiscalyear }| ).
+      ls_objeto-knw0150-dt_inicial = format_date( iv_date  = |01{ sel-fiscalperiod(2) }{ sel-fiscalyear }| ).
       ls_objeto-knw0150-cod_empresa = s_branch_sov-sov_company.
-      ls_objeto-knw0150-COD_FILIAL = s_branch_sov-sov_branch.
+      ls_objeto-knw0150-cod_filial = s_branch_sov-sov_branch.
 
 
-      ls_objeto-knw0200-DT_INICIAL = format_date( iv_date  = |01{ sel-fiscalperiod(2) }{ sel-fiscalyear }| ).
+      ls_objeto-knw0200-dt_inicial = format_date( iv_date  = |01{ sel-fiscalperiod(2) }{ sel-fiscalyear }| ).
       ls_objeto-knw0200-cod_empresa = s_branch_sov-sov_company.
-      ls_objeto-knw0200-COD_FILIAL = s_branch_sov-sov_branch.
-      ls_objeto-knw0200-CD_PRODUTO_SERV = ls_objeto-knwK200-cd_produto_servico.
-      ls_objeto-knw0200-DS_PRODUTO_SERV = ls_data-productdescription.
-      ls_objeto-knw0200-UNIDADE = ls_data-unitofmeasuretext.
+      ls_objeto-knw0200-cod_filial = s_branch_sov-sov_branch.
+      ls_objeto-knw0200-cd_produto_serv = ls_objeto-knwk200-cd_produto_servico.
+      ls_objeto-knw0200-ds_produto_serv = ls_data-productdescription.
+      ls_objeto-knw0200-unidade = ls_data-unitofmeasuretext.
 *
+      APPEND ls_objeto TO ls_out-objetos.
 
     ENDLOOP.
+    APPEND ls_out TO t_out.
 *
 *    " Adicionar ao output final
 *    APPEND ls_out TO t_out.
@@ -1320,7 +1342,6 @@ CLASS lcl_process IMPLEMENTATION.
     LEFT JOIN i_supplier AS supplier ON
           stock~supplier = supplier~supplier
       WHERE stock~companycode  = @sel-companycode
-        AND stock~ledger       = @sel-ledger
         AND stock~material     IN @sel-product
         AND plant~businessplace = @sel-businessplace
         AND productvaluationbasic~valuationtype = ''
