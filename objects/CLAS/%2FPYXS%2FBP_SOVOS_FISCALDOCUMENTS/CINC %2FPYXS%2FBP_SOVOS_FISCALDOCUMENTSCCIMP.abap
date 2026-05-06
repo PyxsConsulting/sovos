@@ -2241,7 +2241,11 @@ CLASS lcl_process IMPLEMENTATION.
 *      |{ p_nfdoc-doc-creationtime(2) }:{ p_nfdoc-doc-creationtime+2(2) }:{ p_nfdoc-doc-creationtime+4(2) }+03:00|.
 *      ls_objeto-knwc100-dt_entrada         = |{ p_nfdoc-doc-br_nfpostingdate(4) }-{ p_nfdoc-doc-br_nfpostingdate+4(2) }-{ p_nfdoc-doc-br_nfpostingdate+6 }T| &&
 *      |{ p_nfdoc-doc-creationtime(2) }:{ p_nfdoc-doc-creationtime+2(2) }:{ p_nfdoc-doc-creationtime+4(2) }+03:00|.
-      ls_objeto-knwc100-dt_emissao_doc     = |{ p_nfdoc-doc-br_nfissuedate(4) }-{ p_nfdoc-doc-br_nfissuedate+4(2) }-{ p_nfdoc-doc-br_nfissuedate+6 }T00:00:00+03:00|.
+      IF p_nfdoc-doc-br_nfissuedate+6 = '01'.
+        ls_objeto-knwc100-dt_emissao_doc     = |{ p_nfdoc-doc-br_nfissuedate(4) }-{ p_nfdoc-doc-br_nfissuedate+4(2) }-{ p_nfdoc-doc-br_nfissuedate+6 }T12:00:00+03:00|.
+      ELSE.
+        ls_objeto-knwc100-dt_emissao_doc     = |{ p_nfdoc-doc-br_nfissuedate(4) }-{ p_nfdoc-doc-br_nfissuedate+4(2) }-{ p_nfdoc-doc-br_nfissuedate+6 }T00:00:00+03:00|.
+      ENDIF.
       ls_objeto-knwc100-dt_entrada         = |{ p_nfdoc-doc-br_nfpostingdate(4) }-{ p_nfdoc-doc-br_nfpostingdate+4(2) }-{ p_nfdoc-doc-br_nfpostingdate+6 }T00:00:00+03:00|.
 
       ls_objeto-knwc100-cd_modelo_doc      = p_nfdoc-doc-br_nfmodel.

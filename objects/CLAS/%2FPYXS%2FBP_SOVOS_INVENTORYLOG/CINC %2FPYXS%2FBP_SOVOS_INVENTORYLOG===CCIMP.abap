@@ -1168,18 +1168,44 @@ CLASS lcl_process IMPLEMENTATION.
       CLEAR ls_out.
       CLEAR ls_objeto.
 
-      ls_objeto-knwk200-cod_empresa = s_branch_sov-sov_company.
-      ls_objeto-knwk200-cod_filial = s_branch_sov-sov_branch.
-      ls_objeto-knwk200-cd_produto_servico = ls_data-product .
-      ls_objeto-knwk200-dt_est_final = format_date(
-                                         iv_date      = cl_abap_context_info=>get_system_date(  )
-*                                         iv_with_time = abap_true
-                                       ).
-      ls_objeto-knwk200-qtde = CONV ty_c( ls_data-stock ) .
+      ls_objeto-knwh010-cod_empresa     =  s_branch_sov-sov_company.
+      ls_objeto-knwh010-cod_filial      = s_branch_sov-sov_branch.
+      ls_objeto-knwh010-id_usuario_imp  = sy-uname.
+      "ls_objeto-knwh010-cd_plano_conta  = ls_data-codigocontacontabil.
+      ls_objeto-knwh010-ds_complementar = ''. " Ajustar se houver complemento
+      ls_objeto-knwh010-cd_produto_serv = ls_data-product-Product.
+      ls_objeto-knwh010-unidade         = 'UN'.
+      ls_objeto-knwh010-vl_total        = 0.
+      ls_objeto-knwh010-qtde            = 0.
+      ls_objeto-knwh010-vl_unitario     = 0.
+      ls_objeto-knwh010-dt_inventario   = format_date(
+                                            iv_date      = cl_abap_context_info=>get_system_date(  ) ).
+      ls_objeto-knwh010-dm_sit_estoque  = '0'. "ls_data-indicadorpropriedade.
+      "ls_objeto-knwh010-cd_pessoa_propr = ls_data-controles-lifnr.
+      ls_objeto-knwh010-vl_total_ir     = 0. " Ajustar se houver valor IR
 
-      ls_objeto-knw0150-dt_inicial = format_date( iv_date  = |01{ sel-fiscalperiod(2) }{ sel-fiscalyear }| ).
-      ls_objeto-knw0150-cod_empresa = s_branch_sov-sov_company.
-      ls_objeto-knw0150-cod_filial = s_branch_sov-sov_branch.
+***      ls_objeto-knwk200-cod_empresa = s_branch_sov-sov_company.
+***      ls_objeto-knwk200-cod_filial = s_branch_sov-sov_branch.
+***      ls_objeto-knwk200-cd_produto_servico = ls_data-product.
+***      ls_objeto-knwk200-dt_est_final = format_date(
+***                                         iv_date      = cl_abap_context_info=>get_system_date(  )
+****                                         iv_with_time = abap_true
+***                                       ).
+***      ls_objeto-knwk200-qtde = CONV ty_c( ls_data-stock ) .
+
+***      ls_objeto-knw0150-dt_inicial = format_date( iv_date  = |01{ sel-fiscalperiod(2) }{ sel-fiscalyear }| ).
+***      ls_objeto-knw0150-cod_empresa = s_branch_sov-sov_company.
+***      ls_objeto-knw0150-cod_filial = s_branch_sov-sov_branch.
+
+      ls_objeto-knw0190-cod_empresa    = s_branch_sov-sov_company.
+      ls_objeto-knw0190-cod_filial     = s_branch_sov-sov_branch.
+      ls_objeto-knw0190-id_usuario_imp = sy-uname.
+      ls_objeto-knw0190-dt_inicial     = format_date(
+                                            iv_date      = cl_abap_context_info=>get_system_date(  ) ).
+      ls_objeto-knw0190-dt_importacao  = format_date(
+                                            iv_date      = cl_abap_context_info=>get_system_date(  ) ).
+      ls_objeto-knw0190-ds_unidade     = 'UN'. "ls_data-item-unidademedidaestoque-codigo.
+      ls_objeto-knw0190-ds_descricao   = ''. "ls_data-item-unidademedidaestoque-descricao.
 
 
       ls_objeto-knw0200-dt_inicial = format_date( iv_date  = |01{ sel-fiscalperiod(2) }{ sel-fiscalyear }| ).
