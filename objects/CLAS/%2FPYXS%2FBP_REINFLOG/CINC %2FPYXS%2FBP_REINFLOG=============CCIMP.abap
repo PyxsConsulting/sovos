@@ -142,6 +142,7 @@ CLASS lhc_reinflog IMPLEMENTATION.
       iv_date_end       = lv_end
       iv_company_doce   = key-%param-comapnycode
       iv_business_place = key-%param-businessplace
+      iv_partner        = |{ key-%param-partner ALPHA = IN }|
     ).
 
     DATA(ls_reinf) = /pyxs/bp_reinflog=>lt_log[ 1 ].

@@ -809,7 +809,7 @@ CLASS lcl_process IMPLEMENTATION.
           DATA(lo_request)     = lo_http_client->get_http_request( ).
 
           lo_request->set_text( i_text = json_out ).
-          lo_request->set_uri_path( i_uri_path = '/api/knw/v2/blocoK/itensProduzidos' ).
+          lo_request->set_uri_path( i_uri_path = 'api/knw/v2/blocoK/itensProduzidos' ).
 
           DATA(lo_response) = lo_http_client->execute( if_web_http_client=>post ).
           DATA(lv_ret)      = lo_response->get_status( ).

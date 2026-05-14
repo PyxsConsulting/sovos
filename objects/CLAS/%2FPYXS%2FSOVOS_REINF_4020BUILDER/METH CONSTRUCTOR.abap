@@ -6,7 +6,9 @@
     IF iv_br_notafiscal IS NOT INITIAL.
       sel-document = VALUE #( ( sign = 'I' option = 'EQ' low = iv_br_notafiscal ) ).
     ENDIF.
-
+    IF iv_partner IS NOT INITIAL.
+      sel-partner = VALUE #( ( sign = 'I' option = 'EQ' low = iv_partner ) ).
+    ENDIF.
     mv_br_notafiscal = iv_br_notafiscal.
 
 

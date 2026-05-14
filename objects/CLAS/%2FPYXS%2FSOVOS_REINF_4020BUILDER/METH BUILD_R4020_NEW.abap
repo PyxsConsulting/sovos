@@ -94,12 +94,12 @@
       <knw_reinf_r4020_info_pgto>-id_seq_pagto     = <knw_reinf_r4020_pgt>-id_seq_pagto.
       <knw_reinf_r4020_info_pgto>-id_seq_info_pgto = lv_id_seq_info_pgto.
       <knw_reinf_r4020_info_pgto>-dt_fato_gerador  = format_date( iv_date = ls_data-clearingdate ).
-      <knw_reinf_r4020_info_pgto>-vl_bruto         = format_amount( iv_value = ls_nfs-br_nfitemtaxamount ).
+      <knw_reinf_r4020_info_pgto>-vl_bruto         = format_amount( iv_value = ls_nfs-br_nftotalamount ).
       <knw_reinf_r4020_info_pgto>-ds_observ        = ''. "ls_nfs-br_nfobservationtext.
       <knw_reinf_r4020_info_pgto>-dm_fci_scp       = ''.
       <knw_reinf_r4020_info_pgto>-nr_insc_fci_scp  = ''.
       <knw_reinf_r4020_info_pgto>-nr_perc_scp      = ''.
-      <knw_reinf_r4020_info_pgto>-dm_jud           = 'S'.
+      <knw_reinf_r4020_info_pgto>-dm_jud           = 'N'.
       <knw_reinf_r4020_info_pgto>-cd_pais_resid    = '1058'.
       <knw_reinf_r4020_info_pgto>-dt_escr_cont     = format_date( iv_date = ls_nfs-br_nfissuedate ).
 
@@ -116,20 +116,20 @@
       READ TABLE mt_irf_types WITH KEY categoriairf = ls_data-withholdingtaxtype INTO DATA(ls_irf_type).
       CASE ls_irf_type-imposto.
         WHEN 'IR'.
-          <r4020_info_pgto_ret>-vl_ir             = abs( ls_data-withholdingtaxamtintransaccrcy ).
-          <r4020_info_pgto_ret>-vl_base_ir        = abs( ls_data-withholdingtaxbaseamtincocode ).
+          <r4020_info_pgto_ret>-vl_ir             += abs( ls_data-withholdingtaxamtintransaccrcy ).
+          <r4020_info_pgto_ret>-vl_base_ir        += abs( ls_data-withholdingtaxbaseamtincocode ).
         WHEN 'CSLL'.
-          <r4020_info_pgto_ret>-vl_csll           = abs( ls_data-withholdingtaxamtintransaccrcy ).
-          <r4020_info_pgto_ret>-vl_base_csll      = abs( ls_data-withholdingtaxbaseamtincocode ).
+          <r4020_info_pgto_ret>-vl_csll           += abs( ls_data-withholdingtaxamtintransaccrcy ).
+          <r4020_info_pgto_ret>-vl_base_csll      += abs( ls_data-withholdingtaxbaseamtincocode ).
         WHEN 'COFINS' .
-          <r4020_info_pgto_ret>-vl_cofins         = abs( ls_data-withholdingtaxamtintransaccrcy ).
-          <r4020_info_pgto_ret>-vl_base_cofins    = abs( ls_data-withholdingtaxbaseamtincocode ).
+          <r4020_info_pgto_ret>-vl_cofins         += abs( ls_data-withholdingtaxamtintransaccrcy ).
+          <r4020_info_pgto_ret>-vl_base_cofins    += abs( ls_data-withholdingtaxbaseamtincocode ).
         WHEN 'PIS'.
-          <r4020_info_pgto_ret>-vl_pis_pasep      = abs( ls_data-withholdingtaxamtintransaccrcy ).
-          <r4020_info_pgto_ret>-vl_base_pis_pasep = abs( ls_data-withholdingtaxbaseamtincocode ).
+          <r4020_info_pgto_ret>-vl_pis_pasep      += abs( ls_data-withholdingtaxamtintransaccrcy ).
+          <r4020_info_pgto_ret>-vl_base_pis_pasep += abs( ls_data-withholdingtaxbaseamtincocode ).
         WHEN 'PCC'.
-          <r4020_info_pgto_ret>-vl_agreg          = abs( ls_data-withholdingtaxamtintransaccrcy ).
-          <r4020_info_pgto_ret>-vl_base_agreg     = abs( ls_data-withholdingtaxbaseamtincocode ).
+          <r4020_info_pgto_ret>-vl_agreg          += abs( ls_data-withholdingtaxamtintransaccrcy ).
+          <r4020_info_pgto_ret>-vl_base_agreg     += abs( ls_data-withholdingtaxbaseamtincocode ).
       ENDCASE.
 *      CASE ls_nfs-taxgroup.
 *        WHEN 'IRRF' OR 'WHIR' OR 'WAIR'. "Imposto de Renda
