@@ -53,7 +53,7 @@
                 FOR ALL ENTRIES IN @gt_data
              WHERE nfi~br_nfsourcedocumentnumber  = @gt_data-originalreferencedocument
                "AND nf~br_notafiscal               IN @sel-br_notafiscal
-               AND nft~br_nfitemhaswithholdingtax = 'X'
+               "AND nft~br_nfitemhaswithholdingtax = 'X'
          INTO TABLE @gt_nfs.
       ENDIF.
     ENDIF.
@@ -110,7 +110,7 @@
                 FOR ALL ENTRIES IN @lt_data_it
              WHERE nfi~br_nfsourcedocumentnumber  = @lt_data_it-originalreferencedocument
                "AND nf~br_notafiscal               IN @sel-br_notafiscal
-               AND nft~br_nfitemhaswithholdingtax = 'X'
+               "AND nft~br_nfitemhaswithholdingtax = 'X'
          APPENDING TABLE @gt_nfs.
       ENDIF.
 

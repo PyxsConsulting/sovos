@@ -8,7 +8,7 @@ draft table /pyxs/sov_taxt_d
 lock master
 total etag CategoriaIrf
 authorization master ( instance )
-//etag master <field_name>
+//etag master CategoriaIrf
 {
   create ( authorization : global );
   update;
@@ -28,4 +28,9 @@ authorization master ( instance )
       CategoriaIrf = categoriairf;
       Imposto = imposto;
     }
+
+  validation validateCategoria on save { create; field CategoriaIrf; }
+
+  validation validateImposto on save { field Imposto; }
+
 }
