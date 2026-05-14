@@ -663,8 +663,8 @@ CLASS lcl_process IMPLEMENTATION.
 
           lo_request->set_uri_path(
             EXPORTING
-*              i_uri_path = '/api/knw/v2/estoqueEscriturado'
-              i_uri_path = '/api/knw/v2/inventario'
+              i_uri_path = '/api/knw/v2/estoqueEscriturado'
+*              i_uri_path = '/api/knw/v2/inventario'
 *              multivalue = 0
 *            RECEIVING
 *              r_value    =
@@ -1158,67 +1158,108 @@ CLASS lcl_process IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD new_out.
-*
-    DATA: ls_out            TYPE ty_main,
-          ls_objeto         TYPE ty_objetos,
-          lv_inventory_date TYPE string.
-*    "adicionar logica de data
-*
+
+    DATA: ls_out    TYPE ty_main,
+          ls_objeto TYPE ty_objetos,
+          lv_now    TYPE string,
+          lv_dt_ini TYPE string.
+
+    DATA(lv_date) = cl_abap_context_info=>get_system_date( ).
+    DATA(lv_time) = cl_abap_context_info=>get_system_time( ).
+
+    lv_now = |{ lv_date+0(4) }-{ lv_date+4(2) }-{ lv_date+6(2) }|
+           & |T{ lv_time+0(2) }:{ lv_time+2(2) }:{ lv_time+4(2) }.000Z|.
+
+    DATA lv_year   TYPE i.
+    DATA lv_month  TYPE i.
+    lv_year  = CONV i( sel-fiscalyear ).
+    lv_month = CONV i( sel-fiscalperiod+1(2) ).
+    DATA lv_next_month_first  TYPE d.
+    IF lv_month = 12.
+      lv_next_month_first = |{ lv_year + 1 }0101|.
+    ELSE.
+      DATA lv_next_month  TYPE n LENGTH 2.
+      lv_next_month = lv_month + 1.
+      lv_next_month_first = |{ lv_year }{ lv_next_month }01|.
+    ENDIF.
+    DATA lv_last_day  TYPE d.
+    lv_last_day = lv_next_month_first - 1.
+    lv_dt_ini = |{ lv_last_day DATE = ISO }T00:00:00.000Z|.
+
     LOOP AT gt_sel2 INTO DATA(ls_data).
-      CLEAR ls_out.
-      CLEAR ls_objeto.
+      CLEAR: ls_out, ls_objeto.
 
-      ls_objeto-knwh010-cod_empresa     =  s_branch_sov-sov_company.
-      ls_objeto-knwh010-cod_filial      = s_branch_sov-sov_branch.
-      ls_objeto-knwh010-id_usuario_imp  = sy-uname.
-      "ls_objeto-knwh010-cd_plano_conta  = ls_data-codigocontacontabil.
-      ls_objeto-knwh010-ds_complementar = ''. " Ajustar se houver complemento
-      ls_objeto-knwh010-cd_produto_serv = ls_data-product-Product.
-      ls_objeto-knwh010-unidade         = 'UN'.
-      ls_objeto-knwh010-vl_total        = 0.
-      ls_objeto-knwh010-qtde            = 0.
-      ls_objeto-knwh010-vl_unitario     = 0.
-      ls_objeto-knwh010-dt_inventario   = format_date(
-                                            iv_date      = cl_abap_context_info=>get_system_date(  ) ).
-      ls_objeto-knwh010-dm_sit_estoque  = '0'. "ls_data-indicadorpropriedade.
-      "ls_objeto-knwh010-cd_pessoa_propr = ls_data-controles-lifnr.
-      ls_objeto-knwh010-vl_total_ir     = 0. " Ajustar se houver valor IR
 
-***      ls_objeto-knwk200-cod_empresa = s_branch_sov-sov_company.
-***      ls_objeto-knwk200-cod_filial = s_branch_sov-sov_branch.
-***      ls_objeto-knwk200-cd_produto_servico = ls_data-product.
-***      ls_objeto-knwk200-dt_est_final = format_date(
-***                                         iv_date      = cl_abap_context_info=>get_system_date(  )
-****                                         iv_with_time = abap_true
-***                                       ).
-***      ls_objeto-knwk200-qtde = CONV ty_c( ls_data-stock ) .
+      ls_objeto-knwK200-cod_empresa     = CONV i( s_branch_sov-sov_company ).
+      ls_objeto-knwK200-cod_filial      = CONV i( s_branch_sov-sov_branch ).
+      ls_objeto-knwK200-cd_pessoa  = sy-uname.
+      ls_objeto-knwK200-cd_produto_servico = ls_data-product-product.
+      ls_objeto-knwK200-dm_estoque         = 0.
+      ls_objeto-knwK200-dt_est_final        = lv_dt_ini.
+      ls_objeto-knwK200-qtde            = ls_data-stock-ValuationQuantity.
 
-***      ls_objeto-knw0150-dt_inicial = format_date( iv_date  = |01{ sel-fiscalperiod(2) }{ sel-fiscalyear }| ).
-***      ls_objeto-knw0150-cod_empresa = s_branch_sov-sov_company.
-***      ls_objeto-knw0150-cod_filial = s_branch_sov-sov_branch.
-
-      ls_objeto-knw0190-cod_empresa    = s_branch_sov-sov_company.
-      ls_objeto-knw0190-cod_filial     = s_branch_sov-sov_branch.
+      ls_objeto-knw0190-cod_empresa    = CONV i( s_branch_sov-sov_company ).
+      ls_objeto-knw0190-cod_filial     = CONV i( s_branch_sov-sov_branch ).
       ls_objeto-knw0190-id_usuario_imp = sy-uname.
-      ls_objeto-knw0190-dt_inicial     = format_date(
-                                            iv_date      = cl_abap_context_info=>get_system_date(  ) ).
-      ls_objeto-knw0190-dt_importacao  = format_date(
-                                            iv_date      = cl_abap_context_info=>get_system_date(  ) ).
-      ls_objeto-knw0190-ds_unidade     = 'UN'. "ls_data-item-unidademedidaestoque-codigo.
-      ls_objeto-knw0190-ds_descricao   = ''. "ls_data-item-unidademedidaestoque-descricao.
+      ls_objeto-knw0190-dt_inicial     = '1900-01-01T00:00:00+03:00'.
+      ls_objeto-knw0190-dt_importacao  = '1900-01-01T00:00:00+03:00'.
+      ls_objeto-knw0190-ds_unidade     = ls_data-product-BaseUnit.
+      ls_objeto-knw0190-ds_descricao   = ls_data-product-BaseUnit.
+
+           "quando o estoque é de terceiros, se faz necessario o preenchimento destas informações knw0150
+***        ls_objeto-knw0150-dt_inicial     = lv_now.
+***        ls_objeto-knw0150-dt_importacao  = lv_now.
+***        ls_objeto-knw0150-cod_empresa    = CONV i( s_branch_sov-sov_company ).
+***        ls_objeto-knw0150-cod_filial     = CONV i( s_branch_sov-sov_branch ).
+***        ls_objeto-knw0150-id_usuario_imp = sy-uname.
+***        ls_objeto-knw0150-cd_pessoa      = ls_data-supplier-Supplier.
+***        ls_objeto-knw0150-ds_endereco      = ls_data-supplier-StreetName.
+***        ls_objeto-knw0150-nm_razao_social = ls_data-supplier-TaxNumber1.
+***        ls_objeto-knw0150-nr_cnpj_cpf     = ls_data-supplier-SupplierName.
+***        ls_objeto-knw0150-cd_municipio     = ls_data-supplier-CityName.
+***        ls_objeto-knw0150-cd_pais     = ls_data-supplier-Country.
 
 
-      ls_objeto-knw0200-dt_inicial = format_date( iv_date  = |01{ sel-fiscalperiod(2) }{ sel-fiscalyear }| ).
-      ls_objeto-knw0200-cod_empresa = s_branch_sov-sov_company.
-      ls_objeto-knw0200-cod_filial = s_branch_sov-sov_branch.
-      ls_objeto-knw0200-cd_produto_serv = ls_objeto-knwk200-cd_produto_servico.
-      ls_objeto-knw0200-ds_produto_serv = ls_data-productdescription.
-      ls_objeto-knw0200-unidade = ls_data-unitofmeasuretext.
-*
+          ls_objeto-knw0200-dt_inicial         = '1900-01-01T00:00:00+03:00'.
+          ls_objeto-knw0200-cod_empresa        = CONV i( s_branch_sov-sov_company ).
+          ls_objeto-knw0200-cod_filial         = CONV i( s_branch_sov-sov_branch ).
+          ls_objeto-knw0200-cd_produto_serv    = ls_data-product-Product.
+          ls_objeto-knw0200-ds_produto_serv    = ls_data-productdescription-ProductDescription.
+          ls_objeto-knw0200-unidade            = ls_data-product-BaseUnit. "ls_nfitem-baseunit.
+          "<item>-knw0200-dm_tipo_item       = '09'.
+          "ls_objeto-knw0200-cd_ncm             = '00000000'.
+          ls_objeto-knw0200-dm_origem_produto  = '0'.
+          "ls_objeto-knw0200-nr_cest            = ls_nfitem-nf-br_icmsstlegalclassfctn.
+          CASE ls_data-product-ProductType.
+            WHEN 'HAWA'.
+              ls_objeto-knw0200-dm_tipo_item = '00'.
+            WHEN 'ROH'.
+              ls_objeto-knw0200-dm_tipo_item = '01'.
+            WHEN 'VERP' OR 'LEIH'.
+              ls_objeto-knw0200-dm_tipo_item = '02'.
+            WHEN 'PROC' OR 'HALB'.
+              ls_objeto-knw0200-dm_tipo_item = '03'.
+            WHEN 'FERT'.
+              IF ls_data-productplantbasic-iscoproduct IS INITIAL.
+                ls_objeto-knw0200-dm_tipo_item = '04'.
+              ELSE.
+                ls_objeto-knw0200-dm_tipo_item = '05'.
+              ENDIF.
+            WHEN 'HIBE'.
+              ls_objeto-knw0200-dm_tipo_item = '06'.
+            WHEN 'NLAG'.
+              ls_objeto-knw0200-dm_tipo_item = '07'.
+            WHEN 'DIEN' OR 'LEIS' OR 'SERV'.
+              ls_objeto-knw0200-dm_tipo_item = '09'.
+            WHEN OTHERS.
+              ls_objeto-knw0200-dm_tipo_item = '99'.
+          ENDCASE.
+
       APPEND ls_objeto TO ls_out-objetos.
+      APPEND ls_out TO t_out.
 
     ENDLOOP.
-    APPEND ls_out TO t_out.
+
 *
 *    " Adicionar ao output final
 *    APPEND ls_out TO t_out.

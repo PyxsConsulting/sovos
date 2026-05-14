@@ -33,7 +33,7 @@
     "REFRESH_INTERVALL":0,
     "DISPLAY_NUMBER_UNIT":"",
     "FLAVOR_ID":"",
-    "CHANGED_AT":"+020260428075221",
+    "CHANGED_AT":"+020260508132642",
     "CHANGED_BY":"SAP_CUSTOMER",
     "MASTERLANG":"",
     "ACH_COMPONENT":"",
@@ -63,7 +63,7 @@
     "TILE_TYPE":"S",
     "CUSTOM_TILE_TYPE":"",
     "DEFAULT_TILE":"X",
-    "TILE_CONFIG_STRING":"{\"tileConfiguration\":\"{\\\"display_icon_url\\\":\\\"\\\",\\\"display_info_text\\\":\\\"\\\",\\\"display_title_text\\\":\\\"SOVOS - Inventário\\\",\\\"display_subtitle_text\\\":\\\"Processamento e Logs\\\",\\\"navigation_use_semantic_object\\\":true,\\\"navigation_target_url\\\":\\\"#SOVOSInventory-maintain\\\",\\\"navigation_semantic_object\\\":\\\"SOVOSInventory\\\",\\\"navigation_semantic_action\\\":\\\"maintain\\\",\\\"navigation_semantic_parameters\\\":\\\"\\\",\\\"display_search_keywords\\\":\\\"\\\",\\\"display_number_unit\\\":\\\"\\\",\\\"service_url\\\":\\\"\\\",\\\"service_refresh_interval\\\":0}\"}",
+    "TILE_CONFIG_STRING":"{\"tileConfiguration\":\"{\\\"display_icon_url\\\":\\\"\\\",\\\"display_info_text\\\":\\\"\\\",\\\"display_title_text\\\":\\\"SOVOS - Estoque Escriturado\\\",\\\"display_subtitle_text\\\":\\\"Processamento e Logs\\\",\\\"navigation_use_semantic_object\\\":true,\\\"navigation_target_url\\\":\\\"#SOVOSInventory-maintain\\\",\\\"navigation_semantic_object\\\":\\\"SOVOSInventory\\\",\\\"navigation_semantic_action\\\":\\\"maintain\\\",\\\"navigation_semantic_parameters\\\":\\\"\\\",\\\"display_search_keywords\\\":\\\"\\\",\\\"display_number_unit\\\":\\\"\\\",\\\"service_url\\\":\\\"\\\",\\\"service_refresh_interval\\\":0}\"}",
     "TILE_ICON":"",
     "TILE_PARAMETERS":"",
     "SERVICE_BASE_URL":"",
@@ -83,7 +83,7 @@
     "LANGU":"E",
     "APP_ID":"/PYXS/SOV_INV_UI5R",
     "TILE_ID":"UI5R_3CDD81E61DAAEFC7B8D0E8FA15AFD5F36A34DEBD_AL",
-    "TILE_TITLE":"SOVOS - Inventário",
+    "TILE_TITLE":"SOVOS - Estoque Escriturado",
     "TILE_SUBTITLE":"Processamento e Logs",
     "TILE_KEYWORDS":"",
     "TILE_INFORMATION":""
@@ -97,11 +97,11 @@
    {
     "APP_ID":"/PYXS/SOV_INV_UI5R",
     "LANGU":"E",
-    "TILE_TITLE":"SOVOS - Inventário",
+    "TILE_TITLE":"SOVOS - Estoque Escriturado",
     "TILE_SUBTITLE":"Processamento e Logs",
     "TILE_KEYWORDS":"",
     "TILE_INFORMATION":"",
-    "ALT_SMART_LINK_TITLE":"SOVOS - Inventário",
+    "ALT_SMART_LINK_TITLE":"SOVOS - Estoque Escriturado",
     "DESCRIPTION":"Processamento e Logs"
    }
   ]
@@ -130,8 +130,8 @@
     "CRELEASE":"",
     "DELFLAG":"",
     "TRANSLTTXT":"",
-    "CREATED_ON":"2026-04-28",
-    "CHECK_DATE":"2026-04-28",
+    "CREATED_ON":"2026-05-08",
+    "CHECK_DATE":"2026-05-08",
     "CHECK_CFG":""
    }
   ]

@@ -27,8 +27,9 @@ CLASS /pyxs/sovos_reinf_4020builder DEFINITION
       mt_nature        TYPE TABLE OF /pyxs/sov_natren,
       gs_branch_sov    TYPE /pyxs/sov_branch,
       sel              TYPE ty_sel,
-      mt_ret           TYPE ty_reinf.
-    TYPES ty_amount TYPE p LENGTH 16 DECIMALS 2.
+      mt_ret           TYPE ty_reinf,
+      mt_irf_types     TYPE TABLE OF /pyxs/sov_taxtype_irf.
+    TYPES            ty_amount TYPE p LENGTH 16 DECIMALS 2.
 
     TYPES: BEGIN OF ty_r1000,
              cd_empresa             TYPE string,

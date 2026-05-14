@@ -10,7 +10,7 @@
     "CREATED_BY":"SAP_CUSTOMER",
     "CREATED_ON":"+020260220164848",
     "MODIFIED_BY":"SAP_CUSTOMER",
-    "MODIFIED_ON":"+020260417141149",
+    "MODIFIED_ON":"+020260513225939",
     "BASE_ID":"",
     "MERGE_ID":"",
     "ABAP_LANGUAGE_VERSION":"5"
@@ -37,6 +37,20 @@
    {
     "PAGE_ID":"/PYXS/TAX_FISCAL_SOV",
     "VERSION":"A",
+    "ID":"BLOCK_KH",
+    "PARENT_SECTION_ID":"",
+    "IDX":2
+   },
+   {
+    "PAGE_ID":"/PYXS/TAX_FISCAL_SOV",
+    "VERSION":"A",
+    "ID":"CONFIG",
+    "PARENT_SECTION_ID":"",
+    "IDX":4
+   },
+   {
+    "PAGE_ID":"/PYXS/TAX_FISCAL_SOV",
+    "VERSION":"A",
     "ID":"FISCAL_EXTRACTORS",
     "PARENT_SECTION_ID":"",
     "IDX":1
@@ -46,7 +60,7 @@
     "VERSION":"A",
     "ID":"REINF",
     "PARENT_SECTION_ID":"",
-    "IDX":2
+    "IDX":3
    }
   ]
  },
@@ -54,6 +68,38 @@
   "table":"/UI2/PGSECAI",
   "data":
   [
+   {
+    "PAGE_ID":"/PYXS/TAX_FISCAL_SOV",
+    "VERSION":"A",
+    "SECTION_ID":"BLOCK_KH",
+    "ID":"BLOCK_KH_VIZ_1",
+    "TYPE":"AD",
+    "IDX":1
+   },
+   {
+    "PAGE_ID":"/PYXS/TAX_FISCAL_SOV",
+    "VERSION":"A",
+    "SECTION_ID":"BLOCK_KH",
+    "ID":"BLOCK_KH_VIZ_2",
+    "TYPE":"AD",
+    "IDX":2
+   },
+   {
+    "PAGE_ID":"/PYXS/TAX_FISCAL_SOV",
+    "VERSION":"A",
+    "SECTION_ID":"CONFIG",
+    "ID":"CONFIG_VIZ_1",
+    "TYPE":"AD",
+    "IDX":1
+   },
+   {
+    "PAGE_ID":"/PYXS/TAX_FISCAL_SOV",
+    "VERSION":"A",
+    "SECTION_ID":"CONFIG",
+    "ID":"CONFIG_VIZ_2",
+    "TYPE":"AD",
+    "IDX":2
+   },
    {
     "PAGE_ID":"/PYXS/TAX_FISCAL_SOV",
     "VERSION":"A",
@@ -65,26 +111,18 @@
    {
     "PAGE_ID":"/PYXS/TAX_FISCAL_SOV",
     "VERSION":"A",
-    "SECTION_ID":"FISCAL_EXTRACTORS",
-    "ID":"FISCAL_EXTRACTORS_VIZ_2",
+    "SECTION_ID":"REINF",
+    "ID":"REINF_VIZ_1",
     "TYPE":"AD",
-    "IDX":2
-   },
-   {
-    "PAGE_ID":"/PYXS/TAX_FISCAL_SOV",
-    "VERSION":"A",
-    "SECTION_ID":"FISCAL_EXTRACTORS",
-    "ID":"FISCAL_EXTRACTORS_VIZ_3",
-    "TYPE":"AD",
-    "IDX":3
+    "IDX":1
    },
    {
     "PAGE_ID":"/PYXS/TAX_FISCAL_SOV",
     "VERSION":"A",
     "SECTION_ID":"REINF",
-    "ID":"REINF_VIZ_1",
+    "ID":"REINF_VIZ_2",
     "TYPE":"AD",
-    "IDX":1
+    "IDX":2
    }
   ]
  },
@@ -92,6 +130,38 @@
   "table":"/UI2/PGSECAIAD",
   "data":
   [
+   {
+    "PAGE_ID":"/PYXS/TAX_FISCAL_SOV",
+    "VERSION":"A",
+    "ID":"BLOCK_KH_VIZ_1",
+    "UIAD_ID":"/PYXS/SOV_INV_UI5R",
+    "TILE_ID":"UI5R_3CDD81E61DAAEFC7B8D0E8FA15AFD5F36A34DEBD_AL",
+    "TILE_DISPLAY_FORMAT":"TI"
+   },
+   {
+    "PAGE_ID":"/PYXS/TAX_FISCAL_SOV",
+    "VERSION":"A",
+    "ID":"BLOCK_KH_VIZ_2",
+    "UIAD_ID":"/PYXS/SOV_ITMPRD_UI5R",
+    "TILE_ID":"UI5R_5C93B11F49C67EF3EC596D32325E8C623D749067_AL",
+    "TILE_DISPLAY_FORMAT":"TI"
+   },
+   {
+    "PAGE_ID":"/PYXS/TAX_FISCAL_SOV",
+    "VERSION":"A",
+    "ID":"CONFIG_VIZ_1",
+    "UIAD_ID":"/PYXS/SOV_BRANCH_UI5R",
+    "TILE_ID":"UI5R_4D908EDFAE13B5506E064BBDD33B414A6A8CA452_AL",
+    "TILE_DISPLAY_FORMAT":"TI"
+   },
+   {
+    "PAGE_ID":"/PYXS/TAX_FISCAL_SOV",
+    "VERSION":"A",
+    "ID":"CONFIG_VIZ_2",
+    "UIAD_ID":"/PYXS/SOV_TAXTYP_UI5R",
+    "TILE_ID":"UI5R_28F96523E62788B37632C7F3614BF5EEA3EF3A07_AL",
+    "TILE_DISPLAY_FORMAT":"TI"
+   },
    {
     "PAGE_ID":"/PYXS/TAX_FISCAL_SOV",
     "VERSION":"A",
@@ -103,25 +173,17 @@
    {
     "PAGE_ID":"/PYXS/TAX_FISCAL_SOV",
     "VERSION":"A",
-    "ID":"FISCAL_EXTRACTORS_VIZ_2",
-    "UIAD_ID":"/PYXS/SOV_BRANCH_UI5R",
-    "TILE_ID":"UI5R_4D908EDFAE13B5506E064BBDD33B414A6A8CA452_AL",
-    "TILE_DISPLAY_FORMAT":"TI"
-   },
-   {
-    "PAGE_ID":"/PYXS/TAX_FISCAL_SOV",
-    "VERSION":"A",
-    "ID":"FISCAL_EXTRACTORS_VIZ_3",
-    "UIAD_ID":"/PYXS/SOV_NATREN_UI5R",
-    "TILE_ID":"UI5R_B78C10DD797B89065359DF30294672E420D705F1_AL",
-    "TILE_DISPLAY_FORMAT":"TI"
-   },
-   {
-    "PAGE_ID":"/PYXS/TAX_FISCAL_SOV",
-    "VERSION":"A",
     "ID":"REINF_VIZ_1",
     "UIAD_ID":"/PYXS/SOV_AREINF_UI5R",
     "TILE_ID":"UI5R_5E07666B810657C5243087B4D8BB04AC2D7B3CC1_AL",
+    "TILE_DISPLAY_FORMAT":"TI"
+   },
+   {
+    "PAGE_ID":"/PYXS/TAX_FISCAL_SOV",
+    "VERSION":"A",
+    "ID":"REINF_VIZ_2",
+    "UIAD_ID":"/PYXS/SOV_NATREN_UI5R",
+    "TILE_ID":"UI5R_B78C10DD797B89065359DF30294672E420D705F1_AL",
     "TILE_DISPLAY_FORMAT":"TI"
    }
   ]
@@ -134,8 +196,22 @@
     "LANGU":"P",
     "PAGE_ID":"/PYXS/TAX_FISCAL_SOV",
     "VERSION":"A",
+    "ID":"BLOCK_KH",
+    "TITLE":"Bloco K e H"
+   },
+   {
+    "LANGU":"P",
+    "PAGE_ID":"/PYXS/TAX_FISCAL_SOV",
+    "VERSION":"A",
+    "ID":"CONFIG",
+    "TITLE":"Configurações"
+   },
+   {
+    "LANGU":"P",
+    "PAGE_ID":"/PYXS/TAX_FISCAL_SOV",
+    "VERSION":"A",
     "ID":"FISCAL_EXTRACTORS",
-    "TITLE":"Extratores Fiscais"
+    "TITLE":"Notas Fiscais"
    },
    {
     "LANGU":"P",

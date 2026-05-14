@@ -1,0 +1,1 @@
+CLASS /pyxs/bp_sov_taxtype_irf DEFINITION PUBLIC ABSTRACT FINAL FOR BEHAVIOR OF /pyxs/sov_taxtype_irf.

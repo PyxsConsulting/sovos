@@ -11,6 +11,8 @@
     REPLACE ALL OCCURRENCES OF '"0 "' IN lv_json WITH '0'.
     REPLACE ALL OCCURRENCES OF 'VL_SERVICO1' IN lv_json WITH 'vl_SERVICO'.
     REPLACE ALL OCCURRENCES OF 'INTEGRACAONOTAFISCALSERVICO' IN lv_json WITH 'integracaoNotaFiscalServicoItemList'.
+    REPLACE ALL OCCURRENCES OF 'INTEGR_ITENS_CONSUM_LIST' IN lv_json WITH 'integracaoItensConsumidosList'.
+    REPLACE ALL OCCURRENCES OF 'PRODUTOINSUMO' IN lv_json WITH 'ProdutoInsumo'.
 
     ret = lv_json.
 
