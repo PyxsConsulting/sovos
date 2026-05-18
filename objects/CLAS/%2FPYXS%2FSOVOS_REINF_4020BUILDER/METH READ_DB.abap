@@ -4,6 +4,7 @@
           lt_data_it   TYPE TABLE OF ty_tax_item.
 
     SELECT * FROM /pyxs/sov_taxtype_irf INTO TABLE @mt_irf_types.
+    SELECT * FROM /pyxs/sov_natren INTO TABLE @mt_nature.
 
     LOOP AT mt_irf_types INTO DATA(ls_irf_type).
       CHECK ls_irf_type-imposto <> 'IR'.

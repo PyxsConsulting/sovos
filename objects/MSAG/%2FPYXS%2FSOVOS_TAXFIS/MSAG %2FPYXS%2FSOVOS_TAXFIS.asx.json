@@ -192,28 +192,28 @@
     "ARBGB":"/PYXS/SOVOS_TAXFIS",
     "MSGNR":"001",
     "NAME":"SAP_CUSTOMER",
-    "DATUM":"2026-05-14",
+    "DATUM":"2026-05-18",
     "SELFDEF":"3"
    },
    {
     "ARBGB":"/PYXS/SOVOS_TAXFIS",
     "MSGNR":"002",
     "NAME":"SAP_CUSTOMER",
-    "DATUM":"2026-05-14",
+    "DATUM":"2026-05-18",
     "SELFDEF":"3"
    },
    {
     "ARBGB":"/PYXS/SOVOS_TAXFIS",
     "MSGNR":"003",
     "NAME":"SAP_CUSTOMER",
-    "DATUM":"2026-05-14",
+    "DATUM":"2026-05-18",
     "SELFDEF":"3"
    },
    {
     "ARBGB":"/PYXS/SOVOS_TAXFIS",
     "MSGNR":"004",
     "NAME":"SAP_CUSTOMER",
-    "DATUM":"2026-05-14",
+    "DATUM":"2026-05-18",
     "SELFDEF":"3"
    }
   ]

@@ -27,6 +27,7 @@ CLASS lhc_SOV_ITENS_PRODUZ_LOG DEFINITION INHERITING FROM cl_abap_behavior_handl
     METHODS sendintegration FOR MODIFY
       IMPORTING keys FOR ACTION /pyxs/SOV_ITENS_PRODUZ_LOG~sendintegration RESULT res.
 
+
 ENDCLASS.
 
 
@@ -161,6 +162,47 @@ CLASS lcl_process DEFINITION FRIENDS lhc_SOV_ITENS_PRODUZ_LOG.
         companycodename TYPE i_companycode-companycodename,
       END OF ty_companycode.
 
+
+    TYPES:
+      BEGIN OF ty_knwk235_json,
+        dt_IMPORTACAO       TYPE string,
+        cod_EMPRESA         TYPE i,
+        cod_FILIAL          TYPE i,
+        cod_GRUPOEMPRESA    TYPE string,
+        nr_SEQUENCIA        TYPE string,
+        dt_PERIODO          TYPE string,
+        qtde                TYPE p LENGTH 15 DECIMALS 2,
+        cd_PROD_SERV_INSUMO TYPE string,
+        nr_DOC_OP           TYPE string,
+        dt_SAIDA            TYPE string,
+      END OF ty_knwk235_json.
+
+    TYPES:
+      BEGIN OF ty_item_consumido_json,
+        knwK235              TYPE ty_knwk235_json,
+        knw0200ProdutoInsumo TYPE ty_knw0200,
+        knw0190ProdutoInsumo TYPE ty_knw0190,
+      END OF ty_item_consumido_json.
+
+    TYPES:
+      tt_item_consumido_json TYPE STANDARD TABLE OF ty_item_consumido_json WITH EMPTY KEY.
+
+    TYPES:
+      BEGIN OF ty_objeto_json,
+        knwK230                       TYPE ty_knwk230,
+        knw0200                       TYPE ty_knw0200,
+        knw0190                       TYPE ty_knw0190,
+        integracaoItensConsumidosList TYPE tt_item_consumido_json,
+      END OF ty_objeto_json.
+
+    TYPES:
+      tt_objeto_json TYPE STANDARD TABLE OF ty_objeto_json WITH EMPTY KEY.
+
+    TYPES:
+      BEGIN OF ty_root_json,
+        objetos TYPE tt_objeto_json,
+      END OF ty_root_json.
+
     CLASS-DATA:
       sel           TYPE ty_sel,
       data          TYPE d,
@@ -177,6 +219,7 @@ CLASS lcl_process DEFINITION FRIENDS lhc_SOV_ITENS_PRODUZ_LOG.
       read_db,
       new_out,
       send_integration,
+
       format_date
         IMPORTING
           iv_date        TYPE d
@@ -189,6 +232,36 @@ CLASS lcl_process DEFINITION FRIENDS lhc_SOV_ITENS_PRODUZ_LOG.
         EXPORTING
           ev_first_day   TYPE d
           ev_last_day    TYPE d.
+
+      CLASS-METHODS:
+  build_integration_json
+    IMPORTING is_main        TYPE ty_main
+    RETURNING VALUE(rv_json) TYPE string,
+
+  build_k230
+    IMPORTING is_k230        TYPE ty_knwk230
+    RETURNING VALUE(rv_json) TYPE string,
+
+  build_k235
+    IMPORTING is_k235        TYPE ty_knwk230   " reaproveitando o tipo
+              iv_seq         TYPE i
+    RETURNING VALUE(rv_json) TYPE string,
+
+  build_0200
+    IMPORTING is_0200        TYPE ty_knw0200
+    RETURNING VALUE(rv_json) TYPE string,
+
+  build_0190
+    IMPORTING is_0190        TYPE ty_knw0190
+    RETURNING VALUE(rv_json) TYPE string,
+
+  format_decimal
+    IMPORTING iv_value       TYPE p
+    RETURNING VALUE(rv_str)  TYPE string,
+
+  escape_json
+    IMPORTING iv_str         TYPE string
+    RETURNING VALUE(rv_str)  TYPE string.
 
 ENDCLASS.
 
@@ -212,6 +285,7 @@ CLASS lhc_SOV_ITENS_PRODUZ_LOG IMPLEMENTATION.
 
   METHOD lock.
   ENDMETHOD.
+
 
   METHOD sendintegration.
 
@@ -323,6 +397,153 @@ ENDCLASS.
 
 CLASS lcl_process IMPLEMENTATION.
 
+
+
+  METHOD format_decimal.
+  " Converte packed para string JSON: 1.00 -> "1", 1.50 -> "1.5"
+  rv_str = |{ iv_value NUMBER = RAW }|.
+
+  IF rv_str CS '.'.
+    DATA(lv_len) = strlen( rv_str ).
+    WHILE lv_len > 1 AND substring( val = rv_str off = lv_len - 1 len = 1 ) = '0'.
+      lv_len = lv_len - 1.
+    ENDWHILE.
+    IF substring( val = rv_str off = lv_len - 1 len = 1 ) = '.'.
+      lv_len = lv_len - 1.
+    ENDIF.
+    rv_str = substring( val = rv_str len = lv_len ).
+  ENDIF.
+
+  IF rv_str IS INITIAL.
+    rv_str = '0'.
+  ENDIF.
+ENDMETHOD.
+
+METHOD escape_json.
+  rv_str = iv_str.
+  REPLACE ALL OCCURRENCES OF `\` IN rv_str WITH `\\`.
+  REPLACE ALL OCCURRENCES OF `"` IN rv_str WITH `\"`.
+  REPLACE ALL OCCURRENCES OF cl_abap_char_utilities=>cr_lf IN rv_str WITH `\n`.
+  REPLACE ALL OCCURRENCES OF cl_abap_char_utilities=>newline IN rv_str WITH `\n`.
+  REPLACE ALL OCCURRENCES OF cl_abap_char_utilities=>horizontal_tab IN rv_str WITH `\t`.
+ENDMETHOD.
+
+METHOD build_k230.
+  rv_json =
+    |\{| &&
+      |"cod_EMPRESA":{ format_decimal( is_k230-cod_empresa ) },| &&
+      |"cod_FILIAL":{ format_decimal( is_k230-cod_filial ) },| &&
+      |"cod_GRUPOEMPRESA":"{ escape_json( is_k230-cod_grupoempresa ) }",| &&
+      |"dt_PERIODO":"{ escape_json( is_k230-dt_periodo ) }",| &&
+      |"cd_PRODUTO_SERVICO":"{ escape_json( is_k230-cd_produto_servico ) }",| &&
+      |"dt_INICIO_OP":"{ escape_json( is_k230-dt_inicio_op ) }",| &&
+      |"dt_FINAL_OP":"{ escape_json( is_k230-dt_final_op ) }",| &&
+      |"nr_DOC_OP":"{ escape_json( is_k230-nr_doc_op ) }",| &&
+      |"qtde_ACABADA":{ format_decimal( is_k230-qtde_acabada ) }| &&
+    |\}|.
+ENDMETHOD.
+
+METHOD build_k235.
+  " ATENÇÃO: K235 tem estrutura DIFERENTE do K230.
+  " Mapeamento a partir de ty_knwk230 (reusado):
+  "   nr_SEQUENCIA       <- iv_seq
+  "   qtde               <- qtde_acabada
+  "   cd_PROD_SERV_INSUMO<- cd_produto_servico
+  "   dt_SAIDA           <- dt_inicio_op
+  "   dt_IMPORTACAO      <- dt_periodo
+  rv_json =
+    |\{| &&
+      |"dt_IMPORTACAO":"{ escape_json( is_k235-dt_periodo ) }",| &&
+      |"cod_EMPRESA":{ format_decimal( is_k235-cod_empresa ) },| &&
+      |"cod_FILIAL":{ format_decimal( is_k235-cod_filial ) },| &&
+      |"cod_GRUPOEMPRESA":"{ escape_json( is_k235-cod_grupoempresa ) }",| &&
+      |"nr_SEQUENCIA":"{ iv_seq }",| &&
+      |"dt_PERIODO":"{ escape_json( is_k235-dt_periodo ) }",| &&
+      |"qtde":{ format_decimal( is_k235-qtde_acabada ) },| &&
+      |"cd_PROD_SERV_INSUMO":"{ escape_json( is_k235-cd_produto_servico ) }",| &&
+      |"nr_DOC_OP":"{ escape_json( is_k235-nr_doc_op ) }",| &&
+      |"dt_SAIDA":"{ escape_json( is_k235-dt_inicio_op ) }"| &&
+    |\}|.
+ENDMETHOD.
+
+METHOD build_0200.
+  rv_json =
+    |\{| &&
+      |"DT_INICIAL":"{ escape_json( is_0200-dt_inicial ) }",| &&
+      |"DT_IMPORTACAO":"{ escape_json( is_0200-dt_importacao ) }",| &&
+      |"COD_EMPRESA":{ format_decimal( is_0200-cod_empresa ) },| &&
+      |"COD_FILIAL":{ format_decimal( is_0200-cod_filial ) },| &&
+      |"CD_PRODUTO_SERV":"{ escape_json( is_0200-cd_produto_serv ) }",| &&
+      |"DS_PRODUTO_SERV":"{ escape_json( is_0200-ds_produto_serv ) }",| &&
+      |"UNIDADE":"{ escape_json( is_0200-unidade ) }",| &&
+      |"ALIQ_ICMS":{ format_decimal( is_0200-aliq_icms ) },| &&
+      |"PERC_RED_BA_ICMS":{ format_decimal( is_0200-perc_red_ba_icms ) },| &&
+      |"CD_NCM":"{ escape_json( is_0200-cd_ncm ) }",| &&
+      |"CD_GENERO":"{ escape_json( is_0200-cd_genero ) }",| &&
+      |"DM_TIPO_ITEM":"{ escape_json( is_0200-dm_tipo_item ) }",| &&
+      |"CD_BARRA":"{ escape_json( is_0200-cd_barra ) }",| &&
+      |"DM_ORIGEM_PRODUTO":"{ escape_json( is_0200-dm_origem_produto ) }",| &&
+      |"ALIQ_PIS":{ format_decimal( is_0200-aliq_pis ) },| &&
+      |"ALIQ_COFINS":{ format_decimal( is_0200-aliq_cofins ) }| &&
+    |\}|.
+ENDMETHOD.
+
+METHOD build_0190.
+  rv_json =
+    |\{| &&
+      |"DT_INICIAL":"{ escape_json( is_0190-dt_inicial ) }",| &&
+      |"DT_IMPORTACAO":"{ escape_json( is_0190-dt_importacao ) }",| &&
+      |"COD_EMPRESA":{ format_decimal( is_0190-cod_empresa ) },| &&
+      |"COD_FILIAL":{ format_decimal( is_0190-cod_filial ) },| &&
+      |"DS_UNIDADE":"{ escape_json( is_0190-ds_unidade ) }",| &&
+      |"DS_DESCRICAO":"{ escape_json( is_0190-ds_descricao ) }"| &&
+    |\}|.
+ENDMETHOD.
+
+METHOD build_integration_json.
+  DATA: lv_objetos TYPE string,
+        lv_itens   TYPE string,
+        lv_seq     TYPE i.
+
+  LOOP AT is_main-objetos INTO DATA(ls_obj).
+
+    " Lista de insumos consumidos
+    CLEAR lv_itens.
+    lv_seq = 0.
+    LOOP AT ls_obj-integr_itens_consum_list INTO DATA(ls_item).
+      lv_seq = lv_seq + 1.
+
+      DATA(lv_item_json) =
+        |\{| &&
+          |"knwK235":{ build_k235( is_k235 = ls_item-knwk235 iv_seq = lv_seq ) },| &&
+          |"knw0200ProdutoInsumo":{ build_0200( ls_item-knw0200produtoinsumo ) },| &&
+          |"knw0190ProdutoInsumo":{ build_0190( ls_item-knw0190produtoinsumo ) }| &&
+        |\}|.
+
+      IF lv_itens IS NOT INITIAL.
+        lv_itens = lv_itens && `,`.
+      ENDIF.
+      lv_itens = lv_itens && lv_item_json.
+    ENDLOOP.
+
+    " Objeto raiz (K230 + 0200 + 0190 + lista)
+    DATA(lv_obj_json) =
+      |\{| &&
+        |"knwK230":{ build_k230( ls_obj-knwk230 ) },| &&
+        |"knw0200":{ build_0200( ls_obj-knw0200 ) },| &&
+        |"knw0190":{ build_0190( ls_obj-knw0190 ) },| &&
+        |"integracaoItensConsumidosList":[{ lv_itens }]| &&
+      |\}|.
+
+    IF lv_objetos IS NOT INITIAL.
+      lv_objetos = lv_objetos && `,`.
+    ENDIF.
+    lv_objetos = lv_objetos && lv_obj_json.
+
+  ENDLOOP.
+
+  rv_json = |\{"objetos":[{ lv_objetos }]\}|.
+ENDMETHOD.
   "--------------------------------------------------------------------------
   " format_date: converte TYPE d para string ISO 8601
   "--------------------------------------------------------------------------
@@ -765,14 +986,7 @@ CLASS lcl_process IMPLEMENTATION.
 
     LOOP AT t_out INTO DATA(ls_doc).
 
-      DATA(json_out) = /ui2/cl_json=>serialize(
-        EXPORTING
-          data             = ls_doc
-          compress         = abap_true
-          pretty_name      = /ui2/cl_json=>pretty_mode-none
-          assoc_arrays     = abap_false
-          assoc_arrays_opt = abap_false
-      ).
+      DATA(json_out) = build_integration_json( ls_doc ).
 
       json_out = /pyxs/sov_json_conversion=>convert_sovos( json_out ).
 
