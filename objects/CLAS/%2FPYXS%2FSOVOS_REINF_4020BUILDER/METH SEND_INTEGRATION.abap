@@ -29,7 +29,8 @@
     DATA: lr_cscn TYPE if_com_scenario_factory=>ty_query-cscn_id_range.
 
     " find CA by scenario
-    lr_cscn = VALUE #( ( sign = 'I' option = 'EQ' low = '/PYXS/SOVOS_REINF' ) ).
+    "lr_cscn = VALUE #( ( sign = 'I' option = 'EQ' low = '/PYXS/SOVOS_REINF' ) ).
+    lr_cscn = VALUE #( ( sign = 'I' option = 'EQ' low = '/PYXS/SOVOS' ) ).
     DATA(lo_factory) = cl_com_arrangement_factory=>create_instance( ).
     lo_factory->query_ca(
       EXPORTING
@@ -55,8 +56,10 @@
     " get destination based to Communication Arrangement
     TRY.
         DATA(lo_dest) = cl_http_destination_provider=>create_by_comm_arrangement(
-            comm_scenario  = '/PYXS/SOVOS_REINF'
-            service_id     = '/PYXS/SOVOS_REINF_REST'
+            "comm_scenario  = '/PYXS/SOVOS_REINF'
+            "service_id     = '/PYXS/SOVOS_REINF_REST'
+              comm_scenario  = '/PYXS/SOVOS'
+              service_id     = '/PYXS/SOV_REINF2_REST'
             comm_system_id = lo_ca->get_comm_system_id( ) ).
 
         DATA(lo_http_client) = cl_web_http_client_manager=>create_by_http_destination( lo_dest ).
@@ -74,7 +77,8 @@
 
         lo_request->set_uri_path(
           EXPORTING
-            i_uri_path = '/R4020'
+            i_uri_path = 'R4020'
+              "i_uri_path = 'api/knw/v2/estoqueEscriturado'
 *              multivalue = 0
 *            RECEIVING
 *              r_value    =
