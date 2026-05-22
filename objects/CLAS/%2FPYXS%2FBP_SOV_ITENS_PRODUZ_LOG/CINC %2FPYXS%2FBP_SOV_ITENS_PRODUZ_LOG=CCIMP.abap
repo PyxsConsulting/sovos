@@ -85,15 +85,6 @@ CLASS lcl_process DEFINITION FRIENDS lhc_SOV_ITENS_PRODUZ_LOG.
         aliq_cofins       TYPE p LENGTH 15 DECIMALS 2,
       END OF ty_knw0200,
 
-
-    "! Item de insumo consumido (K235 + 0200 + 0190 do insumo)
-      BEGIN OF ty_item_consumido,
-        knwK235               TYPE ty_knwk230,
-        knw0200produtoinsumo TYPE ty_knw0200,
-        knw0190produtoinsumo TYPE ty_knw0190,
-      END OF ty_item_consumido,
-      tt_itens_consumidos TYPE STANDARD TABLE OF ty_item_consumido WITH EMPTY KEY,
-
       "----------------------------------------------------------------------
       " Estrutura de resultado da seleção principal
       "----------------------------------------------------------------------
@@ -116,6 +107,28 @@ CLASS lcl_process DEFINITION FRIENDS lhc_SOV_ITENS_PRODUZ_LOG.
 
       ty_t_movimentos TYPE STANDARD TABLE OF ty_movimento WITH NON-UNIQUE DEFAULT KEY,
 
+      BEGIN OF ty_estornos,
+        materialdocumentyear  TYPE i_materialdocumentitem_2-materialdocumentyear,
+        materialdocument      TYPE i_materialdocumentitem_2-materialdocument,
+        materialdocumentitem  TYPE i_materialdocumentitem_2-materialdocumentitem,
+        manufacturingorder    TYPE i_materialdocumentitem_2-manufacturingorder,
+        material              TYPE i_materialdocumentitem_2-material,
+        plant                 TYPE i_materialdocumentitem_2-plant,
+        goodsmovementtype     TYPE i_materialdocumentitem_2-goodsmovementtype,
+        debitcreditcode       TYPE i_materialdocumentitem_2-debitcreditcode,
+        quantityinbaseunit    TYPE i_materialdocumentitem_2-quantityinbaseunit,
+        materialbaseunit      TYPE i_materialdocumentitem_2-materialbaseunit,
+        postingdate           TYPE i_materialdocumentitem_2-postingdate,
+        documentdate          TYPE i_materialdocumentitem_2-documentdate,
+        mfgorderplannedstartdate TYPE i_manufacturingorder-mfgorderplannedstartdate,
+        mfgorderscheduledstartdate TYPE i_manufacturingorder-mfgorderscheduledstartdate,
+        reversedmaterialdocumentyear TYPE i_materialdocumentitem_2-reversedmaterialdocumentyear,
+        reversedmaterialdocument TYPE i_materialdocumentitem_2-reversedmaterialdocument,
+        reversedmaterialdocumentitem TYPE i_materialdocumentitem_2-reversedmaterialdocumentitem,
+      END OF ty_estornos,
+
+      ty_t_estornos TYPE STANDARD TABLE OF ty_estornos WITH NON-UNIQUE DEFAULT KEY,
+
       "----------------------------------------------------------------------
       " Parâmetros de seleção
       "----------------------------------------------------------------------
@@ -133,8 +146,8 @@ CLASS lcl_process DEFINITION FRIENDS lhc_SOV_ITENS_PRODUZ_LOG.
         product            TYPE i_product-product,
         producttype        TYPE i_product-producttype,
         baseunit           TYPE i_product-baseunit,
-        productdescription TYPE i_productdescription-productdescription,
         productstandardid TYPE i_product-productstandardid,
+        productdescription TYPE i_productdescription-productdescription,
         "ncminternationalcode TYPE i_product-ncminternationalcode,
       END OF ty_product_data,
 
@@ -143,6 +156,28 @@ CLASS lcl_process DEFINITION FRIENDS lhc_SOV_ITENS_PRODUZ_LOG.
       "----------------------------------------------------------------------
       " Objeto completo enviado por linha de movimento
       "----------------------------------------------------------------------
+
+      BEGIN OF ty_knwk235_json,
+        dt_IMPORTACAO       TYPE string,
+        cod_empresa         TYPE p LENGTH 15 DECIMALS 2,
+        cod_filial          TYPE p LENGTH 15 DECIMALS 2,
+        cod_GRUPOEMPRESA    TYPE string,
+        nr_SEQUENCIA        TYPE string,
+        dt_PERIODO          TYPE string,
+        qtde                TYPE p LENGTH 15 DECIMALS 2,
+        cd_PROD_SERV_INSUMO TYPE string,
+        nr_DOC_OP           TYPE string,
+        dt_SAIDA            TYPE string,
+      END OF ty_knwk235_json,
+
+    "! Item de insumo consumido (K235 + 0200 + 0190 do insumo)
+      BEGIN OF ty_item_consumido,
+        knwK235               TYPE ty_knwk235_json,
+        knw0200produtoinsumo TYPE ty_knw0200,
+        knw0190produtoinsumo TYPE ty_knw0190,
+      END OF ty_item_consumido,
+      tt_itens_consumidos TYPE STANDARD TABLE OF ty_item_consumido WITH EMPTY KEY,
+
       BEGIN OF ty_objetos,
         knwk230 TYPE ty_knwk230,
         knw0200 TYPE ty_knw0200,
@@ -162,20 +197,6 @@ CLASS lcl_process DEFINITION FRIENDS lhc_SOV_ITENS_PRODUZ_LOG.
         companycodename TYPE i_companycode-companycodename,
       END OF ty_companycode.
 
-
-    TYPES:
-      BEGIN OF ty_knwk235_json,
-        dt_IMPORTACAO       TYPE string,
-        cod_EMPRESA         TYPE i,
-        cod_FILIAL          TYPE i,
-        cod_GRUPOEMPRESA    TYPE string,
-        nr_SEQUENCIA        TYPE string,
-        dt_PERIODO          TYPE string,
-        qtde                TYPE p LENGTH 15 DECIMALS 2,
-        cd_PROD_SERV_INSUMO TYPE string,
-        nr_DOC_OP           TYPE string,
-        dt_SAIDA            TYPE string,
-      END OF ty_knwk235_json.
 
     TYPES:
       BEGIN OF ty_item_consumido_json,
@@ -212,6 +233,7 @@ CLASS lcl_process DEFINITION FRIENDS lhc_SOV_ITENS_PRODUZ_LOG.
       gs_company    TYPE ty_companycode,
       s_branch_sov  TYPE /pyxs/sov_branch,
       gt_movimentos TYPE ty_t_movimentos,
+      gt_estorno    TYPE ty_t_estornos,
       gt_products   TYPE ty_t_product_data.
 
   PRIVATE SECTION.
@@ -243,7 +265,7 @@ CLASS lcl_process DEFINITION FRIENDS lhc_SOV_ITENS_PRODUZ_LOG.
     RETURNING VALUE(rv_json) TYPE string,
 
   build_k235
-    IMPORTING is_k235        TYPE ty_knwk230   " reaproveitando o tipo
+    IMPORTING is_k235        TYPE ty_knwk235_json   " reaproveitando o tipo
               iv_seq         TYPE i
     RETURNING VALUE(rv_json) TYPE string,
 
@@ -453,16 +475,16 @@ METHOD build_k235.
   "   dt_IMPORTACAO      <- dt_periodo
   rv_json =
     |\{| &&
-      |"dt_IMPORTACAO":"{ escape_json( is_k235-dt_periodo ) }",| &&
+      |"dt_IMPORTACAO":"{ escape_json( is_k235-dt_importacao ) }",| &&
       |"cod_EMPRESA":{ format_decimal( is_k235-cod_empresa ) },| &&
       |"cod_FILIAL":{ format_decimal( is_k235-cod_filial ) },| &&
       |"cod_GRUPOEMPRESA":"{ escape_json( is_k235-cod_grupoempresa ) }",| &&
       |"nr_SEQUENCIA":"{ iv_seq }",| &&
       |"dt_PERIODO":"{ escape_json( is_k235-dt_periodo ) }",| &&
-      |"qtde":{ format_decimal( is_k235-qtde_acabada ) },| &&
-      |"cd_PROD_SERV_INSUMO":"{ escape_json( is_k235-cd_produto_servico ) }",| &&
+      |"qtde":{ format_decimal( is_k235-qtde ) },| &&
+      |"cd_PROD_SERV_INSUMO":"{ escape_json( is_k235-cd_prod_serv_insumo ) }",| &&
       |"nr_DOC_OP":"{ escape_json( is_k235-nr_doc_op ) }",| &&
-      |"dt_SAIDA":"{ escape_json( is_k235-dt_inicio_op ) }"| &&
+      |"dt_SAIDA":"{ escape_json( is_k235-dt_saida ) }"| &&
     |\}|.
 ENDMETHOD.
 
@@ -596,6 +618,10 @@ ENDMETHOD.
       gc_mvt_131 TYPE i_materialdocumentitem_2-goodsmovementtype VALUE '131',
       gc_mvt_261 TYPE i_materialdocumentitem_2-goodsmovementtype VALUE '261'.
 
+    CONSTANTS: gc_mvt_102 TYPE i_materialdocumentitem_2-goodsmovementtype VALUE '102',
+         gc_mvt_132 TYPE i_materialdocumentitem_2-goodsmovementtype VALUE '132',
+         gc_mvt_262 TYPE i_materialdocumentitem_2-goodsmovementtype VALUE '262'.
+
     "--- Configuração da filial Sovos ---
     SELECT SINGLE *
       FROM /pyxs/sov_branch
@@ -632,7 +658,7 @@ ENDMETHOD.
       INNER JOIN i_materialdocumentheader_2 AS hdr
         ON  hdr~materialdocumentyear = item~materialdocumentyear
         AND hdr~materialdocument     = item~materialdocument
-      WHERE item~plant         = @sel-plant
+      WHERE item~plant         = @sel-companycode
         AND item~postingdate   BETWEEN @lv_first_day AND @lv_last_day
         AND item~goodsmovementtype IN ( @gc_mvt_101,
                                         @gc_mvt_131,
@@ -660,6 +686,55 @@ ENDMETHOD.
           AND pdesc~language = 'P'
         WHERE prod~product IN @lt_mat
         INTO TABLE @gt_products.
+
+        "--- Montar range de documentos originais para join de estorno ---
+      DATA lt_range_doc      TYPE RANGE OF i_materialdocumentitem_2-materialdocument.
+      DATA lt_range_doc_year TYPE RANGE OF i_materialdocumentitem_2-materialdocumentyear.
+
+      LOOP AT gt_movimentos INTO DATA(ls_mov_range).
+        APPEND VALUE #( sign   = 'I'
+                        option = 'EQ'
+                        low    = ls_mov_range-materialdocument ) TO lt_range_doc.
+        APPEND VALUE #( sign   = 'I'
+                        option = 'EQ'
+                        low    = ls_mov_range-materialdocumentyear ) TO lt_range_doc_year.
+      ENDLOOP.
+
+      SORT lt_range_doc      BY low.
+      SORT lt_range_doc_year BY low.
+      DELETE ADJACENT DUPLICATES FROM lt_range_doc      COMPARING low.
+      DELETE ADJACENT DUPLICATES FROM lt_range_doc_year COMPARING low.
+
+      SELECT
+          estorno~materialdocumentyear,
+          estorno~materialdocument,
+          estorno~materialdocumentitem,
+          estorno~manufacturingorder,
+          estorno~material,
+          estorno~plant,
+          estorno~goodsmovementtype,
+          estorno~debitcreditcode,
+          estorno~quantityinbaseunit,
+          estorno~materialbaseunit,
+          estorno~postingdate,
+          estorno~documentdate,
+          mo~mfgorderplannedstartdate,
+          mo~mfgorderscheduledstartdate,
+          estorno~reversedmaterialdocumentyear,
+          estorno~reversedmaterialdocument,
+          estorno~reversedmaterialdocumentitem
+        FROM i_materialdocumentitem_2 AS estorno
+        INNER JOIN i_manufacturingorder AS mo
+          ON mo~manufacturingorder = estorno~manufacturingorder
+          AND mo~manufacturingorder <> @space
+        WHERE estorno~plant                          = @sel-companycode
+          AND estorno~goodsmovementtype             IN ( @gc_mvt_102,
+                                                         @gc_mvt_132,
+                                                         @gc_mvt_262 )
+          AND estorno~reversedmaterialdocument      IN @lt_range_doc
+          AND estorno~reversedmaterialdocumentyear  IN @lt_range_doc_year
+        INTO TABLE @gt_estorno.
+
     ENDIF.
 
     "--- Company code ---
@@ -697,105 +772,105 @@ ENDMETHOD.
 
     CLEAR: t_out.
 
-    IF gt_movimentos IS INITIAL.
-    "mock data here, as the final result, lt_out should be an object with these values and structure:
-
-      CLEAR: ls_out, ls_objeto.
-
-      "----------------------------------------------------------
-      " MOCK K230
-      "----------------------------------------------------------
-      ls_objeto-knwk230-cod_empresa        = 1.
-      ls_objeto-knwk230-cod_filial         = 1.
-      ls_objeto-knwk230-cod_grupoempresa   = '<GRUPO_EMPRESA>'.
-      ls_objeto-knwk230-dt_periodo         = '2025-03-31T03:00:03'.
-      ls_objeto-knwk230-cd_produto_servico = 'PRODUTO_001'.
-      ls_objeto-knwk230-dt_inicio_op       = '2025-03-29T03:00:03'.
-      ls_objeto-knwk230-dt_final_op        = '2025-03-29T03:00:04'.
-      ls_objeto-knwk230-nr_doc_op          = 'DOC_001'.
-      ls_objeto-knwk230-qtde_acabada       = 8.
-
-      "----------------------------------------------------------
-      " MOCK 0200 PRODUTO
-      "----------------------------------------------------------
-      ls_objeto-knw0200-dt_inicial        = '2025-03-31T00:00:02'.
-      ls_objeto-knw0200-dt_importacao     = '2025-03-31T00:00:02'.
-      ls_objeto-knw0200-cod_empresa       = 1.
-      ls_objeto-knw0200-cod_filial        = 1.
-      ls_objeto-knw0200-cd_produto_serv   = 'PRODUTO_001'.
-      ls_objeto-knw0200-ds_produto_serv   = '<DESCRICAO_PRODUTO>'.
-      ls_objeto-knw0200-unidade           = 'UN'.
-      ls_objeto-knw0200-aliq_icms         = 0.
-      ls_objeto-knw0200-perc_red_ba_icms  = 0.
-      ls_objeto-knw0200-cd_ncm            = '00000000'.
-      ls_objeto-knw0200-cd_genero         = '00'.
-      ls_objeto-knw0200-dm_tipo_item      = '00'.
-      ls_objeto-knw0200-cd_barra          = 'SEM GTIN'.
-      ls_objeto-knw0200-dm_origem_produto = '0'.
-      ls_objeto-knw0200-aliq_pis          = 0.
-      ls_objeto-knw0200-aliq_cofins       = 0.
-
-      "----------------------------------------------------------
-      " MOCK 0190 PRODUTO
-      "----------------------------------------------------------
-      ls_objeto-knw0190-dt_inicial    = '2025-03-31T00:00:02'.
-      ls_objeto-knw0190-dt_importacao = '2025-03-31T00:00:02'.
-      ls_objeto-knw0190-cod_empresa   = 1.
-      ls_objeto-knw0190-cod_filial    = 1.
-      ls_objeto-knw0190-ds_unidade    = 'UN'.
-      ls_objeto-knw0190-ds_descricao  = '<DESCRICAO_UNIDADE>'.
-
-      "----------------------------------------------------------
-      " MOCK ITEM CONSUMIDO
-      "----------------------------------------------------------
-      DATA(ls_item_cons_mock) = VALUE ty_item_consumido(
-
-        knwk235 = VALUE #(
-          cod_empresa        = 1
-          cod_filial         = 1
-          cod_grupoempresa   = '<GRUPO_EMPRESA>'
-          dt_periodo         = '2025-03-31T00:00:02'
-          cd_produto_servico = 'INSUMO_001'
-          dt_inicio_op       = '2025-03-31T00:00:01'
-          dt_final_op        = '2025-03-31T00:00:01'
-          nr_doc_op          = 'DOC_001'
-          qtde_acabada       = 0
-        )
-
-        knw0200produtoinsumo = VALUE #(
-          dt_inicial        = '2025-03-31T00:00:02'
-          dt_importacao     = '2025-03-31T00:00:02'
-          cod_empresa       = 1
-          cod_filial        = 1
-          cd_produto_serv   = 'INSUMO_001'
-          ds_produto_serv   = '<DESCRICAO_INSUMO>'
-          unidade           = 'UN'
-          aliq_icms         = 0
-          perc_red_ba_icms  = 0
-          cd_ncm            = '00000000'
-          cd_genero         = '00'
-          dm_tipo_item      = '00'
-          cd_barra          = 'SEM GTIN'
-          dm_origem_produto = '0'
-          aliq_pis          = 0
-          aliq_cofins       = 0
-        )
-
-        knw0190produtoinsumo = VALUE #(
-          dt_inicial    = '2025-03-31T00:00:02'
-          dt_importacao = '2025-03-31T00:00:02'
-          cod_empresa   = 1
-          cod_filial    = 1
-          ds_unidade    = 'UN'
-          ds_descricao  = '<DESCRICAO_UNIDADE>'
-        )
-      ).
-
-      APPEND ls_item_cons_mock TO ls_objeto-integr_itens_consum_list.
-
-      APPEND ls_objeto TO ls_out-objetos.
-      APPEND ls_out TO t_out.
-    ENDIF.
+***    IF gt_movimentos IS INITIAL.
+***    "mock data here, as the final result, lt_out should be an object with these values and structure:
+***
+***      CLEAR: ls_out, ls_objeto.
+***
+***      "----------------------------------------------------------
+***      " MOCK K230
+***      "----------------------------------------------------------
+***      ls_objeto-knwk230-cod_empresa        = 1.
+***      ls_objeto-knwk230-cod_filial         = 1.
+***      ls_objeto-knwk230-cod_grupoempresa   = '<GRUPO_EMPRESA>'.
+***      ls_objeto-knwk230-dt_periodo         = '2025-03-31T03:00:03'.
+***      ls_objeto-knwk230-cd_produto_servico = 'PRODUTO_001'.
+***      ls_objeto-knwk230-dt_inicio_op       = '2025-03-29T03:00:03'.
+***      ls_objeto-knwk230-dt_final_op        = '2025-03-29T03:00:04'.
+***      ls_objeto-knwk230-nr_doc_op          = 'DOC_001'.
+***      ls_objeto-knwk230-qtde_acabada       = 8.
+***
+***      "----------------------------------------------------------
+***      " MOCK 0200 PRODUTO
+***      "----------------------------------------------------------
+***      ls_objeto-knw0200-dt_inicial        = '2025-03-31T00:00:02'.
+***      ls_objeto-knw0200-dt_importacao     = '2025-03-31T00:00:02'.
+***      ls_objeto-knw0200-cod_empresa       = 1.
+***      ls_objeto-knw0200-cod_filial        = 1.
+***      ls_objeto-knw0200-cd_produto_serv   = 'PRODUTO_001'.
+***      ls_objeto-knw0200-ds_produto_serv   = '<DESCRICAO_PRODUTO>'.
+***      ls_objeto-knw0200-unidade           = 'UN'.
+***      ls_objeto-knw0200-aliq_icms         = 0.
+***      ls_objeto-knw0200-perc_red_ba_icms  = 0.
+***      ls_objeto-knw0200-cd_ncm            = '00000000'.
+***      ls_objeto-knw0200-cd_genero         = '00'.
+***      ls_objeto-knw0200-dm_tipo_item      = '00'.
+***      ls_objeto-knw0200-cd_barra          = 'SEM GTIN'.
+***      ls_objeto-knw0200-dm_origem_produto = '0'.
+***      ls_objeto-knw0200-aliq_pis          = 0.
+***      ls_objeto-knw0200-aliq_cofins       = 0.
+***
+***      "----------------------------------------------------------
+***      " MOCK 0190 PRODUTO
+***      "----------------------------------------------------------
+***      ls_objeto-knw0190-dt_inicial    = '2025-03-31T00:00:02'.
+***      ls_objeto-knw0190-dt_importacao = '2025-03-31T00:00:02'.
+***      ls_objeto-knw0190-cod_empresa   = 1.
+***      ls_objeto-knw0190-cod_filial    = 1.
+***      ls_objeto-knw0190-ds_unidade    = 'UN'.
+***      ls_objeto-knw0190-ds_descricao  = '<DESCRICAO_UNIDADE>'.
+***
+***      "----------------------------------------------------------
+***      " MOCK ITEM CONSUMIDO
+***      "----------------------------------------------------------
+***      DATA(ls_item_cons_mock) = VALUE ty_item_consumido(
+***
+***        knwk235 = VALUE #(
+***          cod_empresa        = 1
+***          cod_filial         = 1
+***          cod_grupoempresa   = '<GRUPO_EMPRESA>'
+***          dt_periodo         = '2025-03-31T00:00:02'
+***          cd_produto_servico = 'INSUMO_001'
+***          dt_inicio_op       = '2025-03-31T00:00:01'
+***          dt_final_op        = '2025-03-31T00:00:01'
+***          nr_doc_op          = 'DOC_001'
+***          qtde_acabada       = 0
+***        )
+***
+***        knw0200produtoinsumo = VALUE #(
+***          dt_inicial        = '2025-03-31T00:00:02'
+***          dt_importacao     = '2025-03-31T00:00:02'
+***          cod_empresa       = 1
+***          cod_filial        = 1
+***          cd_produto_serv   = 'INSUMO_001'
+***          ds_produto_serv   = '<DESCRICAO_INSUMO>'
+***          unidade           = 'UN'
+***          aliq_icms         = 0
+***          perc_red_ba_icms  = 0
+***          cd_ncm            = '00000000'
+***          cd_genero         = '00'
+***          dm_tipo_item      = '00'
+***          cd_barra          = 'SEM GTIN'
+***          dm_origem_produto = '0'
+***          aliq_pis          = 0
+***          aliq_cofins       = 0
+***        )
+***
+***        knw0190produtoinsumo = VALUE #(
+***          dt_inicial    = '2025-03-31T00:00:02'
+***          dt_importacao = '2025-03-31T00:00:02'
+***          cod_empresa   = 1
+***          cod_filial    = 1
+***          ds_unidade    = 'UN'
+***          ds_descricao  = '<DESCRICAO_UNIDADE>'
+***        )
+***      ).
+***
+***      APPEND ls_item_cons_mock TO ls_objeto-integr_itens_consum_list.
+***
+***      APPEND ls_objeto TO ls_out-objetos.
+***      APPEND ls_out TO t_out.
+***    ENDIF.
 
     " Agrupar por (OP, material produzido) - cada produção gera um K230,
     " e os consumos da mesma OP entram como K235.
@@ -822,6 +897,7 @@ ENDMETHOD.
       READ TABLE gt_products INTO DATA(ls_prod)
         WITH KEY product = ls_mov-material.
 
+
       "--- knwK230 – movimento de produção ---
       ls_objeto-knwk230-cod_empresa        = CONV i( s_branch_sov-sov_company ).
       ls_objeto-knwk230-cod_filial         = CONV i( s_branch_sov-sov_branch ).
@@ -829,16 +905,28 @@ ENDMETHOD.
       ls_objeto-knwk230-dt_periodo         = lv_dt_ini.
       ls_objeto-knwk230-cd_produto_servico = ls_mov-material.
       ls_objeto-knwk230-dt_inicio_op       = format_date( iv_date = ls_mov-postingdate ).
-      ls_objeto-knwk230-dt_final_op        = format_date( iv_date = ls_mov-postingdate ).
+      ls_objeto-knwk230-dt_final_op        = format_date( iv_date = ls_mov-postingdate ). "puxa das tab join ordem de produção
       ls_objeto-knwk230-nr_doc_op          = ls_mov-manufacturingorder.
       ls_objeto-knwk230-qtde_acabada       = ls_mov-quantityinbaseunit.
 
       "Quantidade: positiva para recebimento (101/131), negativa para consumo (261)
-      IF ls_mov-goodsmovementtype = '261'.
-        ls_objeto-knwk230-qtde_acabada = ls_mov-quantityinbaseunit * -1.
-      ELSE.
-        ls_objeto-knwk230-qtde_acabada = ls_mov-quantityinbaseunit.
+***      IF ls_mov-goodsmovementtype = '261'.
+***        ls_objeto-knwk230-qtde_acabada = ls_mov-quantityinbaseunit * -1.
+***      ELSE.
+***        ls_objeto-knwk230-qtde_acabada = ls_mov-quantityinbaseunit.
+***      ENDIF.
+
+      "--- Verificar e subtrair estorno correspondente (102/132) ---
+      "estorno pela MIGO (estornando o material original)
+      READ TABLE gt_estorno INTO DATA(ls_estorno)
+        WITH KEY reversedmaterialdocument     = ls_mov-materialdocument
+                 reversedmaterialdocumentyear = ls_mov-materialdocumentyear
+                 materialdocumentitem         = ls_mov-materialdocumentitem.
+      IF sy-subrc = 0.
+        "Estorno sempre subtrai: para 101/131 o estorno reduz o saldo positivo
+        ls_objeto-knwk230-qtde_acabada = ls_objeto-knwk230-qtde_acabada - ls_estorno-quantityinbaseunit.
       ENDIF.
+      "estorno avulso? puxa pela ordem de produção + cod do material
 
       "--- knw0200 – cadastro do produto ---
       ls_objeto-knw0200-dt_inicial        = '1900-01-01T00:00:00+03:00'.
@@ -902,19 +990,27 @@ ENDMETHOD.
 
         lv_seq = lv_seq + 1.
         DATA ls_item_cons TYPE ty_item_consumido.
-
         "----------------------------------------------------------
         " K235 - consumo do insumo
-        "----------------------------------------------------------
-        ls_item_cons-knwK235-cod_empresa        = CONV #( s_branch_sov-sov_company ).
-        ls_item_cons-knwK235-cod_filial         = CONV #( s_branch_sov-sov_branch ).
-        ls_item_cons-knwK235-cod_grupoempresa   = "<GRUPO_EMPRESA>".  " ajustar se houver campo grupo
-        ls_item_cons-knwK235-dt_periodo         = lv_dt_ini.
-        ls_item_cons-knwK235-cd_produto_servico = ls_cons-material.
-        ls_item_cons-knwK235-dt_inicio_op       = format_date( iv_date = ls_cons-postingdate ).
-        ls_item_cons-knwK235-dt_final_op        = format_date( iv_date = ls_cons-postingdate ).
-        ls_item_cons-knwK235-nr_doc_op          = ls_cons-manufacturingorder.
+        "----------------------------------------------------------ls_item_cons-knwK235-dt_importacao       = lv_dt_ini.
+        ls_item_cons-knwK235-cod_empresa         = CONV i( s_branch_sov-sov_company ).
+        ls_item_cons-knwK235-cod_filial          = CONV i( s_branch_sov-sov_branch ).
+        ls_item_cons-knwK235-cod_grupoempresa    = '<GRUPO_EMPRESA>'.
+        ls_item_cons-knwK235-dt_periodo          = lv_dt_ini.
+        ls_item_cons-knwK235-qtde                = ls_cons-quantityinbaseunit.
+        ls_item_cons-knwK235-cd_prod_serv_insumo = ls_cons-material.
+        ls_item_cons-knwK235-nr_doc_op           = ls_cons-manufacturingorder.
+        ls_item_cons-knwK235-dt_saida            = format_date( iv_date = ls_cons-postingdate ).
 
+        "--- Verificar e subtrair estorno correspondente (262) ---
+        READ TABLE gt_estorno INTO DATA(ls_estorno_cons)
+          WITH KEY reversedmaterialdocument     = ls_cons-materialdocument
+                   reversedmaterialdocumentyear = ls_cons-materialdocumentyear
+                   materialdocumentitem         = ls_cons-materialdocumentitem.
+        IF sy-subrc = 0.
+          "Estorno do consumo devolve o material: soma de volta
+          ls_item_cons-knwK235-qtde = ls_item_cons-knwK235-qtde - ls_estorno_cons-quantityinbaseunit.
+        ENDIF.
         "----------------------------------------------------------
         " 0200 do insumo
         "----------------------------------------------------------

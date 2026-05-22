@@ -59,7 +59,7 @@
         <ls_knw_r4020>-cd_empresa         = gs_branch_sov-sov_company.
         <ls_knw_r4020>-cd_filial          = gs_branch_sov-sov_branch.
         <ls_knw_r4020>-id_referencia      = |{ ls_data-clearingdate(6) }{ ls_nfs-br_nfpartner }|.
-        <ls_knw_r4020>-id_evento          = '1'.
+        <ls_knw_r4020>-id_evento          = <ls_knw_r4020>-id_referencia. "A definir
         <ls_knw_r4020>-dm_retificacao     = '1'.
         <ls_knw_r4020>-dt_apuracao        = ls_data-clearingdate.
         <ls_knw_r4020>-nr_inscricao_estab = ls_nfs-br_businessplacecnpj.
@@ -77,7 +77,7 @@
       <knw_reinf_r4020_pgt>-cd_empresa    = gs_branch_sov-sov_company.
       <knw_reinf_r4020_pgt>-cd_filial     = gs_branch_sov-sov_branch.
       <knw_reinf_r4020_pgt>-id_referencia = lv_id.
-      <knw_reinf_r4020_pgt>-id_seq_pagto  = lv_id_seq_pagto.
+      <knw_reinf_r4020_pgt>-id_seq_pagto  = lv_id_seq_pagto. "Incrementar para cada pagamento do mesmo parceiro + anomes
       <knw_reinf_r4020_pgt>-nr_nat_rend   = get_nat_ren( |{ ls_nfs-br_lc116servicecode }| ).
       <knw_reinf_r4020_pgt>-ds_observacao = ''."ms_doc-br_nfobservationtext.
 
@@ -92,16 +92,16 @@
       <knw_reinf_r4020_info_pgto>-cd_filial        = gs_branch_sov-sov_branch.
       <knw_reinf_r4020_info_pgto>-id_referencia    = lv_id.
       <knw_reinf_r4020_info_pgto>-id_seq_pagto     = <knw_reinf_r4020_pgt>-id_seq_pagto.
-      <knw_reinf_r4020_info_pgto>-id_seq_info_pgto = lv_id_seq_info_pgto.
+      <knw_reinf_r4020_info_pgto>-id_seq_info_pgto = lv_id_seq_info_pgto. "Incrementar para cada pagamento do mesmo parceiro + anomes + natureza rendimento
       <knw_reinf_r4020_info_pgto>-dt_fato_gerador  = format_date( iv_date = ls_data-clearingdate ).
       <knw_reinf_r4020_info_pgto>-vl_bruto         = format_amount( iv_value = ls_nfs-br_nftotalamount ).
-      <knw_reinf_r4020_info_pgto>-ds_observ        = ''. "ls_nfs-br_nfobservationtext.
+      <knw_reinf_r4020_info_pgto>-ds_observ        = |Doc contábil { ls_data-accountingdocument }|.
       <knw_reinf_r4020_info_pgto>-dm_fci_scp       = ''.
       <knw_reinf_r4020_info_pgto>-nr_insc_fci_scp  = ''.
       <knw_reinf_r4020_info_pgto>-nr_perc_scp      = ''.
-      <knw_reinf_r4020_info_pgto>-dm_jud           = 'N'.
-      <knw_reinf_r4020_info_pgto>-cd_pais_resid    = '1058'.
-      <knw_reinf_r4020_info_pgto>-dt_escr_cont     = format_date( iv_date = ls_nfs-br_nfissuedate ).
+      <knw_reinf_r4020_info_pgto>-dm_jud           = ''.
+      <knw_reinf_r4020_info_pgto>-cd_pais_resid    = ''. "Abrir quando nao for Brasil (Código Bacen)
+      <knw_reinf_r4020_info_pgto>-dt_escr_cont     = ''.
 
       READ TABLE ls_root-knw_reinf_r4020_info_pgto_ret ASSIGNING FIELD-SYMBOL(<r4020_info_pgto_ret>) WITH KEY id_referencia = lv_id.
       IF sy-subrc IS NOT INITIAL.
@@ -117,19 +117,19 @@
       CASE ls_irf_type-imposto.
         WHEN 'IR'.
           <r4020_info_pgto_ret>-vl_ir             += abs( ls_data-withholdingtaxamtintransaccrcy ).
-          <r4020_info_pgto_ret>-vl_base_ir        += abs( ls_data-withholdingtaxbaseamtincocode ).
+          <r4020_info_pgto_ret>-vl_base_ir        = abs( ls_data-withholdingtaxbaseamtincocode ).
         WHEN 'CSLL'.
           <r4020_info_pgto_ret>-vl_csll           += abs( ls_data-withholdingtaxamtintransaccrcy ).
-          <r4020_info_pgto_ret>-vl_base_csll      += abs( ls_data-withholdingtaxbaseamtincocode ).
+          <r4020_info_pgto_ret>-vl_base_csll      = abs( ls_data-withholdingtaxbaseamtincocode ).
         WHEN 'COFINS' .
           <r4020_info_pgto_ret>-vl_cofins         += abs( ls_data-withholdingtaxamtintransaccrcy ).
-          <r4020_info_pgto_ret>-vl_base_cofins    += abs( ls_data-withholdingtaxbaseamtincocode ).
+          <r4020_info_pgto_ret>-vl_base_cofins    = abs( ls_data-withholdingtaxbaseamtincocode ).
         WHEN 'PIS'.
           <r4020_info_pgto_ret>-vl_pis_pasep      += abs( ls_data-withholdingtaxamtintransaccrcy ).
-          <r4020_info_pgto_ret>-vl_base_pis_pasep += abs( ls_data-withholdingtaxbaseamtincocode ).
+          <r4020_info_pgto_ret>-vl_base_pis_pasep = abs( ls_data-withholdingtaxbaseamtincocode ).
         WHEN 'PCC'.
           <r4020_info_pgto_ret>-vl_agreg          += abs( ls_data-withholdingtaxamtintransaccrcy ).
-          <r4020_info_pgto_ret>-vl_base_agreg     += abs( ls_data-withholdingtaxbaseamtincocode ).
+          <r4020_info_pgto_ret>-vl_base_agreg     = abs( ls_data-withholdingtaxbaseamtincocode ).
       ENDCASE.
 *      CASE ls_nfs-taxgroup.
 *        WHEN 'IRRF' OR 'WHIR' OR 'WAIR'. "Imposto de Renda
@@ -150,6 +150,9 @@
 *      ENDCASE.
 
 *    ENDLOOP.
+
+      "KNW_REINF_R4020_INFO_PGTO_EXT, abrir quando for fornecedor estrangeiro (por doc contábil)
+
     ENDLOOP.
 
   ENDMETHOD.

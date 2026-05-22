@@ -1,5 +1,16 @@
 [
  {
+  "table":"DDTYPES",
+  "data":
+  [
+   {
+    "TYPENAME":"/PYXS/BP_SOVOS_INVENTORY_BKP",
+    "STATE":"A",
+    "TYPEKIND":"CLAS"
+   }
+  ]
+ },
+ {
   "table":"SEOCLASS",
   "data":
   [
@@ -12,6 +23,50 @@
   ]
  },
  {
+  "table":"SEOCLASSDF",
+  "data":
+  [
+   {
+    "CLSNAME":"/PYXS/BP_SOVOS_INVENTORY_BKP",
+    "VERSION":1,
+    "CATEGORY":0,
+    "EXPOSURE":2,
+    "STATE":1,
+    "RELEASE":0,
+    "AUTHOR":"",
+    "CREATEDON":"2026-05-07",
+    "CHANGEDBY":"",
+    "CHANGEDON":"0000-00-00",
+    "CHGDANYBY":"",
+    "CHGDANYON":"0000-00-00",
+    "CLSEMBED":"",
+    "CLSABSTRCT":"X",
+    "CLSFINAL":"X",
+    "CLSCCINCL":"X",
+    "CLSDEFATT":"",
+    "CLSDEFMTD":"",
+    "REFCLSNAME":"",
+    "FIXPT":"X",
+    "VARCL":"",
+    "UNICODE":"5",
+    "RSTAT":"",
+    "CLSBCIMPL":"",
+    "R3RELEASE":"918",
+    "CLSBCTRANS":"",
+    "CLSBCCAT":0,
+    "CLSBCNODEL":"",
+    "CLSADDON":"",
+    "MSG_ID":"",
+    "CLSPROXY":"",
+    "CLSSHAREDMEMORY":"",
+    "WITH_UNIT_TESTS":"X",
+    "DURATION_TYPE":"0",
+    "RISK_LEVEL":"0",
+    "WITHIN_PACKAGE":""
+   }
+  ]
+ },
+ {
   "table":"SEOCLASSTX",
   "data":
   [
@@ -19,31 +74,6 @@
     "CLSNAME":"/PYXS/BP_SOVOS_INVENTORY_BKP",
     "LANGU":"P",
     "DESCRIPT":"Behavior Implementation for /PYXS/SOVOS_INVENTORYLOG"
-   }
-  ]
- },
- {
-  "table":"SEOCOMPO",
-  "data":
-  [
-   {
-    "CLSNAME":"/PYXS/BP_SOVOS_INVENTORY_BKP",
-    "CMPNAME":"LT_LOG",
-    "CMPTYPE":0,
-    "MTDTYPE":0,
-    "MTDTYPE2":0
-   }
-  ]
- },
- {
-  "table":"SEOCOMPOTX",
-  "data":
-  [
-   {
-    "CLSNAME":"/PYXS/BP_SOVOS_INVENTORY_BKP",
-    "CMPNAME":"LT_LOG",
-    "LANGU":"P",
-    "DESCRIPT":""
    }
   ]
  },
@@ -95,6 +125,7 @@
   [
    {
     "NAME":"/PYXS/BP_SOVOS_INVENTORY_BKP==CCAU",
+    "VARCL":"X",
     "DBAPL":"S",
     "DBNA":"D$",
     "SUBC":"I",
@@ -105,6 +136,7 @@
    },
    {
     "NAME":"/PYXS/BP_SOVOS_INVENTORY_BKP==CCDEF",
+    "VARCL":"X",
     "DBAPL":"S",
     "DBNA":"D$",
     "SUBC":"I",
@@ -115,6 +147,7 @@
    },
    {
     "NAME":"/PYXS/BP_SOVOS_INVENTORY_BKP==CCIMP",
+    "VARCL":"X",
     "DBAPL":"S",
     "DBNA":"D$",
     "SUBC":"I",
@@ -125,6 +158,7 @@
    },
    {
     "NAME":"/PYXS/BP_SOVOS_INVENTORY_BKP==CCMAC",
+    "VARCL":"X",
     "DBAPL":"S",
     "DBNA":"D$",
     "SUBC":"I",
@@ -135,6 +169,7 @@
    },
    {
     "NAME":"/PYXS/BP_SOVOS_INVENTORY_BKP==CI",
+    "VARCL":"X",
     "DBAPL":"S",
     "DBNA":"D$",
     "SUBC":"I",
@@ -145,6 +180,7 @@
    },
    {
     "NAME":"/PYXS/BP_SOVOS_INVENTORY_BKP==CO",
+    "VARCL":"X",
     "DBAPL":"S",
     "DBNA":"D$",
     "SUBC":"I",
@@ -156,6 +192,7 @@
    {
     "NAME":"/PYXS/BP_SOVOS_INVENTORY_BKP==CP",
     "EDTX":"X",
+    "VARCL":"X",
     "DBAPL":"S",
     "DBNA":"D$",
     "SUBC":"K",
@@ -176,6 +213,7 @@
    },
    {
     "NAME":"/PYXS/BP_SOVOS_INVENTORY_BKP==CU",
+    "VARCL":"X",
     "DBAPL":"S",
     "DBNA":"D$",
     "SUBC":"I",
