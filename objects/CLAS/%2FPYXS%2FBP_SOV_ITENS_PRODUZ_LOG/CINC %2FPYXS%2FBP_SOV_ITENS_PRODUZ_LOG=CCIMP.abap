@@ -690,6 +690,7 @@ ENDMETHOD.
         "--- Montar range de documentos originais para join de estorno ---
       DATA lt_range_doc      TYPE RANGE OF i_materialdocumentitem_2-materialdocument.
       DATA lt_range_doc_year TYPE RANGE OF i_materialdocumentitem_2-materialdocumentyear.
+      DATA lt_range_m_order TYPE RANGE OF i_materialdocumentitem_2-manufacturingorder.
 
       LOOP AT gt_movimentos INTO DATA(ls_mov_range).
         APPEND VALUE #( sign   = 'I'
@@ -698,6 +699,9 @@ ENDMETHOD.
         APPEND VALUE #( sign   = 'I'
                         option = 'EQ'
                         low    = ls_mov_range-materialdocumentyear ) TO lt_range_doc_year.
+        APPEND VALUE #( sign   = 'I'
+                        option = 'EQ'
+                        low    = ls_mov_range-manufacturingorder ) TO lt_range_m_order.
       ENDLOOP.
 
       SORT lt_range_doc      BY low.
@@ -726,13 +730,13 @@ ENDMETHOD.
         FROM i_materialdocumentitem_2 AS estorno
         INNER JOIN i_manufacturingorder AS mo
           ON mo~manufacturingorder = estorno~manufacturingorder
-          AND mo~manufacturingorder <> @space
         WHERE estorno~plant                          = @sel-companycode
           AND estorno~goodsmovementtype             IN ( @gc_mvt_102,
                                                          @gc_mvt_132,
                                                          @gc_mvt_262 )
-          AND estorno~reversedmaterialdocument      IN @lt_range_doc
-          AND estorno~reversedmaterialdocumentyear  IN @lt_range_doc_year
+          "AND estorno~reversedmaterialdocument      IN @lt_range_doc
+          "AND estorno~reversedmaterialdocumentyear  IN @lt_range_doc_year
+          AND mo~manufacturingorder IN @lt_range_m_order
         INTO TABLE @gt_estorno.
 
     ENDIF.
@@ -918,10 +922,18 @@ ENDMETHOD.
 
       "--- Verificar e subtrair estorno correspondente (102/132) ---
       "estorno pela MIGO (estornando o material original)
+
+      DATA lv_bwart_estorno TYPE bwart.
+
+      lv_bwart_estorno = CONV i( ls_mov-goodsmovementtype ) + 1.
+
       READ TABLE gt_estorno INTO DATA(ls_estorno)
-        WITH KEY reversedmaterialdocument     = ls_mov-materialdocument
-                 reversedmaterialdocumentyear = ls_mov-materialdocumentyear
-                 materialdocumentitem         = ls_mov-materialdocumentitem.
+        WITH KEY manufacturingorder  = ls_mov-manufacturingorder
+                 material            = ls_mov-material
+                 goodsmovementtype   = lv_bwart_estorno.
+***        WITH KEY reversedmaterialdocument     = ls_mov-materialdocument
+***                 reversedmaterialdocumentyear = ls_mov-materialdocumentyear
+***                 materialdocumentitem         = ls_mov-materialdocumentitem.
       IF sy-subrc = 0.
         "Estorno sempre subtrai: para 101/131 o estorno reduz o saldo positivo
         ls_objeto-knwk230-qtde_acabada = ls_objeto-knwk230-qtde_acabada - ls_estorno-quantityinbaseunit.
@@ -1003,10 +1015,14 @@ ENDMETHOD.
         ls_item_cons-knwK235-dt_saida            = format_date( iv_date = ls_cons-postingdate ).
 
         "--- Verificar e subtrair estorno correspondente (262) ---
+        lv_bwart_estorno = CONV i( ls_cons-goodsmovementtype ) + 1.
         READ TABLE gt_estorno INTO DATA(ls_estorno_cons)
-          WITH KEY reversedmaterialdocument     = ls_cons-materialdocument
-                   reversedmaterialdocumentyear = ls_cons-materialdocumentyear
-                   materialdocumentitem         = ls_cons-materialdocumentitem.
+             WITH KEY manufacturingorder = ls_cons-manufacturingorder
+                      material = ls_cons-material
+                      goodsmovementtype = lv_bwart_estorno.
+***          WITH KEY reversedmaterialdocument     = ls_cons-materialdocument
+***                   reversedmaterialdocumentyear = ls_cons-materialdocumentyear
+***                   materialdocumentitem         = ls_cons-materialdocumentitem.
         IF sy-subrc = 0.
           "Estorno do consumo devolve o material: soma de volta
           ls_item_cons-knwK235-qtde = ls_item_cons-knwK235-qtde - ls_estorno_cons-quantityinbaseunit.

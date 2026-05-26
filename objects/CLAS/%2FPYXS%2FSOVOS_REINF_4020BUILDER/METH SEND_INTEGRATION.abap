@@ -2,6 +2,18 @@
     DATA: gv_proc            TYPE string.
     DATA: lo_ret     TYPE REF TO data,
           lv_sucesso TYPE abap_boolean.
+
+    IF ls_root IS INITIAL.
+***      APPEND INITIAL LINE TO /pyxs/bp_reinflog=>lt_log ASSIGNING FIELD-SYMBOL(<log>).
+***      GET TIME STAMP FIELD DATA(time).
+***      <log>-ano_mes = me->sel-creation[ 1 ]-low.
+***      <log>-time = time.
+***      <log>-evento = '4000'.
+***      <log>-partner = ''.
+***      <log>-resultado = '999'.
+***      <log>-retorno = 'Dados ausentes ou inconsistentes'.
+***      EXIT.
+    ENDIF.
 *    DATA lt_doc TYPE TABLE OF zpyxssped_nf_out.
 *      CLEAR lt_doc[].
 *      APPEND ls_doc TO lt_doc.

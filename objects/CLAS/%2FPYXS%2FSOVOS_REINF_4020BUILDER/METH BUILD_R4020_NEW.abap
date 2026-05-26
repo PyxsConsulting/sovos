@@ -7,50 +7,92 @@
              last_accounting_doc TYPE c LENGTH 10,  " ajuste o length conforme o tipo de accountingdocument
            END OF ty_id_seq_pagto.
 
+    TYPES: BEGIN OF ty_seq_pagto,
+             id_1    TYPE string,
+             seq     TYPE i,
+           END OF ty_seq_pagto.
+
+    TYPES: BEGIN OF ty_seq_info_pgto,
+             id_2    TYPE string,
+             seq     TYPE i,
+           END OF ty_seq_info_pgto.
+
+    DATA: gt_seq_pagto    TYPE STANDARD TABLE OF ty_seq_pagto    WITH KEY id_1,
+          gt_seq_info_pgto TYPE STANDARD TABLE OF ty_seq_info_pgto WITH KEY id_2.
+
     DATA: lv_prev_partner TYPE i_br_nfdocument-br_nfpartner.
     DATA: ls_knw_r4020         TYPE ty_knw_r4020,
           ls_knw_pgto          TYPE  ty_pgto,
           ls_knw_info_pgto     TYPE  ty_info_pgto,
           ls_knw_info_pgto_ret TYPE  ty_info_pgto_ret.
 
+
     DATA: lt_id_seq_pagto TYPE TABLE OF ty_id_seq_pagto.
 
     LOOP AT gt_data INTO DATA(ls_data).
+
 *      LOOP AT gt_nfs INTO DATA(ls_nfs)
 *                WHERE br_nfsourcedocumentnumber =  ls_data-originalreferencedocument
 *                AND taxgroup IN conv_with_stx( witht = ls_data-withholdingtaxtype ).
       READ TABLE gt_nfs WITH KEY br_nfsourcedocumentnumber =  ls_data-originalreferencedocument INTO DATA(ls_nfs).
       CHECK sy-subrc = 0.
 
-      DATA(lv_seq_key)     = ls_nfs-br_nfpartner.
-      DATA(lv_doc_key)     = |{ ls_nfs-br_nfpartner }{ ls_data-accountingdocument }|.
-
-      " Verifica se esse accountingdocument já foi registrado para esse partner
-      READ TABLE lt_id_seq_pagto ASSIGNING FIELD-SYMBOL(<ls_id_seq_pagto>)
-        WITH KEY id = lv_doc_key.
-
-      IF sy-subrc IS INITIAL.
-        " Mesmo partner + mesmo doc: reutiliza o sequencial já atribuído
-        DATA(lv_id_seq_pagto)     = <ls_id_seq_pagto>-id_seq_pagto.
-        DATA(lv_id_seq_info_pgto) = <ls_id_seq_pagto>-id_seq_info_pgto.
-      ELSE.
-        " Novo doc para esse partner: conta quantos docs esse partner já tem
-        DATA(lv_count) = REDUCE int4(
-          INIT n = 0
-          FOR ls_seq IN lt_id_seq_pagto
-          WHERE ( id CS lv_seq_key )
-          NEXT n = n + 1
-        ).
-
-        lv_id_seq_pagto     = lv_count + 1.
-        lv_id_seq_info_pgto = lv_count + 1.
-
-        APPEND VALUE ty_id_seq_pagto(
-          id               = lv_doc_key
-          id_seq_pagto     = lv_id_seq_pagto
-          id_seq_info_pgto = lv_id_seq_info_pgto
-        ) TO lt_id_seq_pagto.
+      IF ls_nfs-br_lc116servicecode IS INITIAL.
+        CLEAR ls_root.
+        RETURN.
       ENDIF.
+
+      DATA(lv_natureza) = get_nat_ren( |{ ls_nfs-br_lc116servicecode }| ).
+
+      DATA(lv_id_pagamentos) = |{ ls_data-clearingdate(6) }{ ls_nfs-br_nfpartner }|.
+      DATA(lv_id_itens_pagto) = |{ ls_data-clearingdate(6) }{ ls_nfs-br_nfpartner }{ lv_natureza }|.
+
+      READ TABLE gt_seq_pagto WITH KEY id_1 = lv_id_pagamentos ASSIGNING FIELD-SYMBOL(<ls_seq_pagto>).
+      IF sy-subrc = 0.
+        <ls_seq_pagto>-seq += 1.
+      ELSE.
+        INSERT VALUE #( id_1 = lv_id_pagamentos seq = 1 ) INTO TABLE gt_seq_pagto ASSIGNING <ls_seq_pagto>.
+      ENDIF.
+
+      DATA(lv_id_seq_pagto) = <ls_seq_pagto>-seq.
+
+      READ TABLE gt_seq_info_pgto WITH KEY id_2 = lv_id_itens_pagto ASSIGNING FIELD-SYMBOL(<ls_seq_info_pgto>).
+      IF sy-subrc = 0.
+        <ls_seq_info_pgto>-seq += 1.
+      ELSE.
+        INSERT VALUE #( id_2 = lv_id_itens_pagto seq = 1 ) INTO TABLE gt_seq_info_pgto ASSIGNING <ls_seq_info_pgto>.
+      ENDIF.
+
+      DATA(lv_id_seq_info_pgto) = <ls_seq_info_pgto>-seq.
+***
+***      DATA(lv_seq_key)     = ls_nfs-br_nfpartner.
+***      DATA(lv_doc_key)     = |{ ls_nfs-br_nfpartner }{ ls_data-accountingdocument }|.
+***
+***      " Verifica se esse accountingdocument já foi registrado para esse partner
+***      READ TABLE lt_id_seq_pagto ASSIGNING FIELD-SYMBOL(<ls_id_seq_pagto>) WITH KEY id = lv_doc_key.
+***
+***      IF sy-subrc IS INITIAL.
+***        " Mesmo partner + mesmo doc: reutiliza o sequencial já atribuído
+***        DATA(lv_id_seq_pagto)     = <ls_id_seq_pagto>-id_seq_pagto.
+***        DATA(lv_id_seq_info_pgto) = <ls_id_seq_pagto>-id_seq_info_pgto.
+***      ELSE.
+***        " Novo doc para esse partner: conta quantos docs esse partner já tem
+***        DATA(lv_count) = REDUCE int4(
+***          INIT n = 0
+***          FOR ls_seq IN lt_id_seq_pagto
+***          WHERE ( id CS lv_seq_key )
+***          NEXT n = n + 1
+***        ).
+***
+***        lv_id_seq_pagto     = lv_count + 1.
+***        lv_id_seq_info_pgto = lv_count + 1.
+***
+***        APPEND VALUE ty_id_seq_pagto(
+***          id               = lv_doc_key
+***          id_seq_pagto     = lv_id_seq_pagto
+***          id_seq_info_pgto = lv_id_seq_info_pgto
+***        ) TO lt_id_seq_pagto.
+***      ENDIF.
 
       DATA(lv_id) = |{ ls_data-clearingdate(6) }{  ls_nfs-br_nfpartner }|.
       READ TABLE ls_root-knw_r4020 ASSIGNING FIELD-SYMBOL(<ls_knw_r4020>) WITH KEY id_referencia = lv_id.
@@ -58,7 +100,7 @@
         APPEND INITIAL LINE TO ls_root-knw_r4020 ASSIGNING <ls_knw_r4020>.
         <ls_knw_r4020>-cd_empresa         = gs_branch_sov-sov_company.
         <ls_knw_r4020>-cd_filial          = gs_branch_sov-sov_branch.
-        <ls_knw_r4020>-id_referencia      = |{ ls_data-clearingdate(6) }{ ls_nfs-br_nfpartner }|.
+        <ls_knw_r4020>-id_referencia      = lv_id. "|{ ls_data-clearingdate(6) }{ ls_nfs-br_nfpartner }|.
         <ls_knw_r4020>-id_evento          = <ls_knw_r4020>-id_referencia. "A definir
         <ls_knw_r4020>-dm_retificacao     = '1'.
         <ls_knw_r4020>-dt_apuracao        = ls_data-clearingdate.
@@ -68,7 +110,7 @@
         <ls_knw_r4020>-ide_evt_adic       = ''.
       ENDIF.
 
-      DATA(lv_natureza) = get_nat_ren( |{ ls_nfs-br_lc116servicecode }| ).
+      "DATA(lv_natureza) = get_nat_ren( |{ ls_nfs-br_lc116servicecode }| ). "Tratar erro se não existir (Barrar todo processo)
       lv_id = |{ lv_id }{ lv_natureza }|. "colocar a br_notafiscal nesse ID vai quebrar por nf tbm
       READ TABLE ls_root-knw_reinf_r4020_pgto ASSIGNING FIELD-SYMBOL(<knw_reinf_r4020_pgt>) WITH KEY id_referencia = lv_id.
       IF sy-subrc IS NOT INITIAL.
@@ -77,7 +119,7 @@
       <knw_reinf_r4020_pgt>-cd_empresa    = gs_branch_sov-sov_company.
       <knw_reinf_r4020_pgt>-cd_filial     = gs_branch_sov-sov_branch.
       <knw_reinf_r4020_pgt>-id_referencia = lv_id.
-      <knw_reinf_r4020_pgt>-id_seq_pagto  = lv_id_seq_pagto. "Incrementar para cada pagamento do mesmo parceiro + anomes
+      <knw_reinf_r4020_pgt>-id_seq_pagto  = lv_id_seq_pagto. "Incrementar para cada pagamento do mesmo parceiro + ano/mes (linha 528)
       <knw_reinf_r4020_pgt>-nr_nat_rend   = get_nat_ren( |{ ls_nfs-br_lc116servicecode }| ).
       <knw_reinf_r4020_pgt>-ds_observacao = ''."ms_doc-br_nfobservationtext.
 
