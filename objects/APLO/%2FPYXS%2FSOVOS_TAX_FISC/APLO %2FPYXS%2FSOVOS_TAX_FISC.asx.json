@@ -26,6 +26,14 @@
   [
    {
     "OBJECT":"/PYXS/SOVOS_TAX_FISC",
+    "SUBOBJECT":"/PYXS/SOVOS_INV"
+   },
+   {
+    "OBJECT":"/PYXS/SOVOS_TAX_FISC",
+    "SUBOBJECT":"/PYXS/SOVOS_ITMPRD"
+   },
+   {
+    "OBJECT":"/PYXS/SOVOS_TAX_FISC",
     "SUBOBJECT":"/PYXS/SOVOS_NF"
    }
   ]
@@ -34,6 +42,18 @@
   "table":"BALSUBT",
   "data":
   [
+   {
+    "SPRAS":"P",
+    "OBJECT":"/PYXS/SOVOS_TAX_FISC",
+    "SUBOBJECT":"/PYXS/SOVOS_INV",
+    "SUBOBJTXT":"Extração Estoque Escriturado"
+   },
+   {
+    "SPRAS":"P",
+    "OBJECT":"/PYXS/SOVOS_TAX_FISC",
+    "SUBOBJECT":"/PYXS/SOVOS_ITMPRD",
+    "SUBOBJTXT":"Extração Itens Produzidos"
+   },
    {
     "SPRAS":"P",
     "OBJECT":"/PYXS/SOVOS_TAX_FISC",
