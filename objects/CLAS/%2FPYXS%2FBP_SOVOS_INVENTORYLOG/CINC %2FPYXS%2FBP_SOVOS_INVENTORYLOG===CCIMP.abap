@@ -663,7 +663,7 @@ CLASS lcl_process IMPLEMENTATION.
 
           lo_request->set_uri_path(
             EXPORTING
-              i_uri_path = 'api/knw/v2/estoqueEscriturado'
+              i_uri_path = '/api/knw/v2/estoqueEscriturado'
 *              i_uri_path = '/api/knw/v2/inventario'
 *              multivalue = 0
 *            RECEIVING
