@@ -4,18 +4,18 @@
   "data":
   [
    {
-    "APP_ID":"/PYXS/SOV_TAXTYP_UI5R",
+    "APP_ID":"/PYXS/SOV_YRINV_UI5R",
     "CAT_ID":"SAP_TC_UI5_REPO_UIAD",
-    "SEM_OBJ":"CategoriaImposto",
+    "SEM_OBJ":"SovosIventarioAnual",
     "SEM_ACT":"maintain",
-    "TARGET_MAPPING_ID":"UI5R_28F96523E62788B37632C7F3614BF5EEA3EF3A07_TM",
-    "TILE_ID":"UI5R_28F96523E62788B37632C7F3614BF5EEA3EF3A07_AL",
+    "TARGET_MAPPING_ID":"UI5R_BE1842929FAE3467A5D85FBCC2BFE2AD6EC82C58_TM",
+    "TILE_ID":"UI5R_BE1842929FAE3467A5D85FBCC2BFE2AD6EC82C58_AL",
     "APP_TYPE":"U",
     "TCODE":"",
     "WD_APPL_ID":"",
     "WD_CONF_ID":"",
     "WCF_TARGET_ID":"",
-    "UI5_APP_ID":"br.com.pyxs.sovoscategoriaimposto",
+    "UI5_APP_ID":"br.com.pyxs.sovosinventarioanual",
     "FIORI_ID":"",
     "ICF_PATH":"",
     "SYSTEM_ALIAS":"",
@@ -33,7 +33,7 @@
     "REFRESH_INTERVALL":0,
     "DISPLAY_NUMBER_UNIT":"",
     "FLAVOR_ID":"",
-    "CHANGED_AT":"+020260528112022",
+    "CHANGED_AT":"+020260528112103",
     "CHANGED_BY":"SAP_CUSTOMER",
     "MASTERLANG":"",
     "ACH_COMPONENT":"",
@@ -58,12 +58,12 @@
   "data":
   [
    {
-    "APP_ID":"/PYXS/SOV_TAXTYP_UI5R",
-    "TILE_ID":"UI5R_28F96523E62788B37632C7F3614BF5EEA3EF3A07_AL",
+    "APP_ID":"/PYXS/SOV_YRINV_UI5R",
+    "TILE_ID":"UI5R_BE1842929FAE3467A5D85FBCC2BFE2AD6EC82C58_AL",
     "TILE_TYPE":"S",
     "CUSTOM_TILE_TYPE":"",
     "DEFAULT_TILE":"X",
-    "TILE_CONFIG_STRING":"{\"tileConfiguration\":\"{\\\"display_icon_url\\\":\\\"\\\",\\\"display_info_text\\\":\\\"\\\",\\\"display_title_text\\\":\\\"SOVOS - IRF Categorias de Imposto\\\",\\\"display_subtitle_text\\\":\\\"Manutenção das categorias de imposto\\\",\\\"navigation_use_semantic_object\\\":true,\\\"navigation_target_url\\\":\\\"#CategoriaImposto-maintain\\\",\\\"navigation_semantic_object\\\":\\\"CategoriaImposto\\\",\\\"navigation_semantic_action\\\":\\\"maintain\\\",\\\"navigation_semantic_parameters\\\":\\\"\\\",\\\"display_search_keywords\\\":\\\"\\\",\\\"display_number_unit\\\":\\\"\\\",\\\"service_url\\\":\\\"\\\",\\\"service_refresh_interval\\\":0}\"}",
+    "TILE_CONFIG_STRING":"{\"tileConfiguration\":\"{\\\"display_icon_url\\\":\\\"\\\",\\\"display_info_text\\\":\\\"\\\",\\\"display_title_text\\\":\\\"SOVOS - Inventário\\\",\\\"display_subtitle_text\\\":\\\"Log do Inventário anual\\\",\\\"navigation_use_semantic_object\\\":true,\\\"navigation_target_url\\\":\\\"#SovosIventarioAnual-maintain\\\",\\\"navigation_semantic_object\\\":\\\"SovosIventarioAnual\\\",\\\"navigation_semantic_action\\\":\\\"maintain\\\",\\\"navigation_semantic_parameters\\\":\\\"\\\",\\\"display_search_keywords\\\":\\\"\\\",\\\"display_number_unit\\\":\\\"\\\",\\\"service_url\\\":\\\"\\\",\\\"service_refresh_interval\\\":0}\"}",
     "TILE_ICON":"",
     "TILE_PARAMETERS":"",
     "SERVICE_BASE_URL":"",
@@ -81,10 +81,10 @@
   [
    {
     "LANGU":"E",
-    "APP_ID":"/PYXS/SOV_TAXTYP_UI5R",
-    "TILE_ID":"UI5R_28F96523E62788B37632C7F3614BF5EEA3EF3A07_AL",
-    "TILE_TITLE":"SOVOS - IRF Categorias de Imposto",
-    "TILE_SUBTITLE":"Manutenção das categorias de imposto",
+    "APP_ID":"/PYXS/SOV_YRINV_UI5R",
+    "TILE_ID":"UI5R_BE1842929FAE3467A5D85FBCC2BFE2AD6EC82C58_AL",
+    "TILE_TITLE":"SOVOS - Inventário",
+    "TILE_SUBTITLE":"Log do Inventário anual",
     "TILE_KEYWORDS":"",
     "TILE_INFORMATION":""
    }
@@ -95,14 +95,14 @@
   "data":
   [
    {
-    "APP_ID":"/PYXS/SOV_TAXTYP_UI5R",
+    "APP_ID":"/PYXS/SOV_YRINV_UI5R",
     "LANGU":"E",
-    "TILE_TITLE":"SOVOS - IRF Categorias de Imposto",
-    "TILE_SUBTITLE":"Manutenção das categorias de imposto",
+    "TILE_TITLE":"SOVOS - Inventário",
+    "TILE_SUBTITLE":"Log do Inventário anual",
     "TILE_KEYWORDS":"",
     "TILE_INFORMATION":"",
-    "ALT_SMART_LINK_TITLE":"SOVOS - IRF Categorias de Imposto",
-    "DESCRIPTION":"Crud para tabela de"
+    "ALT_SMART_LINK_TITLE":"SOVOS - Inventário",
+    "DESCRIPTION":"inventario anual sovos com tabela de log"
    }
   ]
  },
@@ -113,7 +113,7 @@
    {
     "PGMID":"R3TR",
     "OBJECT":"UIAD",
-    "OBJ_NAME":"/PYXS/SOV_TAXTYP_UI5R",
+    "OBJ_NAME":"/PYXS/SOV_YRINV_UI5R",
     "KORRNUM":"",
     "SRCSYSTEM":"...",
     "AUTHOR":"SAP_CUSTOMER",

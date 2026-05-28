@@ -4,7 +4,7 @@
   "data":
   [
    {
-    "TYPENAME":"/PYXS/BP_SOVOS_INVENTORY_BKP",
+    "TYPENAME":"/PYXS/BP_SOVOS_YEAR_INVENTORY",
     "STATE":"A",
     "TYPEKIND":"CLAS"
    }
@@ -15,9 +15,9 @@
   "data":
   [
    {
-    "CLSNAME":"/PYXS/BP_SOVOS_INVENTORY_BKP",
+    "CLSNAME":"/PYXS/BP_SOVOS_YEAR_INVENTORY",
     "CLSTYPE":0,
-    "UUID":"+hY+e3q1H9GSv5MbQPv2OA==",
+    "UUID":"+hY+e3q1H9GWzzypSKVWeg==",
     "REMOTE":""
    }
   ]
@@ -27,14 +27,14 @@
   "data":
   [
    {
-    "CLSNAME":"/PYXS/BP_SOVOS_INVENTORY_BKP",
+    "CLSNAME":"/PYXS/BP_SOVOS_YEAR_INVENTORY",
     "VERSION":1,
-    "CATEGORY":0,
+    "CATEGORY":6,
     "EXPOSURE":2,
     "STATE":1,
     "RELEASE":0,
     "AUTHOR":"",
-    "CREATEDON":"2026-05-07",
+    "CREATEDON":"2026-05-28",
     "CHANGEDBY":"",
     "CHANGEDON":"0000-00-00",
     "CHGDANYBY":"",
@@ -45,7 +45,7 @@
     "CLSCCINCL":"X",
     "CLSDEFATT":"",
     "CLSDEFMTD":"",
-    "REFCLSNAME":"",
+    "REFCLSNAME":"/PYXS/SOVOS_YEAR_INVENTORY",
     "FIXPT":"X",
     "VARCL":"",
     "UNICODE":"5",
@@ -71,9 +71,99 @@
   "data":
   [
    {
-    "CLSNAME":"/PYXS/BP_SOVOS_INVENTORY_BKP",
+    "CLSNAME":"/PYXS/BP_SOVOS_YEAR_INVENTORY",
     "LANGU":"P",
-    "DESCRIPT":"Behavior Implementation for /PYXS/SOVOS_INVENTORYLOG"
+    "DESCRIPT":"Behavior Implementation for /PYXS/SOVOS_YEAR_INVENTORY"
+   }
+  ]
+ },
+ {
+  "table":"SEOCOMPO",
+  "data":
+  [
+   {
+    "CLSNAME":"/PYXS/BP_SOVOS_YEAR_INVENTORY",
+    "CMPNAME":"LT_LOG",
+    "CMPTYPE":0,
+    "MTDTYPE":0,
+    "MTDTYPE2":0
+   }
+  ]
+ },
+ {
+  "table":"SEOCOMPODF",
+  "data":
+  [
+   {
+    "CLSNAME":"/PYXS/BP_SOVOS_YEAR_INVENTORY",
+    "CMPNAME":"LT_LOG",
+    "VERSION":1,
+    "ALIAS":"",
+    "REDEFIN":"",
+    "EXPOSURE":2,
+    "STATE":1,
+    "EDITORDER":1,
+    "LOCKED":"",
+    "DISPID":0,
+    "R3RELEASE":"918",
+    "AUTHOR":"",
+    "CREATEDON":"2026-05-28",
+    "CHANGEDBY":"",
+    "CHANGEDON":"0000-00-00",
+    "MTDDECLTYP":0,
+    "MTDABSTRCT":"",
+    "MTDFINAL":"",
+    "DSRNOTEOM":"",
+    "EDTX":"",
+    "MTDNEWEXC":"",
+    "MTDREPLACE":"",
+    "MTDOPTNL":"",
+    "MTDSQLSERVICE":"",
+    "MTDAMDPRDONLY":"",
+    "MTDAMDPCDSCLNT":"",
+    "MTDAMDPCLNTINDEP":"",
+    "ATTDECLTYP":1,
+    "ATTDYNAMIC":"",
+    "ATTGETMTD":"",
+    "ATTSETMTD":"",
+    "ATTRDONLY":"",
+    "ATTVALUE":"",
+    "ATTPERSIST":"",
+    "ATTBUSOBJ":"",
+    "ATTKEYFLD":"",
+    "ATTEXPVIRT":0,
+    "EVTDECLTYP":0,
+    "TYPDUMMY":"",
+    "TYPTYPE":4,
+    "TYPE":"",
+    "TABLEOF":"",
+    "SRCROW1":2,
+    "SRCCOLUMN1":14,
+    "SRCROW2":2,
+    "SRCCOLUMN2":50,
+    "REFCLSNAME":"",
+    "REFINTNAME":"",
+    "REFCMPNAME":"",
+    "BCMTDINST":"",
+    "BCMTDCAT":0,
+    "BCMTDDIA":"",
+    "BCMTDCOM":"",
+    "BCMTDSYN":0,
+    "BCEVTCAT":0,
+    "TYPESRC_LENG":39,
+    "TYPESRC":"lt_log TYPE TABLE OF /PYXS/SOV_YR_INV\r\n"
+   }
+  ]
+ },
+ {
+  "table":"SEOCOMPOTX",
+  "data":
+  [
+   {
+    "CLSNAME":"/PYXS/BP_SOVOS_YEAR_INVENTORY",
+    "CMPNAME":"LT_LOG",
+    "LANGU":"P",
+    "DESCRIPT":""
    }
   ]
  },
@@ -84,7 +174,7 @@
    {
     "PGMID":"R3TR",
     "OBJECT":"CLAS",
-    "OBJ_NAME":"/PYXS/BP_SOVOS_INVENTORY_BKP",
+    "OBJ_NAME":"/PYXS/BP_SOVOS_YEAR_INVENTORY",
     "KORRNUM":"",
     "SRCSYSTEM":"...",
     "AUTHOR":"SAP_CUSTOMER",
@@ -101,8 +191,8 @@
     "CRELEASE":"",
     "DELFLAG":"",
     "TRANSLTTXT":"",
-    "CREATED_ON":"2026-05-07",
-    "CHECK_DATE":"2026-05-07",
+    "CREATED_ON":"2026-05-28",
+    "CHECK_DATE":"2026-05-28",
     "CHECK_CFG":""
    }
   ]
@@ -112,7 +202,7 @@
   "data":
   [
    {
-    "CLASSNAME":"/PYXS/BP_SOVOS_INVENTORY_BKP",
+    "CLASSNAME":"/PYXS/BP_SOVOS_YEAR_INVENTORY",
     "METHODINDX":0,
     "METHODNAME":" ",
     "FLAGS":0
@@ -124,7 +214,7 @@
   "data":
   [
    {
-    "NAME":"/PYXS/BP_SOVOS_INVENTORY_BKP==CCAU",
+    "NAME":"/PYXS/BP_SOVOS_YEAR_INVENTORY=CCAU",
     "VARCL":"X",
     "DBAPL":"S",
     "DBNA":"D$",
@@ -135,7 +225,7 @@
     "UCCHECK":"X"
    },
    {
-    "NAME":"/PYXS/BP_SOVOS_INVENTORY_BKP==CCDEF",
+    "NAME":"/PYXS/BP_SOVOS_YEAR_INVENTORY=CCDEF",
     "VARCL":"X",
     "DBAPL":"S",
     "DBNA":"D$",
@@ -146,7 +236,7 @@
     "UCCHECK":"X"
    },
    {
-    "NAME":"/PYXS/BP_SOVOS_INVENTORY_BKP==CCIMP",
+    "NAME":"/PYXS/BP_SOVOS_YEAR_INVENTORY=CCIMP",
     "VARCL":"X",
     "DBAPL":"S",
     "DBNA":"D$",
@@ -157,7 +247,7 @@
     "UCCHECK":"X"
    },
    {
-    "NAME":"/PYXS/BP_SOVOS_INVENTORY_BKP==CCMAC",
+    "NAME":"/PYXS/BP_SOVOS_YEAR_INVENTORY=CCMAC",
     "VARCL":"X",
     "DBAPL":"S",
     "DBNA":"D$",
@@ -168,7 +258,7 @@
     "UCCHECK":"X"
    },
    {
-    "NAME":"/PYXS/BP_SOVOS_INVENTORY_BKP==CI",
+    "NAME":"/PYXS/BP_SOVOS_YEAR_INVENTORY=CI",
     "VARCL":"X",
     "DBAPL":"S",
     "DBNA":"D$",
@@ -179,7 +269,7 @@
     "UCCHECK":"X"
    },
    {
-    "NAME":"/PYXS/BP_SOVOS_INVENTORY_BKP==CO",
+    "NAME":"/PYXS/BP_SOVOS_YEAR_INVENTORY=CO",
     "VARCL":"X",
     "DBAPL":"S",
     "DBNA":"D$",
@@ -190,7 +280,7 @@
     "UCCHECK":"X"
    },
    {
-    "NAME":"/PYXS/BP_SOVOS_INVENTORY_BKP==CP",
+    "NAME":"/PYXS/BP_SOVOS_YEAR_INVENTORY=CP",
     "EDTX":"X",
     "VARCL":"X",
     "DBAPL":"S",
@@ -202,7 +292,7 @@
     "UCCHECK":"5"
    },
    {
-    "NAME":"/PYXS/BP_SOVOS_INVENTORY_BKP==CT",
+    "NAME":"/PYXS/BP_SOVOS_YEAR_INVENTORY=CT",
     "DBAPL":"S",
     "DBNA":"D$",
     "SUBC":"I",
@@ -212,7 +302,7 @@
     "UCCHECK":"X"
    },
    {
-    "NAME":"/PYXS/BP_SOVOS_INVENTORY_BKP==CU",
+    "NAME":"/PYXS/BP_SOVOS_YEAR_INVENTORY=CU",
     "VARCL":"X",
     "DBAPL":"S",
     "DBNA":"D$",

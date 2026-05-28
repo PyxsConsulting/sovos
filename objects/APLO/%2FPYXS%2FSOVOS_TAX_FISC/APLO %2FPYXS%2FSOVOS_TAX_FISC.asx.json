@@ -35,6 +35,10 @@
    {
     "OBJECT":"/PYXS/SOVOS_TAX_FISC",
     "SUBOBJECT":"/PYXS/SOVOS_NF"
+   },
+   {
+    "OBJECT":"/PYXS/SOVOS_TAX_FISC",
+    "SUBOBJECT":"/PYXS/SOVOS_YRINV"
    }
   ]
  },
@@ -59,6 +63,12 @@
     "OBJECT":"/PYXS/SOVOS_TAX_FISC",
     "SUBOBJECT":"/PYXS/SOVOS_NF",
     "SUBOBJTXT":"Extração Notas Fiscais"
+   },
+   {
+    "SPRAS":"P",
+    "OBJECT":"/PYXS/SOVOS_TAX_FISC",
+    "SUBOBJECT":"/PYXS/SOVOS_YRINV",
+    "SUBOBJTXT":"Extração Inventario Anual"
    }
   ]
  },
