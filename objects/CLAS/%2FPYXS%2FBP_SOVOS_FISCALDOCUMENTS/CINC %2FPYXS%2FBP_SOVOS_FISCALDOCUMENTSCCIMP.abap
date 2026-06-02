@@ -1408,7 +1408,7 @@ CLASS lcl_process IMPLEMENTATION.
 
           lo_request->set_uri_path(
             EXPORTING
-              i_uri_path = 'api/knw/v2/notaFiscalProprias'
+              i_uri_path = '/api/knw/v2/notaFiscalProprias'
 *              multivalue = 0
 *            RECEIVING
 *              r_value    =
@@ -1567,7 +1567,7 @@ CLASS lcl_process IMPLEMENTATION.
 
           lo_request->set_uri_path(
             EXPORTING
-              i_uri_path = 'api/knw/v2/notaFiscalTerceiros'
+              i_uri_path = '/api/knw/v2/notaFiscalTerceiros'
 *              multivalue = 0
 *            RECEIVING
 *              r_value    =

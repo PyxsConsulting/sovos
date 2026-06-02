@@ -730,7 +730,7 @@ CLASS lcl_process IMPLEMENTATION.
           DATA(lo_http_client) = cl_web_http_client_manager=>create_by_http_destination( lo_dest ).
           DATA(lo_request)     = lo_http_client->get_http_request( ).
           lo_request->set_text( i_text = lv_json ).
-          lo_request->set_uri_path( i_uri_path = 'R2010' ).
+          lo_request->set_uri_path( i_uri_path = '/R2010' ).
 
           DATA(lo_response) = lo_http_client->execute( if_web_http_client=>post ).
           DATA(lv_ret)      = lo_response->get_status( ).
