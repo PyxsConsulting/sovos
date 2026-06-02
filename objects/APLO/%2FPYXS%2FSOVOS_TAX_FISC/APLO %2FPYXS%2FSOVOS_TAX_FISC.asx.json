@@ -38,6 +38,14 @@
    },
    {
     "OBJECT":"/PYXS/SOVOS_TAX_FISC",
+    "SUBOBJECT":"/PYXS/SOVOS_REINF"
+   },
+   {
+    "OBJECT":"/PYXS/SOVOS_TAX_FISC",
+    "SUBOBJECT":"/PYXS/SOVOS_REINSS"
+   },
+   {
+    "OBJECT":"/PYXS/SOVOS_TAX_FISC",
     "SUBOBJECT":"/PYXS/SOVOS_YRINV"
    }
   ]
@@ -63,6 +71,18 @@
     "OBJECT":"/PYXS/SOVOS_TAX_FISC",
     "SUBOBJECT":"/PYXS/SOVOS_NF",
     "SUBOBJTXT":"Extração Notas Fiscais"
+   },
+   {
+    "SPRAS":"P",
+    "OBJECT":"/PYXS/SOVOS_TAX_FISC",
+    "SUBOBJECT":"/PYXS/SOVOS_REINF",
+    "SUBOBJTXT":"Extração Reinf"
+   },
+   {
+    "SPRAS":"P",
+    "OBJECT":"/PYXS/SOVOS_TAX_FISC",
+    "SUBOBJECT":"/PYXS/SOVOS_REINSS",
+    "SUBOBJTXT":"Extração Reinf INSS"
    },
    {
     "SPRAS":"P",

@@ -7,9 +7,9 @@
     "SRVDNAME":"/PYXS/SOVOS",
     "VERSION":"A",
     "CHANGED_BY":"SAP_CUSTOMER",
-    "CHANGED_ON":"2026-05-28",
-    "CHANGED_AT":"10:08:21",
-    "DT_UUID":"FA163E7B7AB51FD196CFA504D307767A",
+    "CHANGED_ON":"2026-05-29",
+    "CHANGED_AT":"11:32:55",
+    "DT_UUID":"FA163E7B7AB51FD196EA444CEF21D67C",
     "SOURCE_ORIGIN":"0",
     "SRVD_SOURCE_TYPE":"S",
     "ABAP_LANGUAGE_VERSION":"5"
@@ -35,7 +35,7 @@
    {
     "SRVDNAME":"/PYXS/SOVOS",
     "VERSION":"A",
-    "SOURCE":"@EndUserText.label: 'Definição de serviço para SOVOS'\r\ndefine service /PYXS/SOVOS {\r\n  expose /PYXS/SOVOS_FiscalDocuments;\r\n  expose /PYXS/SovosBranchData;\r\n  expose /PYXS/SOVOS_NaturezaRendimento;\r\n  expose /PYXS/ReinfLog;\r\n  expose /PYXS/SOVOS_InventoryLog;\r\n  expose /PYXS/SOV_ITENS_PRODUZ_LOG;\r\n  expose /PYXS/SOV_TAXTYPE_IRF;\r\n  expose /PYXS/SOVOS_YEAR_INVENTORY;\r\n}"
+    "SOURCE":"@EndUserText.label: 'Definição de serviço para SOVOS'\r\ndefine service /PYXS/SOVOS {\r\n  expose /PYXS/SOVOS_FiscalDocuments;\r\n  expose /PYXS/SovosBranchData;\r\n  expose /PYXS/SOVOS_NaturezaRendimento;\r\n  expose /PYXS/ReinfLog;\r\n  expose /PYXS/SOVOS_InventoryLog;\r\n  expose /PYXS/SOV_ITENS_PRODUZ_LOG;\r\n  expose /PYXS/SOV_TAXTYPE_IRF;\r\n  expose /PYXS/SOVOS_YEAR_INVENTORY;\r\n  expose /PYXS/SOV_REINF_INSS;\r\n}"
    }
   ]
  },
@@ -132,6 +132,15 @@
    {
     "SRVDNAME":"/PYXS/SOVOS",
     "SERVICE":"/PYXS/SOVOS",
+    "EXPOSED_ARTIFACT":"/PYXS/SOV_REINF_INSS",
+    "EXPOSED_ARTIFACT_TYPE":"E",
+    "EXPOSED_ALIAS":"",
+    "EXPOSED_ALIAS_RAW":"",
+    "INCL_SERVICE":""
+   },
+   {
+    "SRVDNAME":"/PYXS/SOVOS",
+    "SERVICE":"/PYXS/SOVOS",
     "EXPOSED_ARTIFACT":"/PYXS/SOV_TAXTYPE_IRF",
     "EXPOSED_ARTIFACT_TYPE":"E",
     "EXPOSED_ALIAS":"",
@@ -149,8 +158,8 @@
     "SERVICE":"/PYXS/SOVOS",
     "SERVICE_RAW":"/PYXS/SOVOS",
     "SOURCE_TYPE":"S",
-    "DT_UUID":"FA163E7B7AB51FD196CFA504D307767A",
-    "RT_HASH":"9637CBCA498E6A07F59FB5D2006D6D6551024CFC",
+    "DT_UUID":"FA163E7B7AB51FD196EA444CEF21D67C",
+    "RT_HASH":"217CAC1E13CFCB137C71D667597B0D18D20D381B",
     "GEN_VERSION":"0"
    }
   ]

@@ -321,6 +321,8 @@ CLASS lcl_process_srv DEFINITION.
         objetos TYPE STANDARD TABLE OF ty_objetos WITH NON-UNIQUE DEFAULT KEY,
       END OF ty_main.
 
+
+
 ENDCLASS.
 
 CLASS lcl_process_srv IMPLEMENTATION.
@@ -1096,7 +1098,12 @@ CLASS lcl_process DEFINITION FRIENDS lhc_sovos_fiscaldocuments.
              serie         TYPE string,
              cnpj          TYPE string,
              br_notafiscal TYPE i_br_nfdocument-br_notafiscal,
-           END OF ty_nfs.
+           END OF ty_nfs,
+
+          BEGIN OF ty_counter,
+             br_notafiscal TYPE i_br_nfdocument-br_notafiscal,
+             counter       TYPE i,
+           END OF ty_counter.
 
     CONSTANTS: gc_icms         TYPE c LENGTH 10 VALUE 'ICMS',
                gc_icms_st      TYPE c LENGTH 10 VALUE 'ST',
@@ -1165,7 +1172,8 @@ CLASS lcl_process DEFINITION FRIENDS lhc_sovos_fiscaldocuments.
                 s_branch_sov       TYPE /pyxs/sov_branch,
                 gv_icmscontributor TYPE c,
                 gv_branch_cnpj     TYPE string,
-                gs_comapany_code   TYPE i_companycode.
+                gs_comapany_code   TYPE i_companycode,
+                lt_counters TYPE TABLE OF ty_counter.
 
     CLASS-METHODS: read_nf_db,
 
@@ -1400,7 +1408,7 @@ CLASS lcl_process IMPLEMENTATION.
 
           lo_request->set_uri_path(
             EXPORTING
-              i_uri_path = '/api/knw/v2/notaFiscalProprias'
+              i_uri_path = 'api/knw/v2/notaFiscalProprias'
 *              multivalue = 0
 *            RECEIVING
 *              r_value    =
@@ -1559,7 +1567,7 @@ CLASS lcl_process IMPLEMENTATION.
 
           lo_request->set_uri_path(
             EXPORTING
-              i_uri_path = '/api/knw/v2/notaFiscalTerceiros'
+              i_uri_path = 'api/knw/v2/notaFiscalTerceiros'
 *              multivalue = 0
 *            RECEIVING
 *              r_value    =
@@ -2211,6 +2219,9 @@ CLASS lcl_process IMPLEMENTATION.
     ENDIF.
     popu(  ).
     SORT t_nfdocs BY doc-br_nfdirection.
+
+    CLEAR: lt_counters.
+
     LOOP AT t_nfdocs INTO DATA(p_nfdoc) WHERE doc-br_nfismunicipal <> 'X' AND doc-br_nfhasserviceitem <> 'X'.
 
       """"""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -2405,7 +2416,20 @@ CLASS lcl_process IMPLEMENTATION.
         "------------------------------
         " C170 – Item fiscal
         "------------------------------
-        <item>-knwc170-nr_item          = ls_nfitem-nf-br_notafiscalitem.
+
+        "FIX 20260602 VVM - COD SEQUENCIAL
+        FIELD-SYMBOLS <counter> TYPE ty_counter.
+        READ TABLE lt_counters ASSIGNING <counter> WITH KEY br_notafiscal = p_nfdoc-doc-br_notafiscal.
+        IF sy-subrc <> 0.
+          INSERT VALUE #( br_notafiscal = p_nfdoc-doc-br_notafiscal
+                          counter       = 0 ) INTO TABLE lt_counters.
+          READ TABLE lt_counters ASSIGNING <counter> WITH KEY br_notafiscal = p_nfdoc-doc-br_notafiscal.
+        ENDIF.
+        <counter>-counter += 1.
+        <item>-knwc170-nr_item = CONV string( <counter>-counter ).
+        "<item>-knwc170-nr_item          = ls_nfitem-nf-br_notafiscalitem.
+        "FIX 20260602 VVM - COD SEQUENCIAL
+
         <item>-knwc170-nr_documento     = ls_objeto-knwc100-nr_documento.
         <item>-knwc170-serie_subserie     = ls_objeto-knwc100-serie_subserie .
         <item>-knwc170-dt_emissao_doc     = ls_objeto-knwc100-dt_emissao_doc .
@@ -3307,6 +3331,9 @@ CLASS lcl_process IMPLEMENTATION.
       gv_proc = 'Nenhum documento processado'.
     ENDIF.
     popu(  ).
+
+    CLEAR: lt_counters.
+
     LOOP AT t_nfdocs INTO DATA(p_nfdoc)  WHERE doc-br_nfismunicipal = 'X' OR doc-br_nfhasserviceitem = 'X'.
 
       """"""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -3500,7 +3527,20 @@ CLASS lcl_process IMPLEMENTATION.
         "------------------------------
         <item>-knwa170-cod_empresa        = ls_objeto-knwa100-cod_empresa.
         <item>-knwa170-cod_filial         = ls_objeto-knwa100-cod_filial.
-        <item>-knwa170-nr_item          = ls_nfitem-nf-br_notafiscalitem.
+
+        "FIX 20260602 VVM - COD SEQUENCIAL
+        FIELD-SYMBOLS <counter> TYPE ty_counter.
+        READ TABLE lt_counters ASSIGNING <counter> WITH KEY br_notafiscal = p_nfdoc-doc-br_notafiscal.
+        IF sy-subrc <> 0.
+          INSERT VALUE #( br_notafiscal = p_nfdoc-doc-br_notafiscal
+                          counter       = 0 ) INTO TABLE lt_counters.
+          READ TABLE lt_counters ASSIGNING <counter> WITH KEY br_notafiscal = p_nfdoc-doc-br_notafiscal.
+        ENDIF.
+        <counter>-counter += 1.
+        <item>-knwa170-nr_item = CONV string( <counter>-counter ).
+        "<item>-knwa170-nr_item          = ls_nfitem-nf-br_notafiscalitem.
+        "FIX 20260602 VVM - COD SEQUENCIAL
+
         <item>-knwa170-nr_documento     = ls_objeto-knwa100-nr_documento.
         "<item>-knwa170-serie_subserie     = ls_objeto-knwa100-serie_subserie .
         <item>-knwa170-dt_emissao     = ls_objeto-knwa100-dt_emissao .
