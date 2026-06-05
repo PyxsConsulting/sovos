@@ -80,6 +80,7 @@ CLASS lcl_process DEFINITION FRIENDS lhc_SOV_ITENS_PRODUZ_LOG.
         cd_genero         TYPE string,
         dm_tipo_item      TYPE string,
         cd_barra          TYPE string,
+        nr_cest           TYPE string,
         dm_origem_produto TYPE string,
         aliq_pis          TYPE p LENGTH 15 DECIMALS 2,
         aliq_cofins       TYPE p LENGTH 15 DECIMALS 2,
@@ -149,6 +150,13 @@ CLASS lcl_process DEFINITION FRIENDS lhc_SOV_ITENS_PRODUZ_LOG.
         productstandardid TYPE i_product-productstandardid,
         productdescription TYPE i_productdescription-productdescription,
         "ncminternationalcode TYPE i_product-ncminternationalcode,
+        referenceproducttype TYPE i_producttype-referenceproducttype,
+        consumptiontaxctrlcode TYPE i_productplantbasic-ConsumptionTaxCtrlCode,
+        unitofmeasurename2 TYPE i_unitofmeasuretext-UnitOfMeasureName,
+        iscoproduct TYPE i_productplantbasic-IsCoProduct,
+        unitofmeasure_e       TYPE i_unitofmeasure-unitofmeasure_e,
+        unitofmeasurename     TYPE i_unitofmeasuretext-unitofmeasurename,
+        productorigintype   TYPE i_productvaluationbasic-productorigintype,
       END OF ty_product_data,
 
       ty_t_product_data TYPE STANDARD TABLE OF ty_product_data WITH NON-UNIQUE DEFAULT KEY,
@@ -222,7 +230,27 @@ CLASS lcl_process DEFINITION FRIENDS lhc_SOV_ITENS_PRODUZ_LOG.
     TYPES:
       BEGIN OF ty_root_json,
         objetos TYPE tt_objeto_json,
-      END OF ty_root_json.
+      END OF ty_root_json,
+
+      BEGIN OF ty_nfitem,
+        nf                   TYPE i_br_nfitem,
+        product              TYPE i_product-product,
+        producttype          TYPE i_product-producttype,
+        baseunit             TYPE i_product-baseunit,
+        plant                TYPE c LENGTH 4,
+        iscoproduct          TYPE c LENGTH 1,
+        referenceproducttype TYPE i_producttype-referenceproducttype,
+        unitofmeasureisocode TYPE i_unitofmeasure-unitofmeasureisocode,
+        unitofmeasure_e      TYPE i_unitofmeasure-unitofmeasure_e,
+        unitofmeasurename    TYPE i_unitofmeasuretext-unitofmeasurename,
+        glaccountname        TYPE i_glaccounttextincompanycode-glaccountname,
+        chartofaccounts      TYPE i_glaccount-chartofaccounts,
+      END OF ty_nfitem,
+
+      BEGIN OF ty_docs_act,
+        doc TYPE i_br_nfdocument,
+        act TYPE i_br_nfeactive,
+      END OF ty_docs_act.
 
     CLASS-DATA:
       sel           TYPE ty_sel,
@@ -234,13 +262,20 @@ CLASS lcl_process DEFINITION FRIENDS lhc_SOV_ITENS_PRODUZ_LOG.
       s_branch_sov  TYPE /pyxs/sov_branch,
       gt_movimentos TYPE ty_t_movimentos,
       gt_estorno    TYPE ty_t_estornos,
-      gt_products   TYPE ty_t_product_data.
+      gt_products   TYPE ty_t_product_data,
+      t_nfitem           TYPE TABLE OF ty_nfitem,
+      t_nfdocs           TYPE TABLE OF ty_docs_act.
 
   PRIVATE SECTION.
     CLASS-METHODS:
       read_db,
       new_out,
       send_integration,
+
+      normalize
+        IMPORTING
+                  p_str             TYPE clike
+        RETURNING VALUE(normalized) TYPE string,
 
       format_date
         IMPORTING
@@ -609,7 +644,11 @@ ENDMETHOD.
   "--------------------------------------------------------------------------
   METHOD read_db.
 
-    DATA: lv_first_day TYPE d,
+    DATA:
+          lr_anomes TYPE RANGE OF datum,
+          ls_anomes LIKE LINE OF lr_anomes,
+          r_docnum  TYPE RANGE OF i_br_nfdocument-br_notafiscal,
+          lv_first_day TYPE d,
           lv_last_day  TYPE d.
 
     "--- Constantes de tipo de movimento ---
@@ -621,6 +660,7 @@ ENDMETHOD.
     CONSTANTS: gc_mvt_102 TYPE i_materialdocumentitem_2-goodsmovementtype VALUE '102',
          gc_mvt_132 TYPE i_materialdocumentitem_2-goodsmovementtype VALUE '132',
          gc_mvt_262 TYPE i_materialdocumentitem_2-goodsmovementtype VALUE '262'.
+
 
     "--- Configuração da filial Sovos ---
     SELECT SINGLE *
@@ -634,6 +674,56 @@ ENDMETHOD.
       EXPORTING iv_anomes    = sel-anomes
       IMPORTING ev_first_day = lv_first_day
                 ev_last_day  = lv_last_day ).
+
+    " Build range entry
+    ls_anomes-sign   = 'I'.
+    ls_anomes-option = 'BT'.
+    ls_anomes-low    = lv_first_day.  " e.g. 20250101
+    ls_anomes-high   = lv_last_day.  " e.g. 20250131
+    APPEND ls_anomes TO lr_anomes.
+
+    " Use in SELECT
+    SELECT doc~*, act~*
+      FROM i_br_nfdocument AS doc
+      LEFT JOIN i_br_nfeactive AS act
+        ON doc~br_notafiscal = act~br_notafiscal
+      WHERE doc~companycode                    = @sel-companycode
+        AND doc~businessplace                  = @sel-plant
+        "AND doc~creationdate                   IN @sel-creation
+        AND doc~br_nfpostingdate               IN @lr_anomes
+        "AND doc~br_nftype                      IN @sel-nftype
+        "AND doc~br_notafiscal                  IN @sel-document
+        "AND doc~br_nfissuedate                 IN @sel-docdate
+        "AND doc~br_nfpostingdate               IN @lr_anomes
+        "AND doc~br_nfarrivalordeparturedate    IN @sel-dsaient
+        "AND doc~lastchangedate                 IN @sel-changed
+      INTO TABLE @t_nfdocs.
+
+    LOOP AT t_nfdocs INTO DATA(ls_nf).
+      APPEND VALUE #( sign = 'I' option = 'EQ' low = ls_nf-doc-br_notafiscal ) TO r_docnum.
+    ENDLOOP.
+
+    SELECT nf~*, a~product, a~producttype, a~baseunit,
+            c~plant, c~iscoproduct,
+            a~\_producttype-referenceproducttype,
+            nf~\_baseunit-unitofmeasureisocode, nf~\_baseunit-unitofmeasure_e, nf~\_baseunit\_text[ language = 'P' ]-unitofmeasurename,
+            i_glaccount~\_text[ language = 'P' ]-glaccountname, i_glaccount~chartofaccounts
+      FROM i_br_nfitem AS nf
+      LEFT OUTER JOIN i_product AS a
+      ON nf~material = a~product
+      LEFT OUTER JOIN i_productplantbasic AS c
+      ON a~product = c~product
+      AND c~plant = nf~plant
+      LEFT OUTER JOIN i_productvaluationbasic AS val
+      ON val~valuationarea = nf~plant
+      AND val~product = a~product
+      AND val~valuationarea = ''
+      LEFT OUTER JOIN i_glaccount
+      ON i_glaccount~glaccount = nf~glaccount
+      AND i_glaccount~companycode = @sel-companycode
+      WHERE nf~br_notafiscal IN @r_docnum
+      INTO TABLE @t_nfitem. "J_BNFLIN
+
 
     "--- Seleção principal: movimentos de produção ---
     SELECT
@@ -679,11 +769,27 @@ ENDMETHOD.
              prod~baseunit,
              prod~productstandardid,
              "prod~ncminternationalcode,
-             pdesc~productdescription
+             pdesc~productdescription,
+             prod~\_producttype-referenceproducttype,
+             pbasic~ConsumptionTaxCtrlCode,
+             unit~UnitOfMeasureName,
+             pbasic~iscoproduct,
+             prod~\_BaseUnitOfMeasure-unitofmeasure_e,
+             prod~\_BaseUnitOfMeasure\_text[ language = 'P' ]-unitofmeasurename,
+             valuation~ProductOriginType
         FROM i_product AS prod
-        INNER JOIN i_productdescription AS pdesc
+        LEFT JOIN i_productdescription AS pdesc
           ON  pdesc~product  = prod~product
           AND pdesc~language = 'P'
+        LEFT JOIN i_productplantbasic AS pbasic
+          ON  prod~product      = pbasic~product
+          AND pbasic~plant = @sel-companycode
+        LEFT JOIN i_productvaluationbasic as valuation
+          ON  valuation~product = pbasic~product
+          AND valuation~valuationarea = pbasic~plant
+        INNER JOIN i_unitofmeasuretext AS unit
+          ON  prod~BaseUnit = unit~unitofmeasure
+          AND unit~language  = 'P'
         WHERE prod~product IN @lt_mat
         INTO TABLE @gt_products.
 
@@ -747,6 +853,14 @@ ENDMETHOD.
       WHERE companycode = @sel-companycode
       INTO @gs_company.
 
+  ENDMETHOD.
+
+  METHOD normalize.
+    normalized = p_str.
+    TRANSLATE: normalized USING '. ',
+               normalized USING '- ',
+               normalized USING '/ '.
+    CONDENSE normalized NO-GAPS.
   ENDMETHOD.
 
   "--------------------------------------------------------------------------
@@ -942,52 +1056,79 @@ ENDMETHOD.
 
       "--- knw0200 – cadastro do produto ---
       ls_objeto-knw0200-dt_inicial        = '1900-01-01T00:00:00+03:00'.
-      ls_objeto-knw0200-dt_importacao     = '1900-01-01T00:00:00+03:00'.
+      "ls_objeto-knw0200-dt_importacao     = '1900-01-01T00:00:00+03:00'.
       ls_objeto-knw0200-cod_empresa       = CONV i( s_branch_sov-sov_company ).
       ls_objeto-knw0200-cod_filial        = CONV i( s_branch_sov-sov_branch ).
       ls_objeto-knw0200-cd_produto_serv   = ls_mov-material.
       ls_objeto-knw0200-ds_produto_serv   = ls_prod-productdescription.
-      ls_objeto-knw0200-unidade           = ls_mov-materialbaseunit.
-      ls_objeto-knw0200-aliq_icms         = 0.
-      ls_objeto-knw0200-perc_red_ba_icms  = 0.
-      ls_objeto-knw0200-cd_ncm            = '00000000'.
+      ls_objeto-knw0200-unidade           = ls_prod-unitofmeasure_e.
+      ls_objeto-knw0200-cd_ncm             = normalize( p_str = ls_prod-consumptiontaxctrlcode ).
+      ls_objeto-knw0200-dm_origem_produto = ls_prod-productorigintype.
+
+      "ls_objeto-knw0200-aliq_icms         = 0.
+      "ls_objeto-knw0200-perc_red_ba_icms  = 0.
+      "ls_objeto-knw0200-cd_ncm            = '00000000'.
 ***      ls_objeto-knw0200-cd_ncm            = COND #( WHEN ls_prod-ncminternationalcode IS INITIAL
 ***                                                    THEN '00000000'
 ***                                                    ELSE ls_prod-ncminternationalcode ).
-      ls_objeto-knw0200-cd_genero         = '00'.
-      ls_objeto-knw0200-cd_barra          = 'SEM GTIN'.
-      ls_objeto-knw0200-dm_origem_produto = '0'.
-      ls_objeto-knw0200-aliq_pis          = 0.
-      ls_objeto-knw0200-aliq_cofins       = 0.
+      "ls_objeto-knw0200-cd_genero         = '00'.
+      "ls_objeto-knw0200-cd_barra          = 'SEM GTIN'.
+      "ls_objeto-knw0200-dm_origem_produto = '0'.
+      "ls_objeto-knw0200-aliq_pis          = 0.
+      "ls_objeto-knw0200-aliq_cofins       = 0.
 
-      CASE ls_prod-producttype.
-        WHEN 'HAWA'.
-          ls_objeto-knw0200-dm_tipo_item = '00'.
-        WHEN 'ROH'.
-          ls_objeto-knw0200-dm_tipo_item = '01'.
-        WHEN 'VERP' OR 'LEIH'.
-          ls_objeto-knw0200-dm_tipo_item = '02'.
-        WHEN 'PROC' OR 'HALB'.
-          ls_objeto-knw0200-dm_tipo_item = '03'.
-        WHEN 'FERT'.
-          ls_objeto-knw0200-dm_tipo_item = '04'.
-        WHEN 'HIBE'.
-          ls_objeto-knw0200-dm_tipo_item = '06'.
-        WHEN 'NLAG'.
-          ls_objeto-knw0200-dm_tipo_item = '07'.
-        WHEN 'DIEN' OR 'LEIS' OR 'SERV'.
-          ls_objeto-knw0200-dm_tipo_item = '09'.
-        WHEN OTHERS.
-          ls_objeto-knw0200-dm_tipo_item = '99'.
-      ENDCASE.
+      CASE ls_prod-referenceproducttype.
+            WHEN 'HAWA'.
+              ls_objeto-knw0200-dm_tipo_item = '00'.
+            WHEN 'ROH'.
+              ls_objeto-knw0200-dm_tipo_item = '01'.
+            WHEN 'VERP' OR 'LEIH'.
+              ls_objeto-knw0200-dm_tipo_item = '02'.
+            WHEN 'PROC' OR 'HALB'.
+              ls_objeto-knw0200-dm_tipo_item = '03'.
+            WHEN 'FERT'.
+              IF ls_prod-iscoproduct IS INITIAL.
+                ls_objeto-knw0200-dm_tipo_item = '04'.
+              ELSE.
+                ls_objeto-knw0200-dm_tipo_item = '05'.
+              ENDIF.
+            WHEN 'HIBE'.
+              ls_objeto-knw0200-dm_tipo_item = '06'.
+            WHEN 'NLAG'.
+              ls_objeto-knw0200-dm_tipo_item = '07'.
+            WHEN 'DIEN' OR 'LEIS' OR 'SERV'.
+              ls_objeto-knw0200-dm_tipo_item = '09'.
+            WHEN OTHERS.
+              ls_objeto-knw0200-dm_tipo_item = '99'.
+          ENDCASE.
 
       "--- knw0190 – unidade de medida ---
       ls_objeto-knw0190-cod_empresa   = CONV i( s_branch_sov-sov_company ).
       ls_objeto-knw0190-cod_filial    = CONV i( s_branch_sov-sov_branch ).
       ls_objeto-knw0190-dt_inicial    = '1900-01-01T00:00:00+03:00'.
-      ls_objeto-knw0190-dt_importacao = '1900-01-01T00:00:00+03:00'.
-      ls_objeto-knw0190-ds_unidade    = ls_mov-materialbaseunit.
-      ls_objeto-knw0190-ds_descricao  = ls_mov-materialbaseunit.   " descrição da UOM – enriquecer se necessário
+      "ls_objeto-knw0190-dt_importacao = '1900-01-01T00:00:00+03:00'.
+      ls_objeto-knw0190-ds_unidade    = ls_prod-unitofmeasure_e.
+      ls_objeto-knw0190-ds_descricao  = ls_prod-unitofmeasurename.
+
+      READ TABLE t_nfitem INTO DATA(ls_nfitem) WITH KEY nf-material = ls_mov-material.
+      IF sy-subrc = 0.
+        READ TABLE t_nfdocs INTO DATA(p_nfdoc) WITH KEY doc-BR_NotaFiscal = ls_nfitem-nf-br_notafiscal.
+        IF sy-subrc = 0.
+          IF p_nfdoc-doc-br_nfismunicipal <> 'X' AND p_nfdoc-doc-br_nfhasserviceitem <> 'X'.
+            IF ls_nfitem-nf-ncmcode IS NOT INITIAL.
+              ls_objeto-knw0200-cd_ncm             = normalize( p_str = ls_nfitem-nf-ncmcode ).
+            ENDIF.
+            IF ls_nfitem-nf-br_materialorigin IS NOT INITIAL.
+              ls_objeto-knw0200-dm_origem_produto  = ls_nfitem-nf-br_materialorigin.
+            ENDIF.
+            IF ls_nfitem-nf-br_icmsstlegalclassfctn IS NOT INITIAL.
+              ls_objeto-knw0200-nr_cest            = ls_nfitem-nf-br_icmsstlegalclassfctn.
+            ENDIF.
+          ELSEIF p_nfdoc-doc-br_nfismunicipal = 'X' OR p_nfdoc-doc-br_nfhasserviceitem = 'X'.
+            ls_objeto-knw0200-dm_tipo_item = '09'.
+          ENDIF.
+        ENDIF.
+      ENDIF.
 
       "--- K235: insumos consumidos da MESMA OP --------------------
       DATA(lv_seq) = 0.
@@ -1031,41 +1172,65 @@ ENDMETHOD.
         " 0200 do insumo
         "----------------------------------------------------------
         ls_item_cons-knw0200produtoinsumo-dt_inicial        = '1900-01-01T00:00:00+03:00'.
-        ls_item_cons-knw0200produtoinsumo-dt_importacao     = '1900-01-01T00:00:00+03:00'.
+        "ls_item_cons-knw0200produtoinsumo-dt_importacao     = '1900-01-01T00:00:00+03:00'.
         ls_item_cons-knw0200produtoinsumo-cod_empresa       = CONV #( s_branch_sov-sov_company ).
         ls_item_cons-knw0200produtoinsumo-cod_filial        = CONV #( s_branch_sov-sov_branch ).
         ls_item_cons-knw0200produtoinsumo-cd_produto_serv   = ls_cons-material.
         ls_item_cons-knw0200produtoinsumo-ds_produto_serv   = ls_prod_cons-productdescription.
-        ls_item_cons-knw0200produtoinsumo-unidade           = ls_cons-materialbaseunit.
-        ls_item_cons-knw0200produtoinsumo-aliq_icms         = 0.
-        ls_item_cons-knw0200produtoinsumo-perc_red_ba_icms  = 0.
-        ls_item_cons-knw0200produtoinsumo-cd_ncm            = '00000000'.
-        ls_item_cons-knw0200produtoinsumo-cd_genero         = '00'.
-        ls_item_cons-knw0200produtoinsumo-cd_barra          = 'SEM GTIN'.
-        ls_item_cons-knw0200produtoinsumo-dm_origem_produto = '0'.
-        ls_item_cons-knw0200produtoinsumo-aliq_pis          = 0.
-        ls_item_cons-knw0200produtoinsumo-aliq_cofins       = 0.
+        ls_item_cons-knw0200produtoinsumo-unidade           = ls_prod_cons-unitofmeasure_e.
+        "ls_item_cons-knw0200produtoinsumo-aliq_icms         = 0.
+        "ls_item_cons-knw0200produtoinsumo-perc_red_ba_icms  = 0.
+        ls_item_cons-knw0200produtoinsumo-cd_ncm            = normalize( p_str = ls_prod_cons-consumptiontaxctrlcode ).
+        ls_item_cons-knw0200produtoinsumo-dm_origem_produto = ls_prod_cons-productorigintype.
+        "ls_item_cons-knw0200produtoinsumo-cd_genero         = '00'.
+        "ls_item_cons-knw0200produtoinsumo-cd_barra          = 'SEM GTIN'.
+        "ls_item_cons-knw0200produtoinsumo-aliq_pis          = 0.
+        "ls_item_cons-knw0200produtoinsumo-aliq_cofins       = 0.
 
-        CASE ls_prod_cons-producttype.
-          WHEN 'HAWA'.
-            ls_item_cons-knw0200produtoinsumo-dm_tipo_item = '00'.
-          WHEN 'ROH'.
-            ls_item_cons-knw0200produtoinsumo-dm_tipo_item = '01'.
-          WHEN 'VERP' OR 'LEIH'.
-            ls_item_cons-knw0200produtoinsumo-dm_tipo_item = '02'.
-          WHEN 'PROC' OR 'HALB'.
-            ls_item_cons-knw0200produtoinsumo-dm_tipo_item = '03'.
-          WHEN 'FERT'.
-            ls_item_cons-knw0200produtoinsumo-dm_tipo_item = '04'.
-          WHEN 'HIBE'.
-            ls_item_cons-knw0200produtoinsumo-dm_tipo_item = '06'.
-          WHEN 'NLAG'.
-            ls_item_cons-knw0200produtoinsumo-dm_tipo_item = '07'.
-          WHEN 'DIEN' OR 'LEIS' OR 'SERV'.
-            ls_item_cons-knw0200produtoinsumo-dm_tipo_item = '09'.
-          WHEN OTHERS.
-            ls_item_cons-knw0200produtoinsumo-dm_tipo_item = '99'.
-        ENDCASE.
+          CASE ls_prod_cons-referenceproducttype.
+            WHEN 'HAWA'.
+              ls_item_cons-knw0200produtoinsumo-dm_tipo_item = '00'.
+            WHEN 'ROH'.
+              ls_item_cons-knw0200produtoinsumo-dm_tipo_item = '01'.
+            WHEN 'VERP' OR 'LEIH'.
+              ls_item_cons-knw0200produtoinsumo-dm_tipo_item = '02'.
+            WHEN 'PROC' OR 'HALB'.
+              ls_item_cons-knw0200produtoinsumo-dm_tipo_item = '03'.
+            WHEN 'FERT'.
+              IF ls_prod_cons-iscoproduct IS INITIAL.
+                ls_item_cons-knw0200produtoinsumo-dm_tipo_item = '04'.
+              ELSE.
+                ls_item_cons-knw0200produtoinsumo-dm_tipo_item = '05'.
+              ENDIF.
+            WHEN 'HIBE'.
+              ls_item_cons-knw0200produtoinsumo-dm_tipo_item = '06'.
+            WHEN 'NLAG'.
+              ls_item_cons-knw0200produtoinsumo-dm_tipo_item = '07'.
+            WHEN 'DIEN' OR 'LEIS' OR 'SERV'.
+              ls_item_cons-knw0200produtoinsumo-dm_tipo_item = '09'.
+            WHEN OTHERS.
+              ls_item_cons-knw0200produtoinsumo-dm_tipo_item = '99'.
+          ENDCASE.
+
+          READ TABLE t_nfitem INTO DATA(ls_nfitem_cons) WITH KEY nf-material = ls_cons-material.
+          IF sy-subrc = 0.
+            READ TABLE t_nfdocs INTO DATA(p_nfdoc_cons) WITH KEY doc-BR_NotaFiscal = ls_nfitem_cons-nf-br_notafiscal.
+            IF sy-subrc = 0.
+              IF p_nfdoc_cons-doc-br_nfismunicipal <> 'X' AND p_nfdoc_cons-doc-br_nfhasserviceitem <> 'X'.
+                IF ls_nfitem_cons-nf-ncmcode IS NOT INITIAL.
+                  ls_item_cons-knw0200produtoinsumo-cd_ncm             = normalize( p_str = ls_nfitem_cons-nf-ncmcode ).
+                ENDIF.
+                IF ls_nfitem_cons-nf-br_materialorigin IS NOT INITIAL.
+                  ls_item_cons-knw0200produtoinsumo-dm_origem_produto  = ls_nfitem_cons-nf-br_materialorigin.
+                ENDIF.
+                IF ls_nfitem_cons-nf-br_icmsstlegalclassfctn IS NOT INITIAL.
+                  ls_item_cons-knw0200produtoinsumo-nr_cest            = ls_nfitem_cons-nf-br_icmsstlegalclassfctn.
+                ENDIF.
+              ELSEIF p_nfdoc-doc-br_nfismunicipal = 'X' OR p_nfdoc-doc-br_nfhasserviceitem = 'X'.
+                ls_item_cons-knw0200produtoinsumo-dm_tipo_item = '09'.
+              ENDIF.
+            ENDIF.
+          ENDIF.
 
         "----------------------------------------------------------
         " 0190 do insumo
@@ -1073,9 +1238,9 @@ ENDMETHOD.
         ls_item_cons-knw0190produtoinsumo-cod_empresa   = CONV #( s_branch_sov-sov_company ).
         ls_item_cons-knw0190produtoinsumo-cod_filial    = CONV #( s_branch_sov-sov_branch ).
         ls_item_cons-knw0190produtoinsumo-dt_inicial    = '1900-01-01T00:00:00+03:00'.
-        ls_item_cons-knw0190produtoinsumo-dt_importacao = '1900-01-01T00:00:00+03:00'.
-        ls_item_cons-knw0190produtoinsumo-ds_unidade    = ls_cons-materialbaseunit.
-        ls_item_cons-knw0190produtoinsumo-ds_descricao  = ls_cons-materialbaseunit.
+        "ls_item_cons-knw0190produtoinsumo-dt_importacao = '1900-01-01T00:00:00+03:00'.
+        ls_item_cons-knw0190produtoinsumo-ds_unidade    = ls_prod_cons-unitofmeasure_e.
+        ls_item_cons-knw0190produtoinsumo-ds_descricao  = ls_prod_cons-unitofmeasurename.
 
         APPEND ls_item_cons TO ls_objeto-integr_itens_consum_list.
 

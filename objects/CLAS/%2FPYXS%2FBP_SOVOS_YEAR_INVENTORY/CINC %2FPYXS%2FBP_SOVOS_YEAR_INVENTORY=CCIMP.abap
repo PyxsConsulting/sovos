@@ -247,6 +247,9 @@ CLASS lcl_process DEFINITION FRIENDS lhc_SOVOS_YEAR_INVENTORY.
         productvaluationbasic TYPE i_productvaluationbasic,
         supplier              TYPE i_supplier,
         plant                 TYPE i_plant,
+        referenceproducttype TYPE i_producttype-referenceproducttype,
+        unitofmeasure_e       TYPE i_unitofmeasure-unitofmeasure_e,
+        unitofmeasurename     TYPE i_unitofmeasuretext-unitofmeasurename,
       END OF ty_stock_value2,
 
       BEGIN OF ty_companycode,
@@ -272,7 +275,27 @@ CLASS lcl_process DEFINITION FRIENDS lhc_SOVOS_YEAR_INVENTORY.
         product         TYPE RANGE OF i_product-product,
         extractionorlog TYPE c LENGTH 3,
         timestamp       TYPE RANGE OF timestamp,
-      END OF ty_sel.
+      END OF ty_sel,
+
+      BEGIN OF ty_nfitem,
+        nf                   TYPE i_br_nfitem,
+        product              TYPE i_product-product,
+        producttype          TYPE i_product-producttype,
+        baseunit             TYPE i_product-baseunit,
+        plant                TYPE c LENGTH 4,
+        iscoproduct          TYPE c LENGTH 1,
+        referenceproducttype TYPE i_producttype-referenceproducttype,
+        unitofmeasureisocode TYPE i_unitofmeasure-unitofmeasureisocode,
+        unitofmeasure_e      TYPE i_unitofmeasure-unitofmeasure_e,
+        unitofmeasurename    TYPE i_unitofmeasuretext-unitofmeasurename,
+        glaccountname        TYPE i_glaccounttextincompanycode-glaccountname,
+        chartofaccounts      TYPE i_glaccount-chartofaccounts,
+      END OF ty_nfitem,
+
+      BEGIN OF ty_docs_act,
+        doc TYPE i_br_nfdocument,
+        act TYPE i_br_nfeactive,
+      END OF ty_docs_act.
 
     CLASS-DATA: sel          TYPE ty_sel,
                 data         TYPE d,
@@ -284,7 +307,9 @@ CLASS lcl_process DEFINITION FRIENDS lhc_SOVOS_YEAR_INVENTORY.
                 gs_company   TYPE ty_companycode,
                 gt_accounts  TYPE ty_t_accounts,
                 s_branch_sov TYPE /pyxs/sov_branch,
-                gt_sel2      TYPE TABLE OF ty_stock_value2.
+                gt_sel2      TYPE TABLE OF ty_stock_value2,
+                t_nfitem           TYPE TABLE OF ty_nfitem,
+                t_nfdocs           TYPE TABLE OF ty_docs_act.
 
 
   PRIVATE SECTION.
@@ -580,6 +605,14 @@ CLASS lcl_process IMPLEMENTATION.
           && first
           && second.
 
+  ENDMETHOD.
+
+  METHOD normalize.
+    normalized = p_str.
+    TRANSLATE: normalized USING '. ',
+               normalized USING '- ',
+               normalized USING '/ '.
+    CONDENSE normalized NO-GAPS.
   ENDMETHOD.
 
   METHOD send_integration.
@@ -1203,21 +1236,71 @@ CLASS lcl_process IMPLEMENTATION.
       ls_objeto-knwh010-vl_total_ir     = 0.
 
       " ─── KNW0190 ───
+
       ls_objeto-knw0190-cod_empresa    = CONV i( s_branch_sov-sov_company ).
       ls_objeto-knw0190-cod_filial     = CONV i( s_branch_sov-sov_branch ).
-      ls_objeto-knw0190-id_usuario_imp = sy-uname.
-      ls_objeto-knw0190-dt_inicial     = lv_dt_ini.
-      ls_objeto-knw0190-dt_importacao  = lv_dt_ini.
-      ls_objeto-knw0190-ds_unidade     = 'UN'.
-      ls_objeto-knw0190-ds_descricao   = ls_data-unitofmeasuretext-unitofmeasurename.
+      "ls_objeto-knw0190-id_usuario_imp = sy-uname.
+      ls_objeto-knw0190-dt_inicial     = '1900-01-01T00:00:00+03:00'.
+      "ls_objeto-knw0190-dt_importacao  = '1900-01-01T00:00:00+03:00'.
+      ls_objeto-knw0190-ds_unidade     = ls_data-unitofmeasure_e.
+      ls_objeto-knw0190-ds_descricao   = ls_data-unitofmeasurename.
 
       " ─── KNW0200 ───
-      ls_objeto-knw0200-cod_empresa     = CONV i( s_branch_sov-sov_company ).
-      ls_objeto-knw0200-cod_filial      = CONV i( s_branch_sov-sov_branch ).
-      ls_objeto-knw0200-dt_inicial      = lv_dt_ini.
-      ls_objeto-knw0200-cd_produto_serv = ls_data-product-product.
-      ls_objeto-knw0200-ds_produto_serv = ls_data-productdescription.
-      ls_objeto-knw0200-unidade         = 'UN'.
+
+          ls_objeto-knw0200-dt_inicial         = '1900-01-01T00:00:00+03:00'.
+          ls_objeto-knw0200-cod_empresa        = CONV i( s_branch_sov-sov_company ).
+          ls_objeto-knw0200-cod_filial         = CONV i( s_branch_sov-sov_branch ).
+          ls_objeto-knw0200-cd_produto_serv    = ls_data-product-Product.
+          ls_objeto-knw0200-ds_produto_serv    = ls_data-productdescription-ProductDescription.
+          ls_objeto-knw0200-unidade            = ls_data-unitofmeasure_e.
+          "<item>-knw0200-dm_tipo_item       = '09'.
+          ls_objeto-knw0200-cd_ncm             = normalize( p_str = ls_data-productplantbasic-ConsumptionTaxCtrlCode ).
+          ls_objeto-knw0200-dm_origem_produto  = ls_data-productvaluationbasic-ProductOriginType.
+          "ls_objeto-knw0200-nr_cest            =
+          CASE ls_data-referenceproducttype.
+            WHEN 'HAWA'.
+              ls_objeto-knw0200-dm_tipo_item = '00'.
+            WHEN 'ROH'.
+              ls_objeto-knw0200-dm_tipo_item = '01'.
+            WHEN 'VERP' OR 'LEIH'.
+              ls_objeto-knw0200-dm_tipo_item = '02'.
+            WHEN 'PROC' OR 'HALB'.
+              ls_objeto-knw0200-dm_tipo_item = '03'.
+            WHEN 'FERT'.
+              IF ls_data-productplantbasic-iscoproduct IS INITIAL.
+                ls_objeto-knw0200-dm_tipo_item = '04'.
+              ELSE.
+                ls_objeto-knw0200-dm_tipo_item = '05'.
+              ENDIF.
+            WHEN 'HIBE'.
+              ls_objeto-knw0200-dm_tipo_item = '06'.
+            WHEN 'NLAG'.
+              ls_objeto-knw0200-dm_tipo_item = '07'.
+            WHEN 'DIEN' OR 'LEIS' OR 'SERV'.
+              ls_objeto-knw0200-dm_tipo_item = '09'.
+            WHEN OTHERS.
+              ls_objeto-knw0200-dm_tipo_item = '99'.
+          ENDCASE.
+
+          READ TABLE t_nfitem INTO DATA(ls_nfitem) WITH KEY nf-material = ls_data-product-product.
+          IF sy-subrc = 0.
+            READ TABLE t_nfdocs INTO DATA(p_nfdoc) WITH KEY doc-BR_NotaFiscal = ls_nfitem-nf-br_notafiscal.
+            IF sy-subrc = 0.
+              IF p_nfdoc-doc-br_nfismunicipal <> 'X' AND p_nfdoc-doc-br_nfhasserviceitem <> 'X'.
+                IF ls_nfitem-nf-ncmcode IS NOT INITIAL.
+                  ls_objeto-knw0200-cd_ncm             = normalize( p_str = ls_nfitem-nf-ncmcode ).
+                ENDIF.
+                IF ls_nfitem-nf-br_materialorigin IS NOT INITIAL.
+                  ls_objeto-knw0200-dm_origem_produto  = ls_nfitem-nf-br_materialorigin.
+                ENDIF.
+                IF ls_nfitem-nf-br_icmsstlegalclassfctn IS NOT INITIAL.
+                  ls_objeto-knw0200-nr_cest            = ls_nfitem-nf-br_icmsstlegalclassfctn.
+                ENDIF.
+              ELSEIF p_nfdoc-doc-br_nfismunicipal = 'X' OR p_nfdoc-doc-br_nfhasserviceitem = 'X'.
+                ls_objeto-knw0200-dm_tipo_item = '09'.
+              ENDIF.
+            ENDIF.
+          ENDIF.
 
       APPEND ls_objeto TO ls_out-objetos.
       APPEND ls_out TO t_out.
@@ -1337,6 +1420,80 @@ CLASS lcl_process IMPLEMENTATION.
   METHOD read_db.
 
     DATA: lr_products TYPE RANGE OF i_journalentryitem-product.
+        " Transform ANOMES (MMYYYY) to date range
+    DATA: lv_month  TYPE c LENGTH 2,
+          lv_year   TYPE c LENGTH 4,
+          lv_date_f TYPE datum,
+          lv_date_t TYPE datum,
+          lr_anomes TYPE RANGE OF datum,
+          r_docnum  TYPE RANGE OF i_br_nfdocument-br_notafiscal,
+          ls_anomes LIKE LINE OF lr_anomes.
+
+    " Extract month and year from MMYYYY
+    lv_month = sel-fiscalperiod+1(2).   " First 2 chars = MM
+    lv_year  = sel-fiscalyear.    " Last 4 chars  = YYYY
+
+    " Build first day of month: YYYYMM01
+    lv_date_f = lv_year && lv_month && '01'.
+
+    " Build last day of month using month-end logic
+    lv_date_t = lv_date_f.
+    lv_date_t+6(2) = '01'.         " Set day to 01
+    ADD 1 TO lv_date_t+4(2).       " Add 1 month
+    IF lv_date_t+4(2) = 13.        " Handle December → January
+      lv_date_t+4(2) = '01'.
+      ADD 1 TO lv_date_t(4).        " Bump year
+    ENDIF.
+    SUBTRACT 1 FROM lv_date_t.     " Go back 1 day = last day of month
+
+    " Build range entry
+    ls_anomes-sign   = 'I'.
+    ls_anomes-option = 'BT'.
+    ls_anomes-low    = lv_date_f.  " e.g. 20250101
+    ls_anomes-high   = lv_date_t.  " e.g. 20250131
+    APPEND ls_anomes TO lr_anomes.
+
+    " Use in SELECT
+    SELECT doc~*, act~*
+      FROM i_br_nfdocument AS doc
+      LEFT JOIN i_br_nfeactive AS act
+        ON doc~br_notafiscal = act~br_notafiscal
+      WHERE doc~companycode                    = @sel-companycode
+        AND doc~businessplace                  = @sel-businessplace
+        "AND doc~creationdate                   IN @sel-creation
+        AND doc~br_nfpostingdate               IN @lr_anomes
+        "AND doc~br_nftype                      IN @sel-nftype
+        "AND doc~br_notafiscal                  IN @sel-document
+        "AND doc~br_nfissuedate                 IN @sel-docdate
+        "AND doc~br_nfpostingdate               IN @lr_anomes
+        "AND doc~br_nfarrivalordeparturedate    IN @sel-dsaient
+        "AND doc~lastchangedate                 IN @sel-changed
+      INTO TABLE @t_nfdocs.
+
+    LOOP AT t_nfdocs INTO DATA(ls_nf).
+      APPEND VALUE #( sign = 'I' option = 'EQ' low = ls_nf-doc-br_notafiscal ) TO r_docnum.
+    ENDLOOP.
+
+    SELECT nf~*, a~product, a~producttype, a~baseunit,
+            c~plant, c~iscoproduct,
+            a~\_producttype-referenceproducttype,
+            nf~\_baseunit-unitofmeasureisocode, nf~\_baseunit-unitofmeasure_e, nf~\_baseunit\_text[ language = 'P' ]-unitofmeasurename,
+            i_glaccount~\_text[ language = 'P' ]-glaccountname, i_glaccount~chartofaccounts
+      FROM i_br_nfitem AS nf
+      LEFT OUTER JOIN i_product AS a
+      ON nf~material = a~product
+      LEFT OUTER JOIN i_productplantbasic AS c
+      ON a~product = c~product
+      AND c~plant = nf~plant
+      LEFT OUTER JOIN i_productvaluationbasic AS val
+      ON val~valuationarea = nf~plant
+      AND val~product = a~product
+      AND val~valuationarea = ''
+      LEFT OUTER JOIN i_glaccount
+      ON i_glaccount~glaccount = nf~glaccount
+      AND i_glaccount~companycode = @sel-companycode
+      WHERE nf~br_notafiscal IN @r_docnum
+      INTO TABLE @t_nfitem. "J_BNFLIN
 
     SELECT SINGLE *
       FROM /pyxs/sov_branch
@@ -1344,14 +1501,17 @@ CLASS lcl_process IMPLEMENTATION.
       AND branch = @sel-businessplace
       INTO @s_branch_sov.
 
-    SELECT stock~* AS stock,
-           product~* AS product,
-           productdescription~* AS productdescription,
-           unitofmeasuretext~* AS unitofmeasuretext,
-           productplantbasic~* AS productplantbasic,
-           productvaluationbasic~* AS productvaluationbasic,
-           supplier~* AS supplier,
-           plant~* AS plant
+    SELECT stock~*,
+           product~*,
+           productdescription~*,
+           unitofmeasuretext~*,
+           productplantbasic~*,
+           productvaluationbasic~*,
+           supplier~*,
+           plant~*,
+           product~\_producttype-referenceproducttype,
+           product~\_BaseUnitOfMeasure-unitofmeasure_e,
+           product~\_BaseUnitOfMeasure\_text[ language = 'P' ]-unitofmeasurename
        FROM i_inventoryamtbyfsclperd(
            p_fiscalperiod = @sel-fiscalperiod,
            p_fiscalyear   = @sel-fiscalyear ) AS stock
@@ -1377,6 +1537,7 @@ CLASS lcl_process IMPLEMENTATION.
         AND stock~material     IN @sel-product
         AND plant~businessplace = @sel-businessplace
         AND productvaluationbasic~valuationtype = ''
+        AND stock~Ledger = '0L'
       INTO TABLE @gt_sel2.
 
     SELECT SINGLE companycode, companycodename
@@ -1399,13 +1560,7 @@ CLASS lcl_process IMPLEMENTATION.
 
 
   ENDMETHOD.
-  METHOD normalize.
-    normalized = p_str.
-    TRANSLATE: normalized USING '. ',
-               normalized USING '- ',
-               normalized USING '/ '.
-    CONDENSE normalized NO-GAPS.
-  ENDMETHOD.
+
   METHOD popu.
     t_tax_type =
       VALUE #(
