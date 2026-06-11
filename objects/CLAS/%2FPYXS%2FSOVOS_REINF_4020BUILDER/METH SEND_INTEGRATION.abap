@@ -1,22 +1,24 @@
   METHOD send_integration.
-    DATA: gv_proc            TYPE string.
-    DATA: lo_ret     TYPE REF TO data,
-          lv_sucesso TYPE abap_boolean.
 
-    IF ls_root IS INITIAL.
-***      APPEND INITIAL LINE TO /pyxs/bp_reinflog=>lt_log ASSIGNING FIELD-SYMBOL(<log>).
-***      GET TIME STAMP FIELD DATA(time).
-***      <log>-ano_mes = me->sel-creation[ 1 ]-low.
-***      <log>-time = time.
-***      <log>-evento = '4000'.
-***      <log>-partner = ''.
-***      <log>-resultado = '999'.
-***      <log>-retorno = 'Dados ausentes ou inconsistentes'.
-***      EXIT.
-    ENDIF.
-*    DATA lt_doc TYPE TABLE OF zpyxssped_nf_out.
-*      CLEAR lt_doc[].
-*      APPEND ls_doc TO lt_doc.
+  TYPES: BEGIN OF ty_payload,
+         objetos TYPE tt_r4020_objects,
+       END OF ty_payload.
+
+  DATA ls_payload TYPE ty_payload.
+
+        DATA: gv_proc            TYPE string.
+        DATA: lo_ret     TYPE REF TO data,
+              lv_sucesso TYPE abap_boolean,
+              objects TYPE tt_r4020_objects,
+              lv_utf8_xstring  TYPE xstring,
+              lv_gzip_xstring  TYPE xstring,
+              lv_base64        TYPE string.
+
+
+
+  LOOP AT gt_objects INTO ls_root.
+  APPEND ls_root TO objects.
+  ls_payload-objetos = objects.
     DATA(json_out) = /ui2/cl_json=>serialize(
       EXPORTING
         data             = ls_root
@@ -37,7 +39,18 @@
 *        r_json           =
     ).
 
-    json_out = /pyxs/sov_json_conversion=>convert_json( json_out ).
+    json_out = /pyxs/sov_json_conversion=>convert_reinf( json_out ).
+
+    lv_utf8_xstring = cl_abap_conv_codepage=>create_out( codepage = 'UTF-8' )->convert( source = json_out ).
+    cl_abap_gzip=>compress_binary_with_header(
+      EXPORTING
+        raw_in = lv_utf8_xstring
+      IMPORTING
+        gzip_out = lv_gzip_xstring ).
+    lv_base64 = cl_web_http_utility=>encode_x_base64( lv_gzip_xstring ).
+    CONCATENATE '{"nr_licenca": "00000","dados": "' lv_base64 '"}'
+    INTO json_out. "o valor nr_licenca deve ser setado na integração
+
     DATA: lr_cscn TYPE if_com_scenario_factory=>ty_query-cscn_id_range.
 
     " find CA by scenario
@@ -96,8 +109,6 @@
 *              r_value    =
         ).
 
-
-
         DATA(lo_response) = lo_http_client->execute( if_web_http_client=>post ).
         DATA(lv_ret) = lo_response->get_status( ).
         IF lv_ret-code = '200'.
@@ -145,33 +156,33 @@
     ENDTRY.
     GET TIME STAMP FIELD time.
 
-    IF lo_ret IS INITIAL.
-      APPEND INITIAL LINE TO /pyxs/bp_reinflog=>lt_log ASSIGNING <log>.
-      <log>-time = time.
-      READ TABLE ls_root-knw_r4020 INTO DATA(ls_nf) INDEX 1.
-
-      <log>-ano_mes = me->sel-creation[ 1 ]-low.
-      <log>-evento = '4000'.
-      <log>-partner = ls_nf-id_referencia+6.
-      <log>-resultado = COND #( WHEN lv_ret IS INITIAL THEN '999' ELSE lv_ret-code ).
-      <log>-retorno = COND #( WHEN gv_proc IS NOT INITIAL THEN gv_proc
-                              WHEN lv_ret IS NOT INITIAL THEN lv_ret-reason
-                              ELSE 'Erro no serviço' ).
-
-    ELSE.
-
-      LOOP AT lo_ret->('MENSAGENS')->* ASSIGNING FIELD-SYMBOL(<lv_msg>).
-        APPEND INITIAL LINE TO /pyxs/bp_reinflog=>lt_log ASSIGNING <log>.
-        <log>-id = sy-tabix.
-        <log>-time = time.
-        READ TABLE ls_root-knw_r4020 INTO ls_nf INDEX 1.
-
-        <log>-ano_mes = me->sel-creation[ 1 ]-low.
-        <log>-evento = '4000'.
-        <log>-partner = ls_nf-id_referencia+6.
-        <log>-resultado = lv_ret-code.
-        <log>-retorno = lv_ret-reason.
-      ENDLOOP.
-    ENDIF.
-
+***    IF lo_ret IS INITIAL.
+***      APPEND INITIAL LINE TO /pyxs/bp_reinflog=>lt_log ASSIGNING <log>.
+***      <log>-time = time.
+***      READ TABLE ls_root-knwReinfR4020 INTO DATA(ls_nf) INDEX 1.
+***
+***      <log>-ano_mes = me->sel-creation[ 1 ]-low.
+***      <log>-evento = '4000'.
+***      <log>-partner = ls_nf-id_referencia+6.
+***      <log>-resultado = COND #( WHEN lv_ret IS INITIAL THEN '999' ELSE lv_ret-code ).
+***      <log>-retorno = COND #( WHEN gv_proc IS NOT INITIAL THEN gv_proc
+***                              WHEN lv_ret IS NOT INITIAL THEN lv_ret-reason
+***                              ELSE 'Erro no serviço' ).
+***
+***    ELSE.
+***
+***      LOOP AT lo_ret->('MENSAGENS')->* ASSIGNING FIELD-SYMBOL(<lv_msg>).
+***        APPEND INITIAL LINE TO /pyxs/bp_reinflog=>lt_log ASSIGNING <log>.
+***        <log>-id = sy-tabix.
+***        <log>-time = time.
+***        READ TABLE ls_root-knwReinfR4020 INTO ls_nf INDEX 1.
+***
+***        <log>-ano_mes = me->sel-creation[ 1 ]-low.
+***        <log>-evento = '4000'.
+***        <log>-partner = ls_nf-id_referencia+6.
+***        <log>-resultado = lv_ret-code.
+***        <log>-retorno = lv_ret-reason.
+***      ENDLOOP.
+***    ENDIF.
+  ENDLOOP.
   ENDMETHOD.

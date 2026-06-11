@@ -138,10 +138,10 @@ CLASS /pyxs/sovos_reinf_4020builder DEFINITION
            END OF ty_info_pgto_ret.
 
     TYPES: BEGIN OF ty_root_r4020,
-             knw_r4020                     TYPE TABLE OF ty_knw_r4020 WITH DEFAULT KEY,
-             knw_reinf_r4020_pgto          TYPE TABLE OF ty_pgto WITH DEFAULT KEY,
-             knw_reinf_r4020_info_pgto     TYPE TABLE OF ty_info_pgto WITH DEFAULT KEY,
-             knw_reinf_r4020_info_pgto_ret TYPE TABLE OF ty_info_pgto_ret WITH DEFAULT KEY,
+             knwReinfR4020                 TYPE ty_knw_r4020,
+             reinfR4020PgtoList            TYPE TABLE OF ty_pgto WITH DEFAULT KEY,
+             knwReinfR4020InfoPgtoList     TYPE TABLE OF ty_info_pgto WITH DEFAULT KEY,
+             knwReinfR4020InfoPgtoRetList  TYPE TABLE OF ty_info_pgto_ret WITH DEFAULT KEY,
            END OF ty_root_r4020.
 **********************************************************************
     TYPES: BEGIN OF ty_tax_item,
@@ -198,7 +198,8 @@ CLASS /pyxs/sovos_reinf_4020builder DEFINITION
              br_nftotalamount             TYPE i_br_nfdocument-br_nftotalamount,
            END OF ty_nf_item,
 
-           ty_r_tax_type TYPE RANGE OF i_br_nftax-taxgroup.
+           ty_r_tax_type TYPE RANGE OF i_br_nftax-taxgroup,
+           tt_r4020_objects TYPE STANDARD TABLE OF ty_root_r4020 WITH DEFAULT KEY.
 
     DATA: gt_data TYPE TABLE OF ty_tax_item,
           gt_nfs  TYPE TABLE OF ty_nf_item.
@@ -206,6 +207,8 @@ CLASS /pyxs/sovos_reinf_4020builder DEFINITION
 *******************************************************************
     DATA    gt_r1000 TYPE TABLE OF ty_r1000.
     DATA ls_root TYPE ty_root_r4020.
+
+    DATA: gt_objects       TYPE tt_r4020_objects.
 
     METHODS:
       constructor
