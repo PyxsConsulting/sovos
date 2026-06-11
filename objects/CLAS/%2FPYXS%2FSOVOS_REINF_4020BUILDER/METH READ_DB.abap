@@ -60,9 +60,9 @@
                 FOR ALL ENTRIES IN @gt_data
              WHERE nfi~br_nfsourcedocumentnumber  = @gt_data-originalreferencedocument
                AND nf~businessplace               = @sel-branch
-               "AND nf~br_nfpartner                IN @sel-partner
+               AND nf~br_nfpartner                IN @sel-partner
                "AND nf~br_notafiscal               IN @sel-br_notafiscal
-               AND nft~br_nfitemhaswithholdingtax = 'X'
+               "AND nft~br_nfitemhaswithholdingtax = 'X'
          INTO TABLE @gt_nfs.
       ENDIF.
     ENDIF.
@@ -98,6 +98,7 @@
 
       IF lt_data_it IS NOT INITIAL.
 
+
         APPEND LINES OF lt_data_it TO gt_data.
 
         SELECT nfi~br_notafiscal, nfi~br_notafiscalitem, nfi~br_nfsourcedocumenttype, nfi~br_nfsourcedocumentnumber, "#EC CI_NO_TRANSFORM
@@ -119,9 +120,9 @@
                 FOR ALL ENTRIES IN @lt_data_it
              WHERE nfi~br_nfsourcedocumentnumber  = @lt_data_it-originalreferencedocument
                AND nf~businessplace               = @sel-branch
-               "AND nf~br_nfpartner                IN @sel-partner
+               AND nf~br_nfpartner                IN @sel-partner
                "AND nf~br_notafiscal               IN @sel-br_notafiscal
-               AND nft~br_nfitemhaswithholdingtax = 'X'
+               "AND nft~br_nfitemhaswithholdingtax = 'X'
          APPENDING TABLE @gt_nfs.
       ENDIF.
 

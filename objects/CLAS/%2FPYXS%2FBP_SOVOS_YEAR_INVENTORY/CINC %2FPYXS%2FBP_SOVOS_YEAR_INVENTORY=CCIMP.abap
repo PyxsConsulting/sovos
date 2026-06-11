@@ -1222,14 +1222,16 @@ CLASS lcl_process IMPLEMENTATION.
     LOOP AT gt_sel2 INTO DATA(ls_data).
       CLEAR: ls_out, ls_objeto.
 
+      DATA(vl_total) = ls_data-stock-ValuationQuantity * ls_data-productvaluationbasic-standardprice.
+
       " ─── KNWH010 ───
       ls_objeto-knwh010-cod_empresa     = CONV i( s_branch_sov-sov_company ).
       ls_objeto-knwh010-cod_filial      = CONV i( s_branch_sov-sov_branch ).
       ls_objeto-knwh010-id_usuario_imp  = sy-uname.
       ls_objeto-knwh010-cd_produto_serv = ls_data-product-product.
-      ls_objeto-knwh010-unidade         = 'UN'.
-      ls_objeto-knwh010-vl_total        = '1'.
-      ls_objeto-knwh010-qtde            = '1'.
+      ls_objeto-knwh010-unidade         = ls_data-unitofmeasure_e.
+      ls_objeto-knwh010-vl_total        = vl_total.
+      ls_objeto-knwh010-qtde            = ls_data-stock-ValuationQuantity.
       ls_objeto-knwh010-vl_unitario     = ls_data-productvaluationbasic-standardprice.
       ls_objeto-knwh010-dt_inventario   = lv_dt_ini.
       ls_objeto-knwh010-dm_sit_estoque  = 0.
