@@ -2226,6 +2226,9 @@ CLASS lcl_process IMPLEMENTATION.
 
       """"""""""""""""""""""""""""""""""""""""""""""""""""""""""
       " DE x PARA
+      "--------------------------------------------------
+      " D100 – CT-e (Modelo 57)
+      "--------------------------------------------------
 
       DATA(lv_sap_company_code) = p_nfdoc-doc-companycode.
       DATA(lv_sap_businessplace) = p_nfdoc-doc-businessplace.

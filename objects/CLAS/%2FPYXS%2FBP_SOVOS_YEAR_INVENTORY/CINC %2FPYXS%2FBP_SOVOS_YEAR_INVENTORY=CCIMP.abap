@@ -1,4 +1,4 @@
-CLASS lhc_SOVOS_YEAR_INVENTORY DEFINITION INHERITING FROM cl_abap_behavior_handler.
+CLASS lhc_sovos_year_inventory DEFINITION INHERITING FROM cl_abap_behavior_handler.
   PRIVATE SECTION.
 
     METHODS get_instance_authorizations FOR INSTANCE AUTHORIZATION
@@ -25,7 +25,7 @@ CLASS lhc_SOVOS_YEAR_INVENTORY DEFINITION INHERITING FROM cl_abap_behavior_handl
 ENDCLASS.
 
 
-CLASS lcl_process DEFINITION FRIENDS lhc_SOVOS_YEAR_INVENTORY.
+CLASS lcl_process DEFINITION FRIENDS lhc_sovos_year_inventory.
   PUBLIC SECTION.
     CLASS-METHODS: main,
       build_cnpj
@@ -247,7 +247,7 @@ CLASS lcl_process DEFINITION FRIENDS lhc_SOVOS_YEAR_INVENTORY.
         productvaluationbasic TYPE i_productvaluationbasic,
         supplier              TYPE i_supplier,
         plant                 TYPE i_plant,
-        referenceproducttype TYPE i_producttype-referenceproducttype,
+        referenceproducttype  TYPE i_producttype-referenceproducttype,
         unitofmeasure_e       TYPE i_unitofmeasure-unitofmeasure_e,
         unitofmeasurename     TYPE i_unitofmeasuretext-unitofmeasurename,
       END OF ty_stock_value2,
@@ -308,8 +308,8 @@ CLASS lcl_process DEFINITION FRIENDS lhc_SOVOS_YEAR_INVENTORY.
                 gt_accounts  TYPE ty_t_accounts,
                 s_branch_sov TYPE /pyxs/sov_branch,
                 gt_sel2      TYPE TABLE OF ty_stock_value2,
-                t_nfitem           TYPE TABLE OF ty_nfitem,
-                t_nfdocs           TYPE TABLE OF ty_docs_act.
+                t_nfitem     TYPE TABLE OF ty_nfitem,
+                t_nfdocs     TYPE TABLE OF ty_docs_act.
 
 
   PRIVATE SECTION.
@@ -342,7 +342,7 @@ CLASS lcl_process DEFINITION FRIENDS lhc_SOVOS_YEAR_INVENTORY.
 
 ENDCLASS.
 
-CLASS lhc_SOVOS_YEAR_INVENTORY IMPLEMENTATION.
+CLASS lhc_sovos_year_inventory IMPLEMENTATION.
 
   METHOD get_instance_authorizations.
   ENDMETHOD.
@@ -362,7 +362,7 @@ CLASS lhc_SOVOS_YEAR_INVENTORY IMPLEMENTATION.
   METHOD lock.
   ENDMETHOD.
 
-  METHOD SendIntegration.
+  METHOD sendintegration.
 
     DATA(key) = keys[ 1 ].
     DATA(lv_param) = keys[ 1 ]-%param.
@@ -434,7 +434,7 @@ CLASS lhc_SOVOS_YEAR_INVENTORY IMPLEMENTATION.
 
 ENDCLASS.
 
-CLASS lsc_SOVOS_YEAR_INVENTORY DEFINITION INHERITING FROM cl_abap_behavior_saver.
+CLASS lsc_sovos_year_inventory DEFINITION INHERITING FROM cl_abap_behavior_saver.
   PROTECTED SECTION.
 
     METHODS finalize REDEFINITION.
@@ -449,7 +449,7 @@ CLASS lsc_SOVOS_YEAR_INVENTORY DEFINITION INHERITING FROM cl_abap_behavior_saver
 
 ENDCLASS.
 
-CLASS lsc_SOVOS_YEAR_INVENTORY IMPLEMENTATION.
+CLASS lsc_sovos_year_inventory IMPLEMENTATION.
 
   METHOD finalize.
   ENDMETHOD.
@@ -1222,7 +1222,7 @@ CLASS lcl_process IMPLEMENTATION.
     LOOP AT gt_sel2 INTO DATA(ls_data).
       CLEAR: ls_out, ls_objeto.
 
-      DATA(vl_total) = ls_data-stock-ValuationQuantity * ls_data-productvaluationbasic-standardprice.
+      DATA(vl_total) = ls_data-stock-valuationquantity * ls_data-productvaluationbasic-standardprice.
 
       " ─── KNWH010 ───
       ls_objeto-knwh010-cod_empresa     = CONV i( s_branch_sov-sov_company ).
@@ -1230,12 +1230,12 @@ CLASS lcl_process IMPLEMENTATION.
       ls_objeto-knwh010-id_usuario_imp  = sy-uname.
       ls_objeto-knwh010-cd_produto_serv = ls_data-product-product.
       ls_objeto-knwh010-unidade         = ls_data-unitofmeasure_e.
-      ls_objeto-knwh010-vl_total        = vl_total.
-      ls_objeto-knwh010-qtde            = ls_data-stock-ValuationQuantity.
-      ls_objeto-knwh010-vl_unitario     = ls_data-productvaluationbasic-standardprice.
+      ls_objeto-knwh010-vl_total        = ls_data-stock-amountincompanycodecurrency. "vl_total.
+      ls_objeto-knwh010-qtde            = ls_data-stock-valuationquantity.
+      ls_objeto-knwh010-vl_unitario     = ls_data-productvaluationbasic-movingaverageprice. "standardprice.
       ls_objeto-knwh010-dt_inventario   = lv_dt_ini.
       ls_objeto-knwh010-dm_sit_estoque  = 0.
-      ls_objeto-knwh010-vl_total_ir     = 0.
+      ls_objeto-knwh010-vl_total_ir     = ls_data-stock-amountincompanycodecurrency. " ls_data-productvaluationbasic-standardprice.
 
       " ─── KNW0190 ───
 
@@ -1249,60 +1249,60 @@ CLASS lcl_process IMPLEMENTATION.
 
       " ─── KNW0200 ───
 
-          ls_objeto-knw0200-dt_inicial         = '1900-01-01T00:00:00+03:00'.
-          ls_objeto-knw0200-cod_empresa        = CONV i( s_branch_sov-sov_company ).
-          ls_objeto-knw0200-cod_filial         = CONV i( s_branch_sov-sov_branch ).
-          ls_objeto-knw0200-cd_produto_serv    = ls_data-product-Product.
-          ls_objeto-knw0200-ds_produto_serv    = ls_data-productdescription-ProductDescription.
-          ls_objeto-knw0200-unidade            = ls_data-unitofmeasure_e.
-          "<item>-knw0200-dm_tipo_item       = '09'.
-          ls_objeto-knw0200-cd_ncm             = normalize( p_str = ls_data-productplantbasic-ConsumptionTaxCtrlCode ).
-          ls_objeto-knw0200-dm_origem_produto  = ls_data-productvaluationbasic-ProductOriginType.
-          "ls_objeto-knw0200-nr_cest            =
-          CASE ls_data-referenceproducttype.
-            WHEN 'HAWA'.
-              ls_objeto-knw0200-dm_tipo_item = '00'.
-            WHEN 'ROH'.
-              ls_objeto-knw0200-dm_tipo_item = '01'.
-            WHEN 'VERP' OR 'LEIH'.
-              ls_objeto-knw0200-dm_tipo_item = '02'.
-            WHEN 'PROC' OR 'HALB'.
-              ls_objeto-knw0200-dm_tipo_item = '03'.
-            WHEN 'FERT'.
-              IF ls_data-productplantbasic-iscoproduct IS INITIAL.
-                ls_objeto-knw0200-dm_tipo_item = '04'.
-              ELSE.
-                ls_objeto-knw0200-dm_tipo_item = '05'.
-              ENDIF.
-            WHEN 'HIBE'.
-              ls_objeto-knw0200-dm_tipo_item = '06'.
-            WHEN 'NLAG'.
-              ls_objeto-knw0200-dm_tipo_item = '07'.
-            WHEN 'DIEN' OR 'LEIS' OR 'SERV'.
-              ls_objeto-knw0200-dm_tipo_item = '09'.
-            WHEN OTHERS.
-              ls_objeto-knw0200-dm_tipo_item = '99'.
-          ENDCASE.
-
-          READ TABLE t_nfitem INTO DATA(ls_nfitem) WITH KEY nf-material = ls_data-product-product.
-          IF sy-subrc = 0.
-            READ TABLE t_nfdocs INTO DATA(p_nfdoc) WITH KEY doc-BR_NotaFiscal = ls_nfitem-nf-br_notafiscal.
-            IF sy-subrc = 0.
-              IF p_nfdoc-doc-br_nfismunicipal <> 'X' AND p_nfdoc-doc-br_nfhasserviceitem <> 'X'.
-                IF ls_nfitem-nf-ncmcode IS NOT INITIAL.
-                  ls_objeto-knw0200-cd_ncm             = normalize( p_str = ls_nfitem-nf-ncmcode ).
-                ENDIF.
-                IF ls_nfitem-nf-br_materialorigin IS NOT INITIAL.
-                  ls_objeto-knw0200-dm_origem_produto  = ls_nfitem-nf-br_materialorigin.
-                ENDIF.
-                IF ls_nfitem-nf-br_icmsstlegalclassfctn IS NOT INITIAL.
-                  ls_objeto-knw0200-nr_cest            = ls_nfitem-nf-br_icmsstlegalclassfctn.
-                ENDIF.
-              ELSEIF p_nfdoc-doc-br_nfismunicipal = 'X' OR p_nfdoc-doc-br_nfhasserviceitem = 'X'.
-                ls_objeto-knw0200-dm_tipo_item = '09'.
-              ENDIF.
-            ENDIF.
+      ls_objeto-knw0200-dt_inicial         = '1900-01-01T00:00:00+03:00'.
+      ls_objeto-knw0200-cod_empresa        = CONV i( s_branch_sov-sov_company ).
+      ls_objeto-knw0200-cod_filial         = CONV i( s_branch_sov-sov_branch ).
+      ls_objeto-knw0200-cd_produto_serv    = ls_data-product-product.
+      ls_objeto-knw0200-ds_produto_serv    = ls_data-productdescription-productdescription.
+      ls_objeto-knw0200-unidade            = ls_data-unitofmeasure_e.
+      "<item>-knw0200-dm_tipo_item       = '09'.
+      ls_objeto-knw0200-cd_ncm             = normalize( p_str = ls_data-productplantbasic-consumptiontaxctrlcode ).
+      ls_objeto-knw0200-dm_origem_produto  = ls_data-productvaluationbasic-productorigintype.
+      "ls_objeto-knw0200-nr_cest            =
+      CASE ls_data-referenceproducttype.
+        WHEN 'HAWA'.
+          ls_objeto-knw0200-dm_tipo_item = '00'.
+        WHEN 'ROH'.
+          ls_objeto-knw0200-dm_tipo_item = '01'.
+        WHEN 'VERP' OR 'LEIH'.
+          ls_objeto-knw0200-dm_tipo_item = '02'.
+        WHEN 'PROC' OR 'HALB'.
+          ls_objeto-knw0200-dm_tipo_item = '03'.
+        WHEN 'FERT'.
+          IF ls_data-productplantbasic-iscoproduct IS INITIAL.
+            ls_objeto-knw0200-dm_tipo_item = '04'.
+          ELSE.
+            ls_objeto-knw0200-dm_tipo_item = '05'.
           ENDIF.
+        WHEN 'HIBE'.
+          ls_objeto-knw0200-dm_tipo_item = '06'.
+        WHEN 'NLAG'.
+          ls_objeto-knw0200-dm_tipo_item = '07'.
+        WHEN 'DIEN' OR 'LEIS' OR 'SERV'.
+          ls_objeto-knw0200-dm_tipo_item = '09'.
+        WHEN OTHERS.
+          ls_objeto-knw0200-dm_tipo_item = '99'.
+      ENDCASE.
+
+      READ TABLE t_nfitem INTO DATA(ls_nfitem) WITH KEY nf-material = ls_data-product-product.
+      IF sy-subrc = 0.
+        READ TABLE t_nfdocs INTO DATA(p_nfdoc) WITH KEY doc-br_notafiscal = ls_nfitem-nf-br_notafiscal.
+        IF sy-subrc = 0.
+          IF p_nfdoc-doc-br_nfismunicipal <> 'X' AND p_nfdoc-doc-br_nfhasserviceitem <> 'X'.
+            IF ls_nfitem-nf-ncmcode IS NOT INITIAL.
+              ls_objeto-knw0200-cd_ncm             = normalize( p_str = ls_nfitem-nf-ncmcode ).
+            ENDIF.
+            IF ls_nfitem-nf-br_materialorigin IS NOT INITIAL.
+              ls_objeto-knw0200-dm_origem_produto  = ls_nfitem-nf-br_materialorigin.
+            ENDIF.
+            IF ls_nfitem-nf-br_icmsstlegalclassfctn IS NOT INITIAL.
+              ls_objeto-knw0200-nr_cest            = ls_nfitem-nf-br_icmsstlegalclassfctn.
+            ENDIF.
+          ELSEIF p_nfdoc-doc-br_nfismunicipal = 'X' OR p_nfdoc-doc-br_nfhasserviceitem = 'X'.
+            ls_objeto-knw0200-dm_tipo_item = '09'.
+          ENDIF.
+        ENDIF.
+      ENDIF.
 
       APPEND ls_objeto TO ls_out-objetos.
       APPEND ls_out TO t_out.
@@ -1422,7 +1422,7 @@ CLASS lcl_process IMPLEMENTATION.
   METHOD read_db.
 
     DATA: lr_products TYPE RANGE OF i_journalentryitem-product.
-        " Transform ANOMES (MMYYYY) to date range
+    " Transform ANOMES (MMYYYY) to date range
     DATA: lv_month  TYPE c LENGTH 2,
           lv_year   TYPE c LENGTH 4,
           lv_date_f TYPE datum,
@@ -1512,8 +1512,8 @@ CLASS lcl_process IMPLEMENTATION.
            supplier~*,
            plant~*,
            product~\_producttype-referenceproducttype,
-           product~\_BaseUnitOfMeasure-unitofmeasure_e,
-           product~\_BaseUnitOfMeasure\_text[ language = 'P' ]-unitofmeasurename
+           product~\_baseunitofmeasure-unitofmeasure_e,
+           product~\_baseunitofmeasure\_text[ language = 'P' ]-unitofmeasurename
        FROM i_inventoryamtbyfsclperd(
            p_fiscalperiod = @sel-fiscalperiod,
            p_fiscalyear   = @sel-fiscalyear ) AS stock
@@ -1539,7 +1539,7 @@ CLASS lcl_process IMPLEMENTATION.
         AND stock~material     IN @sel-product
         AND plant~businessplace = @sel-businessplace
         AND productvaluationbasic~valuationtype = ''
-        AND stock~Ledger = '0L'
+        AND stock~ledger = '0L'
       INTO TABLE @gt_sel2.
 
     SELECT SINGLE companycode, companycodename
