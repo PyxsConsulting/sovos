@@ -356,7 +356,6 @@ CLASS lcl_process DEFINITION FRIENDS lhc_sovos_fiscaldocuments.
         nr_chave_acesso_cte_ref TYPE string,
       END OF ty_knwd100,
 
-
       BEGIN OF ty_integracaoconhecimentotrans,
         knwd100 TYPE ty_knwd100,
       END OF ty_integracaoconhecimentotrans,
@@ -1100,7 +1099,7 @@ CLASS lcl_process DEFINITION FRIENDS lhc_sovos_fiscaldocuments.
              br_notafiscal TYPE i_br_nfdocument-br_notafiscal,
            END OF ty_nfs,
 
-          BEGIN OF ty_counter,
+           BEGIN OF ty_counter,
              br_notafiscal TYPE i_br_nfdocument-br_notafiscal,
              counter       TYPE i,
            END OF ty_counter.
@@ -1173,7 +1172,7 @@ CLASS lcl_process DEFINITION FRIENDS lhc_sovos_fiscaldocuments.
                 gv_icmscontributor TYPE c,
                 gv_branch_cnpj     TYPE string,
                 gs_comapany_code   TYPE i_companycode,
-                lt_counters TYPE TABLE OF ty_counter.
+                lt_counters        TYPE TABLE OF ty_counter.
 
     CLASS-METHODS: read_nf_db,
 
@@ -2292,6 +2291,28 @@ CLASS lcl_process IMPLEMENTATION.
       ls_objeto-knwc100-vl_servico1 = '0.0'.
       ls_objeto-knwc100-vl_abat_n_trib = '0.0'.
 
+      "Joao completar, deixa todos os iguais ao c100 preenchidos
+     " IF p_nfdoc-doc-br_nfmodel = '57'.
+
+       "ls_objeto-integracaoconhecimentotrans-knwd100-id_empresa = p_nfdoc-doc-companycode.
+       "ls_objeto-integracaoconhecimentotrans-knwd100-dm_emitente = ls_objeto-knwc100-dm_emitente.
+       "ls_objeto-integracaoconhecimentotrans-knwd100-nr_documento = p_nfdoc-doc-br_nfenumber.
+       "ls_objeto-integracaoconhecimentotrans-knwd100-dt_entrada = |{ p_nfdoc-doc-br_nfpostingdate(4) }-{ p_nfdoc-doc-br_nfpostingdate+4(2) }-{ p_nfdoc-doc-br_nfpostingdate+6 }T00:00:00+03:00|.
+       "ls_objeto-integracaoconhecimentotrans-knwd100-dt_emissao = ls_objeto-knwc100-dt_emissao_doc.
+       "ls_objeto-integracaoconhecimentotrans-knwd100-nr_serie = p_nfdoc-doc-br_nfseries.
+       "ls_objeto-integracaoconhecimentotrans-knwd100-dt_aquisicao_prestacao = ls_objeto-knwc100-dt_emissao_doc.
+       "ls_objeto-integracaoconhecimentotrans-knwd100-vl_total_documento = p_nfdoc-doc-br_nftotalamount.
+       "ls_objeto-integracaoconhecimentotrans-knwd100-vl_total_desconto = p_nfdoc-doc-br_nfdiscountamount.
+       "ls_objeto-integracaoconhecimentotrans-knwd100-vl_total_prest_servico = p_nfdoc-doc-br_nftotalamount.
+       "ok ls_objeto-integracaoconhecimentotrans-knwd100-vl_nao_trbutado = '0.00'.
+       "ls_objeto-integracaoconhecimentotrans-knwd100-dt_importacao = ls_objeto-knwc100-dt_entrada.
+       "ok ls_objeto-integracaoconhecimentotrans-knwd100-vl_base_calculo_icms = '0.00'.
+       "ls_objeto-integracaoconhecimentotrans-knwd100-vl_icms = '0.00'.
+
+       "ls_objeto-integracaoconhecimentotrans-knwd100-nr_chave_acesso_cte =
+       "ls_objeto-integracaoconhecimentotrans-knwd100-nr_chave_acesso_cte_ref =
+
+      "ENDIF.
 
       "CASE p_nfdoc-doc-br_nfdirection.
       CASE ls_objeto-knwc100-dm_emitente.

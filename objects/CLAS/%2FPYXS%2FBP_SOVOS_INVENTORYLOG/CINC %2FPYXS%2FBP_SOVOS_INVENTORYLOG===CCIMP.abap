@@ -1217,7 +1217,7 @@ CLASS lcl_process IMPLEMENTATION.
     ENDIF.
     DATA lv_last_day  TYPE d.
     lv_last_day = lv_next_month_first - 1.
-    lv_dt_ini = |{ lv_last_day DATE = ISO }T00:00:00.000Z|.
+    lv_dt_ini = |{ lv_last_day DATE = ISO }T03:00:00.000Z|.
 
     LOOP AT gt_sel2 INTO DATA(ls_data).
       CLEAR: ls_out, ls_objeto.

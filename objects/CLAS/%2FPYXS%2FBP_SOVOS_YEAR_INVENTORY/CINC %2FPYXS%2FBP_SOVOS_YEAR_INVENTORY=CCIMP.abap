@@ -693,7 +693,7 @@ CLASS lcl_process IMPLEMENTATION.
           lo_request->set_uri_path(
             EXPORTING
 *              i_uri_path = '/api/knw/v2/estoqueEscriturado'
-              i_uri_path = '/api/knw/v2/inventario'
+              i_uri_path = 'api/knw/v2/inventario'
 *              multivalue = 0
 *            RECEIVING
 *              r_value    =
@@ -1222,7 +1222,6 @@ CLASS lcl_process IMPLEMENTATION.
     LOOP AT gt_sel2 INTO DATA(ls_data).
       CLEAR: ls_out, ls_objeto.
 
-      DATA(vl_total) = ls_data-stock-valuationquantity * ls_data-productvaluationbasic-standardprice.
 
       " ─── KNWH010 ───
       ls_objeto-knwh010-cod_empresa     = CONV i( s_branch_sov-sov_company ).
