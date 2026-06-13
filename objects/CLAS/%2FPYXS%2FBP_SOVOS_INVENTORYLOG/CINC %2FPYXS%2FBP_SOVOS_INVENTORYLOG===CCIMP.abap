@@ -297,7 +297,23 @@ CLASS lcl_process DEFINITION FRIENDS lhc_sovos_inventorylog.
       BEGIN OF ty_docs_act,
         doc TYPE i_br_nfdocument,
         act TYPE i_br_nfeactive,
-      END OF ty_docs_act.
+      END OF ty_docs_act,
+
+      BEGIN OF ty_grouped,
+         material                    TYPE i_inventoryamtbyfsclperd-material,
+         valuationquantity           TYPE i_inventoryamtbyfsclperd-valuationquantity,
+         amountincompanycodecurrency TYPE i_inventoryamtbyfsclperd-amountincompanycodecurrency,
+         movingaverageprice          TYPE i_productvaluationbasic-movingaverageprice,
+         unitofmeasure               TYPE i_inventoryamtbyfsclperd-unitofmeasure,
+         product                     TYPE i_product-product,
+         productdescription          TYPE i_productdescription-productdescription,
+         consumptiontaxctrlcode      TYPE i_productplantbasic-consumptiontaxctrlcode,
+         productorigintype           TYPE i_productvaluationbasic-productorigintype,
+         unitofmeasure_e             TYPE i_unitofmeasuretext-unitofmeasure_e,
+         unitofmeasurename           TYPE i_unitofmeasuretext-unitofmeasurename,
+         referenceproducttype        TYPE i_producttype-referenceproducttype,
+         iscoproduct                 TYPE i_productplantbasic-IsCoProduct,
+       END OF ty_grouped.
 
     CLASS-DATA: sel          TYPE ty_sel,
                 data         TYPE d,
@@ -309,7 +325,8 @@ CLASS lcl_process DEFINITION FRIENDS lhc_sovos_inventorylog.
                 gs_company   TYPE ty_companycode,
                 gt_accounts  TYPE ty_t_accounts,
                 s_branch_sov TYPE /pyxs/sov_branch,
-                gt_sel2      TYPE TABLE OF ty_stock_value2,
+                "gt_sel2      TYPE TABLE OF ty_stock_value2,
+                gt_sel2 TYPE TABLE OF ty_grouped,
                 t_nfitem           TYPE TABLE OF ty_nfitem,
                 t_nfdocs           TYPE TABLE OF ty_docs_act.
 
@@ -1226,10 +1243,10 @@ CLASS lcl_process IMPLEMENTATION.
       ls_objeto-knwK200-cod_empresa     = CONV i( s_branch_sov-sov_company ).
       ls_objeto-knwK200-cod_filial      = CONV i( s_branch_sov-sov_branch ).
       ls_objeto-knwK200-cd_pessoa  = sy-uname.
-      ls_objeto-knwK200-cd_produto_servico = ls_data-product-product.
+      ls_objeto-knwK200-cd_produto_servico = ls_data-product.
       ls_objeto-knwK200-dm_estoque         = 0.
       ls_objeto-knwK200-dt_est_final        = lv_dt_ini.
-      ls_objeto-knwK200-qtde            = ls_data-stock-ValuationQuantity.
+      ls_objeto-knwK200-qtde            = ls_data-ValuationQuantity.
 
       ls_objeto-knw0190-cod_empresa    = CONV i( s_branch_sov-sov_company ).
       ls_objeto-knw0190-cod_filial     = CONV i( s_branch_sov-sov_branch ).
@@ -1256,12 +1273,12 @@ CLASS lcl_process IMPLEMENTATION.
           ls_objeto-knw0200-dt_inicial         = '1900-01-01T00:00:00+03:00'.
           ls_objeto-knw0200-cod_empresa        = CONV i( s_branch_sov-sov_company ).
           ls_objeto-knw0200-cod_filial         = CONV i( s_branch_sov-sov_branch ).
-          ls_objeto-knw0200-cd_produto_serv    = ls_data-product-Product.
-          ls_objeto-knw0200-ds_produto_serv    = ls_data-productdescription-ProductDescription.
+          ls_objeto-knw0200-cd_produto_serv    = ls_data-Product.
+          ls_objeto-knw0200-ds_produto_serv    = ls_data-ProductDescription.
           ls_objeto-knw0200-unidade            = ls_data-unitofmeasure_e.
           "<item>-knw0200-dm_tipo_item       = '09'.
-          ls_objeto-knw0200-cd_ncm             = normalize( p_str = ls_data-productplantbasic-ConsumptionTaxCtrlCode ).
-          ls_objeto-knw0200-dm_origem_produto  = ls_data-productvaluationbasic-ProductOriginType.
+          ls_objeto-knw0200-cd_ncm             = normalize( p_str = ls_data-ConsumptionTaxCtrlCode ).
+          ls_objeto-knw0200-dm_origem_produto  = ls_data-ProductOriginType.
           "ls_objeto-knw0200-nr_cest            =
           CASE ls_data-referenceproducttype.
             WHEN 'HAWA'.
@@ -1273,7 +1290,7 @@ CLASS lcl_process IMPLEMENTATION.
             WHEN 'PROC' OR 'HALB'.
               ls_objeto-knw0200-dm_tipo_item = '03'.
             WHEN 'FERT'.
-              IF ls_data-productplantbasic-iscoproduct IS INITIAL.
+              IF ls_data-iscoproduct IS INITIAL.
                 ls_objeto-knw0200-dm_tipo_item = '04'.
               ELSE.
                 ls_objeto-knw0200-dm_tipo_item = '05'.
@@ -1288,7 +1305,7 @@ CLASS lcl_process IMPLEMENTATION.
               ls_objeto-knw0200-dm_tipo_item = '99'.
           ENDCASE.
 
-          READ TABLE t_nfitem INTO DATA(ls_nfitem) WITH KEY nf-material = ls_data-product-product.
+          READ TABLE t_nfitem INTO DATA(ls_nfitem) WITH KEY nf-material = ls_data-product.
           IF sy-subrc = 0.
             READ TABLE t_nfdocs INTO DATA(p_nfdoc) WITH KEY doc-BR_NotaFiscal = ls_nfitem-nf-br_notafiscal.
             IF sy-subrc = 0.
@@ -1507,20 +1524,22 @@ CLASS lcl_process IMPLEMENTATION.
       AND branch = @sel-businessplace
       INTO @s_branch_sov.
 
-    SELECT stock~*,
-           product~*,
-           productdescription~*,
-           unitofmeasuretext~*,
-           productplantbasic~*,
-           productvaluationbasic~*,
-           supplier~*,
-           plant~*,
-           product~\_producttype-referenceproducttype,
-           product~\_BaseUnitOfMeasure-unitofmeasure_e,
-           product~\_BaseUnitOfMeasure\_text[ language = 'P' ]-unitofmeasurename
-       FROM i_inventoryamtbyfsclperd(
+    select    stock~material,
+         sum( stock~valuationquantity ) as val,
+         sum( stock~amountincompanycodecurrency ) as amountincompanycodecurrency,
+         max( productvaluationbasic~movingaverageprice ) as movingaverageprice,
+         max( stock~unitofmeasure ) as un,
+         max( product~product ) as product,
+         max( productdescription~productdescription ) as productdescription,
+         max( productplantbasic~consumptiontaxctrlcode ) as consumptiontaxctrlcode,
+         max( productvaluationbasic~productorigintype ) as productorigintype,
+         max( product~\_baseunitofmeasure-unitofmeasure_e ) as unitofmeasure_e,
+         max( product~\_baseunitofmeasure\_text[ language = 'P' ]-unitofmeasurename ) as unitofmeasurename,
+         max( product~\_producttype-referenceproducttype ) as referenceproducttype,
+         max( productplantbasic~iscoproduct ) as iscoproduct
+          from i_inventoryamtbyfsclperd(
            p_fiscalperiod = @sel-fiscalperiod,
-           p_fiscalyear   = @sel-fiscalyear ) AS stock
+           p_fiscalyear   = @sel-fiscalyear ) as stock
     INNER JOIN i_product AS product
       ON   stock~material = product~product
     INNER JOIN i_productdescription AS productdescription
@@ -1539,12 +1558,52 @@ CLASS lcl_process IMPLEMENTATION.
       ON  stock~valuationarea = plant~valuationarea
     LEFT JOIN i_supplier AS supplier
       ON stock~supplier = supplier~supplier
-      WHERE stock~companycode  = @sel-companycode
+    WHERE stock~companycode  = @sel-companycode
         AND stock~material     IN @sel-product
         AND plant~businessplace = @sel-businessplace
         AND productvaluationbasic~valuationtype = ''
         AND stock~ledger = '0L'
+      group by stock~material
       INTO TABLE @gt_sel2.
+
+***    SELECT stock~*,
+***           product~*,
+***           productdescription~*,
+***           unitofmeasuretext~*,
+***           productplantbasic~*,
+***           productvaluationbasic~*,
+***           supplier~*,
+***           plant~*,
+***           product~\_producttype-referenceproducttype,
+***           product~\_BaseUnitOfMeasure-unitofmeasure_e,
+***           product~\_BaseUnitOfMeasure\_text[ language = 'P' ]-unitofmeasurename
+***       FROM i_inventoryamtbyfsclperd(
+***           p_fiscalperiod = @sel-fiscalperiod,
+***           p_fiscalyear   = @sel-fiscalyear ) AS stock
+***    INNER JOIN i_product AS product
+***      ON   stock~material = product~product
+***    INNER JOIN i_productdescription AS productdescription
+***      ON  stock~material = productdescription~product
+***      AND productdescription~language = 'P'
+***    INNER JOIN i_unitofmeasuretext AS unitofmeasuretext
+***      ON  stock~unitofmeasure         = unitofmeasuretext~unitofmeasure
+***      AND unitofmeasuretext~language  = 'P'
+***    INNER JOIN i_productplantbasic AS productplantbasic
+***      ON  stock~material       = productplantbasic~product
+***      AND stock~valuationarea  = productplantbasic~plant
+***    INNER JOIN i_productvaluationbasic AS productvaluationbasic
+***      ON  stock~material      = productvaluationbasic~product AND
+***          stock~valuationarea = productvaluationbasic~valuationarea
+***    INNER JOIN i_plant AS plant
+***      ON  stock~valuationarea = plant~valuationarea
+***    LEFT JOIN i_supplier AS supplier
+***      ON stock~supplier = supplier~supplier
+***      WHERE stock~companycode  = @sel-companycode
+***        AND stock~material     IN @sel-product
+***        AND plant~businessplace = @sel-businessplace
+***        AND productvaluationbasic~valuationtype = ''
+***        AND stock~ledger = '0L'
+***      INTO TABLE @gt_sel2.
 
     SELECT SINGLE companycode, companycodename
       FROM i_companycode
@@ -1552,7 +1611,7 @@ CLASS lcl_process IMPLEMENTATION.
       INTO @gs_company.
 
     LOOP AT gt_sel2 INTO DATA(ls_product).
-      APPEND VALUE #( sign = 'I' option = 'EQ' low = ls_product-stock-material ) TO lr_products.
+      APPEND VALUE #( sign = 'I' option = 'EQ' low = ls_product-material ) TO lr_products.
     ENDLOOP.
 
     IF lr_products IS NOT INITIAL.

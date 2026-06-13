@@ -39,7 +39,9 @@ METHOD convert_reinf2010.
   REPLACE ALL OCCURRENCES OF '"vl_base_retencao"'    IN rv_json WITH '"VL_BASE_RETENCAO"'.
   REPLACE ALL OCCURRENCES OF '"vl_retencao"'         IN rv_json WITH '"VL_RETENCAO"'.
 
+  REPLACE ALL OCCURRENCES OF ' "' IN rv_json WITH '"'.
   REPLACE ALL OCCURRENCES OF '"' IN rv_json WITH '\"'.
+
 
   CONCATENATE '{"objetos":["' rv_json '"]}' INTO ret.
 

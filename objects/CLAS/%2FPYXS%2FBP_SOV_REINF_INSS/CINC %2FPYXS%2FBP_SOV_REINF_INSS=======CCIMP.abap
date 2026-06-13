@@ -402,27 +402,33 @@ CLASS lcl_process IMPLEMENTATION.
       INTO @gs_branch_sov.
 
     DATA: lr_irf_types  TYPE RANGE OF i_withholdingtaxitem-withholdingtaxtype,
-          lr_daterange  TYPE RANGE OF i_journalentryitem-clearingdate,
-          lv_first_day  TYPE d,
-          lv_last_day   TYPE d,
-          lv_next_month TYPE d.
+          lr_daterange  TYPE RANGE OF i_journalentryitem-clearingdate.
 
-    lv_first_day = |{ sel-anomes }01|.
+    "DATA: lv_year       TYPE i,
+          "lv_month      TYPE i.
 
-    DATA(lv_year)  = CONV i( sel-anomes(4) ).
-    DATA(lv_month) = CONV i( sel-anomes+4(2) ).
+    DATA: lv_date_f TYPE datum,
+          lv_date_t TYPE datum,
+          lr_anomes TYPE RANGE OF datum,
+          r_docnum  TYPE RANGE OF i_br_nfdocument-br_notafiscal,
+          ls_anomes LIKE LINE OF lr_anomes.
 
-    IF lv_month = 12.
-      lv_year  += 1.
-      lv_month  = 1.
-    ELSE.
-      lv_month += 1.
+    lv_date_f = |{ sel-anomes }01|.
+
+    "lv_year  = CONV i( sel-anomes(4) ).
+    "lv_month = CONV i( sel-anomes+4(2) ).
+
+    " Build last day of month using month-end logic
+    lv_date_t = lv_date_f.
+    lv_date_t+6(2) = '01'.         " Set day to 01
+    ADD 1 TO lv_date_t+4(2).       " Add 1 month
+    IF lv_date_t+4(2) = 13.        " Handle December → January
+      lv_date_t+4(2) = '01'.
+      ADD 1 TO lv_date_t(4).        " Bump year
     ENDIF.
+    SUBTRACT 1 FROM lv_date_t.     " Go back 1 day = last day of month
 
-    lv_next_month = |{ lv_year WIDTH = 4 PAD = '0' }{ lv_month WIDTH = 2 PAD = '0' }01|.
-    lv_last_day   = lv_next_month - 1.
-
-    APPEND VALUE #( sign = 'I' option = 'BT' low = lv_first_day high = lv_last_day ) TO lr_daterange.
+    APPEND VALUE #( sign = 'I' option = 'BT' low = lv_date_f high = lv_date_t ) TO lr_daterange.
 
     SELECT * FROM /pyxs/sov_taxtype_irf INTO TABLE @mt_irf_types.
     SELECT * FROM /pyxs/sov_natren       INTO TABLE @mt_nature.

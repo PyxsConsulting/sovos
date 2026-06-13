@@ -13,6 +13,7 @@
     REPLACE ALL OCCURRENCES OF 'INTEGRACAONOTAFISCALSERVICO' IN lv_json WITH 'integracaoNotaFiscalServicoItemList'.
     REPLACE ALL OCCURRENCES OF 'INTEGR_ITENS_CONSUM_LIST' IN lv_json WITH 'integracaoItensConsumidosList'.
     REPLACE ALL OCCURRENCES OF 'PRODUTOINSUMO' IN lv_json WITH 'ProdutoInsumo'.
+    REPLACE ALL OCCURRENCES OF 'INTEGRACAOCONHECIMENTOTRANS' IN lv_json WITH 'integracaoConhecimentoTransporte'.
 
     ret = lv_json.
 
