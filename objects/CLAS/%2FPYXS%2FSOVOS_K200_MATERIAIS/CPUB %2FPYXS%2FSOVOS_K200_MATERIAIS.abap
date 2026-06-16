@@ -1,6 +1,6 @@
-class /PYXS/SOVOS_K200_MATERIAIS definition
-  public
-  final
-  create public .
+CLASS /pyxs/sovos_k200_materiais DEFINITION
+  PUBLIC
+  FINAL
+  CREATE PUBLIC .
 
-public section.
+  PUBLIC SECTION.

@@ -1,5 +1,16 @@
 [
  {
+  "table":"DDTYPES",
+  "data":
+  [
+   {
+    "TYPENAME":"/PYXS/SOVOS_K200_MATERIAIS",
+    "STATE":"A",
+    "TYPEKIND":"CLAS"
+   }
+  ]
+ },
+ {
   "table":"SEOCLASS",
   "data":
   [
@@ -8,6 +19,50 @@
     "CLSTYPE":0,
     "UUID":"+hY+e3q1H9GY55FXKUfWmw==",
     "REMOTE":""
+   }
+  ]
+ },
+ {
+  "table":"SEOCLASSDF",
+  "data":
+  [
+   {
+    "CLSNAME":"/PYXS/SOVOS_K200_MATERIAIS",
+    "VERSION":1,
+    "CATEGORY":0,
+    "EXPOSURE":2,
+    "STATE":1,
+    "RELEASE":0,
+    "AUTHOR":"",
+    "CREATEDON":"2026-06-08",
+    "CHANGEDBY":"",
+    "CHANGEDON":"0000-00-00",
+    "CHGDANYBY":"",
+    "CHGDANYON":"0000-00-00",
+    "CLSEMBED":"",
+    "CLSABSTRCT":"",
+    "CLSFINAL":"X",
+    "CLSCCINCL":"X",
+    "CLSDEFATT":"",
+    "CLSDEFMTD":"",
+    "REFCLSNAME":"",
+    "FIXPT":"X",
+    "VARCL":"",
+    "UNICODE":"5",
+    "RSTAT":"",
+    "CLSBCIMPL":"",
+    "R3RELEASE":"918",
+    "CLSBCTRANS":"",
+    "CLSBCCAT":0,
+    "CLSBCNODEL":"",
+    "CLSADDON":"",
+    "MSG_ID":"",
+    "CLSPROXY":"",
+    "CLSSHAREDMEMORY":"",
+    "WITH_UNIT_TESTS":"X",
+    "DURATION_TYPE":"0",
+    "RISK_LEVEL":"0",
+    "WITHIN_PACKAGE":""
    }
   ]
  },
@@ -70,6 +125,7 @@
   [
    {
     "NAME":"/PYXS/SOVOS_K200_MATERIAIS====CCAU",
+    "VARCL":"X",
     "DBAPL":"S",
     "DBNA":"D$",
     "SUBC":"I",
@@ -80,6 +136,7 @@
    },
    {
     "NAME":"/PYXS/SOVOS_K200_MATERIAIS====CCDEF",
+    "VARCL":"X",
     "DBAPL":"S",
     "DBNA":"D$",
     "SUBC":"I",
@@ -90,6 +147,7 @@
    },
    {
     "NAME":"/PYXS/SOVOS_K200_MATERIAIS====CCIMP",
+    "VARCL":"X",
     "DBAPL":"S",
     "DBNA":"D$",
     "SUBC":"I",
@@ -100,6 +158,7 @@
    },
    {
     "NAME":"/PYXS/SOVOS_K200_MATERIAIS====CCMAC",
+    "VARCL":"X",
     "DBAPL":"S",
     "DBNA":"D$",
     "SUBC":"I",
@@ -110,6 +169,7 @@
    },
    {
     "NAME":"/PYXS/SOVOS_K200_MATERIAIS====CI",
+    "VARCL":"X",
     "DBAPL":"S",
     "DBNA":"D$",
     "SUBC":"I",
@@ -120,6 +180,7 @@
    },
    {
     "NAME":"/PYXS/SOVOS_K200_MATERIAIS====CO",
+    "VARCL":"X",
     "DBAPL":"S",
     "DBNA":"D$",
     "SUBC":"I",
@@ -131,6 +192,7 @@
    {
     "NAME":"/PYXS/SOVOS_K200_MATERIAIS====CP",
     "EDTX":"X",
+    "VARCL":"X",
     "DBAPL":"S",
     "DBNA":"D$",
     "SUBC":"K",
@@ -151,6 +213,7 @@
    },
    {
     "NAME":"/PYXS/SOVOS_K200_MATERIAIS====CU",
+    "VARCL":"X",
     "DBAPL":"S",
     "DBNA":"D$",
     "SUBC":"I",
