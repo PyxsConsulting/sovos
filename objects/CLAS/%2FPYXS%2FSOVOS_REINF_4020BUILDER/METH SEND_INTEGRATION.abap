@@ -103,7 +103,6 @@
         lo_request->set_uri_path(
           EXPORTING
             i_uri_path = 'R4020'
-              "i_uri_path = 'api/knw/v2/estoqueEscriturado'
 *              multivalue = 0
 *            RECEIVING
 *              r_value    =
