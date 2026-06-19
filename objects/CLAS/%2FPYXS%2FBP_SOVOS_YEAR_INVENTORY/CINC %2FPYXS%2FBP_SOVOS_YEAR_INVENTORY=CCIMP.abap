@@ -255,6 +255,8 @@ CLASS lcl_process DEFINITION FRIENDS lhc_sovos_year_inventory.
       BEGIN OF ty_companycode,
         companycode     TYPE i_companycode-companycode,
         companycodename TYPE i_companycode-companycodename,
+        chartofaccounts TYPE i_companycode-chartofaccounts,
+
       END OF ty_companycode,
 
       BEGIN OF ty_accounts,
@@ -709,7 +711,6 @@ CLASS lcl_process IMPLEMENTATION.
 
           lo_request->set_uri_path(
             EXPORTING
-*              i_uri_path = '/api/knw/v2/estoqueEscriturado'
               i_uri_path = '/api/knw/v2/inventario'
 *              multivalue = 0
 *            RECEIVING
@@ -1253,6 +1254,8 @@ CLASS lcl_process IMPLEMENTATION.
       ls_objeto-knwh010-dm_sit_estoque  = 0.
       ls_objeto-knwh010-vl_total_ir     = ls_data-amountincompanycodecurrency. " ls_data-productvaluationbasic-standardprice.
 
+      ls_objeto-knwh010-cd_plano_conta  = gs_company-chartofaccounts.
+
       " ─── KNW0190 ───
 
       ls_objeto-knw0190-cod_empresa    = CONV i( s_branch_sov-sov_company ).
@@ -1561,7 +1564,7 @@ CLASS lcl_process IMPLEMENTATION.
       group by stock~material
       INTO TABLE @gt_sel2.
 
-    SELECT SINGLE companycode, companycodename
+    SELECT SINGLE companycode, companycodename, chartofaccounts
       FROM i_companycode
      WHERE companycode = @sel-companycode
       INTO @gs_company.

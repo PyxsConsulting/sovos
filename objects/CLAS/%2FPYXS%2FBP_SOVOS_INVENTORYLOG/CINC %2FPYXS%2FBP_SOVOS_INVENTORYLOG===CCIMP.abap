@@ -257,6 +257,7 @@ CLASS lcl_process DEFINITION FRIENDS lhc_sovos_inventorylog.
       BEGIN OF ty_companycode,
         companycode     TYPE i_companycode-companycode,
         companycodename TYPE i_companycode-companycodename,
+        chartofaccounts TYPE i_companycode-chartofaccounts,
       END OF ty_companycode,
 
       BEGIN OF ty_accounts,

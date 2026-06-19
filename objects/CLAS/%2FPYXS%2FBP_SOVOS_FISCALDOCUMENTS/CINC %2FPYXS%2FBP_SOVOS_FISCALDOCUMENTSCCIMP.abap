@@ -2591,6 +2591,8 @@ CLASS lcl_process IMPLEMENTATION.
                 <item>-knwc170-vl_fcp_st = ls_tax_itm-br_nfitemtaxamount.
                 <item>-knwc170-vl_icms_substit  += ls_tax_itm-br_nfitemtaxamount.
                 <item>-knwc170-aliq_fcp_st = ls_tax_itm-br_nfitemtaxrate.
+                "AJUSTE 20260619 SOMA FCP NO VL CONTABIL
+                <item>-knwc170-vl_contabil += ls_tax_itm-br_nfitemtaxamount.
                 IF ls_tax_itm-br_nfitembaseamount > 0.
                   <item>-knwc170-vl_bc_fcp_st = ls_tax_itm-br_nfitembaseamount.
                 ELSEIF ls_tax_itm-br_nfitemotherbaseamount > 0.
