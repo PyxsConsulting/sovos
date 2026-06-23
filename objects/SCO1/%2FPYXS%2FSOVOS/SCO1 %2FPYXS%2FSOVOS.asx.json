@@ -47,7 +47,7 @@
     "CREATE_USER":"",
     "CREATE_TIMESTAMP":"0",
     "CHANGE_USER":"SAP_CUSTOMER",
-    "CHANGE_TIMESTAMP":"+020260520203442",
+    "CHANGE_TIMESTAMP":"+020260623134023",
     "ABAP_LANGUAGE_VERSION":"5",
     "MONITOR_BY_HEALTH_CHECK":"",
     "AIF_DEPLOYMENT_SCENARIO_ID":""
@@ -64,7 +64,7 @@
     "OBS_ID":"/PYXS/TCO_SOVOS_REST",
     "PROTOCOL":"",
     "SUPPORTS_PING":"X",
-    "DEFAULT_URL":"/http/pyxs/tco/sovos/proxy/",
+    "DEFAULT_URL":"/http/pyxs/tco/sovos/proxy",
     "IS_VIRTUAL":"",
     "JOB_DEF_NAME":"",
     "IS_MANDATORY":"",

@@ -950,13 +950,58 @@ CLASS lcl_process DEFINITION FRIENDS lhc_sovos_fiscaldocuments.
         integracaonotafiscalajustelist TYPE STANDARD TABLE OF ty_integracaonotafiscalajustel WITH NON-UNIQUE DEFAULT KEY,
       END OF ty_notafiscalobservacaolancame,
 
+      BEGIN OF ty_knwc113,
+         dm_entrada_saida    TYPE string,
+         serie_subserie      TYPE string,
+         dm_emitente         TYPE string,
+         nr_documento        TYPE string,
+         dt_emissao_doc      TYPE timestampl,
+         cod_empresa         TYPE i,
+         cod_filial          TYPE i,
+         id_usuario_imp      TYPE string,
+         nr_item             TYPE i,
+         cd_pessoa_rem_dest  TYPE string,
+         dm_entr_saida_refer TYPE string,
+         dm_emitente_refer   TYPE string,
+         cd_pessoa_refer     TYPE string,
+         cd_modelo           TYPE string,
+         serie_doc_refer     TYPE string,
+         subser_doc_ref      TYPE string,
+         nr_doc_refer        TYPE string,
+         dt_doc_refer        TYPE timestampl,
+         nr_chave_refer      TYPE string,
+       END OF ty_knwc113,
+
+      BEGIN OF ty_integracaoNotaFiscRefList,
+        knwc113                        TYPE ty_knwc113,
+      END OF ty_integracaoNotaFiscRefList,
+
+      BEGIN OF ty_knwc110,
+         dm_entrada_saida   TYPE string,
+         serie_subserie     TYPE string,
+         dm_emitente        TYPE string,
+         nr_documento       TYPE string,
+         dt_emissao_doc     TYPE string,
+         cod_empresa        TYPE string,
+         cod_filial         TYPE string,
+         id_usuario_imp     TYPE string,
+         ds_complementar    TYPE string,
+         nr_item            TYPE string,
+         cd_pessoa_rem_dest TYPE string,
+         cd_ref_0450        TYPE string,
+       END OF ty_knwc110,
+
+      BEGIN OF ty_notaFiscalInfComplementarLi,
+        knwc110                        TYPE ty_knwc110,
+        integracaoNotaFiscRefList      TYPE STANDARD TABLE OF ty_integracaoNotaFiscRefList WITH NON-UNIQUE DEFAULT KEY,
+      END OF ty_notaFiscalInfComplementarLi,
 
       BEGIN OF ty_objetos,
         knwc100                     TYPE ty_knwc100,
         knw0150destinatario         TYPE ty_knw0150,
         knw0150emitente             TYPE ty_knw0150,
         knw0150transportador        TYPE ty_knw0150,
-        "notaFiscalInfComplementarList TYPE STANDARD TABLE OF ty_notaFiscalInfComplementarLi WITH NON-UNIQUE DEFAULT KEY,
+        notaFiscalInfComplementarList TYPE STANDARD TABLE OF ty_notaFiscalInfComplementarLi WITH NON-UNIQUE DEFAULT KEY,
         knwc111                     TYPE ty_knwc111,
         knwc120                     TYPE ty_knwc120,
         knwc140                     TYPE ty_knwc140,
@@ -1081,14 +1126,37 @@ CLASS lcl_process DEFINITION FRIENDS lhc_sovos_fiscaldocuments.
     BEGIN OF ty_results_imp,
       results TYPE STANDARD TABLE OF ty_res WITH NON-UNIQUE DEFAULT KEY,
     END OF ty_results_imp,
+
     BEGIN OF ty_json_imp,
       d TYPE ty_results_imp,
     END OF ty_json_imp,
 
+    BEGIN OF ty_nf_ref,
+      doc TYPE i_br_nfdocument,
+      nf TYPE i_br_nfitem,
+      act TYPE i_br_nfeactive,
+    END OF ty_nf_ref,
+
+    BEGIN OF ty_reference_nflist,
+      br_notafiscal TYPE i_br_nfitem-BR_NotaFiscal,
+      br_notafiscalitem TYPE i_br_nfitem-BR_NotaFiscalItem,
+      br_reference TYPE i_br_nfitem-BR_NotaFiscal,
+      br_referenceitem TYPE i_br_nfitem-BR_NotaFiscalItem,
+      nr_item TYPE string,
+    END OF ty_reference_nflist,
+
     BEGIN OF ty_docs_act,
       doc TYPE i_br_nfdocument,
       act TYPE i_br_nfeactive,
-    END OF ty_docs_act.
+    END OF ty_docs_act,
+
+    BEGIN OF ty_ref_header,
+         br_reference TYPE i_br_nfitem-BR_NotaFiscal,
+    END OF ty_ref_header,
+    BEGIN OF ty_counter_ref,
+         br_reference TYPE i_br_nfitem-BR_NotaFiscal,
+         counter      TYPE i,
+    END OF ty_counter_ref.
 
 
   PRIVATE SECTION.
@@ -1127,12 +1195,15 @@ CLASS lcl_process DEFINITION FRIENDS lhc_sovos_fiscaldocuments.
                gc_inss         TYPE c LENGTH 10 VALUE 'INSS'.
 
     CLASS-DATA: t_nfdocs           TYPE TABLE OF ty_docs_act,
+                t_nf_ref           TYPE TABLE OF ty_nf_ref,
                 t_customers        TYPE TABLE OF i_customer,
                 t_vendors          TYPE TABLE OF i_supplier,
                 t_nfitem           TYPE TABLE OF ty_nfitem,
                 t_nftax            TYPE TABLE OF i_br_nftax,
                 t_nftax_itm        TYPE TABLE OF i_br_nftax,
                 t_texts            TYPE TABLE OF i_br_nftexts,
+                t_ref_headers      TYPE TABLE OF ty_ref_header,
+                t_refnflist        TYPE TABLE OF ty_reference_nflist,
                 "lt_refmes TYPE TABLE OF I_BR_NFREFERENCEMESSAGE,
                 t_imp_di           TYPE TABLE OF i_br_nfimportdocument,
                 t_exp_di           TYPE TABLE OF i_br_nfexportdocument,
@@ -1172,6 +1243,7 @@ CLASS lcl_process DEFINITION FRIENDS lhc_sovos_fiscaldocuments.
                 gv_icmscontributor TYPE c,
                 gv_branch_cnpj     TYPE string,
                 gs_comapany_code   TYPE i_companycode,
+                lt_counters_ref    TYPE TABLE OF ty_counter_ref,
                 lt_counters        TYPE TABLE OF ty_counter.
 
     CLASS-METHODS: read_nf_db,
@@ -2418,6 +2490,7 @@ CLASS lcl_process IMPLEMENTATION.
 *      " Itens da nota – C170 + cadastros
 *      "--------------------------------------------------
       CLEAR ls_objeto-notafiscalitemlist.
+      CLEAR: t_refnflist, t_ref_headers.
 
       LOOP AT t_nfitem INTO DATA(ls_nfitem)
            WHERE nf-br_notafiscal  = p_nfdoc-doc-br_notafiscal.
@@ -2810,9 +2883,135 @@ CLASS lcl_process IMPLEMENTATION.
           ls_objeto-knwc100-vl_ipi += <item>-knwc170-vl_ipi.
           ls_objeto-knwc100-vl_icms_substit += <item>-knwc170-vl_icms_substit.
 
+            "C110 C113 gravando codigos de referencia para preenchimento posterior
+            IF ls_nfitem-nf-br_referencenfnumber IS NOT INITIAL.
+              APPEND VALUE #(
+                br_notafiscal     = ls_nfitem-nf-br_notafiscal
+                br_notafiscalitem = ls_nfitem-nf-br_notafiscalitem
+                br_reference      = ls_nfitem-nf-br_referencenfnumber
+                br_referenceitem  = ls_nfitem-nf-br_referencenfitem
+                nr_item           = <item>-knwc170-nr_item
+              ) TO t_refnflist.
+
+              "coleta só a chave do cabeçalho
+              "APPEND VALUE #( br_reference = ls_nfitem-nf-br_referencenfnumber ) TO t_ref_headers.
+              APPEND VALUE #( br_reference = ls_nfitem-nf-br_notafiscal ) TO t_ref_headers.
+
+            ENDIF.
+
         ENDLOOP.
 
+        "C110 C113
+        SORT t_ref_headers BY br_reference.
+        DELETE ADJACENT DUPLICATES FROM t_ref_headers COMPARING br_reference.
 
+        SORT t_refnflist BY br_reference br_referenceitem.
+        DELETE ADJACENT DUPLICATES FROM t_refnflist COMPARING br_reference br_referenceitem.
+
+        "Loop por cabeçalho único (C110)
+        LOOP AT t_ref_headers INTO DATA(ls_header).
+
+          READ TABLE t_nf_ref INTO DATA(ls_nf_ref_doc)
+            WITH KEY doc-br_notafiscal = ls_header-br_reference.
+          IF sy-subrc <> 0. CONTINUE. ENDIF.
+
+          APPEND INITIAL LINE TO ls_objeto-notaFiscalInfComplementarList ASSIGNING FIELD-SYMBOL(<inf_comp>).
+          "--- C110 ---
+          <inf_comp>-knwc110-dm_entrada_saida   = ls_objeto-knwc100-dm_entrada_saida.
+          <inf_comp>-knwc110-dm_emitente        = ls_objeto-knwc100-dm_emitente.
+          <inf_comp>-knwc110-serie_subserie     = ls_objeto-knwc100-serie_subserie.
+          <inf_comp>-knwc110-nr_documento       = ls_objeto-knwc100-nr_documento.
+          <inf_comp>-knwc110-dt_emissao_doc     = ls_objeto-knwc100-dt_emissao_doc.
+          <inf_comp>-knwc110-cod_empresa        = ls_objeto-knwc100-cod_empresa.
+          <inf_comp>-knwc110-cod_filial         = ls_objeto-knwc100-cod_filial.
+          <inf_comp>-knwc110-cd_pessoa_rem_dest = ls_objeto-knwc100-cd_pessoa_remet_dest.
+
+***          "--- C110 ---
+***          <inf_comp>-knwc110-dm_entrada_saida   = COND #( WHEN ls_nf_ref_doc-doc-br_nfdirection = '2' THEN 'S' ELSE 'E' ).
+***          <inf_comp>-knwc110-dm_emitente        = COND #( WHEN ls_nf_ref_doc-doc-br_nfisincomingissdbycust = 'X'
+***                                                             OR ls_nf_ref_doc-doc-br_nfdirection = '2'
+***                                                             OR ls_nf_ref_doc-doc-br_nfdirection = '4'
+***                                                                THEN '0' ELSE '1' ).
+***          <inf_comp>-knwc110-serie_subserie     = ls_nf_ref_doc-doc-br_nfseries.
+***          <inf_comp>-knwc110-nr_documento       = ls_nf_ref_doc-doc-br_nfenumber.
+***          IF ls_nf_ref_doc-doc-br_nfissuedate+6 = '01'.
+***            <inf_comp>-knwc110-dt_emissao_doc = |{ ls_nf_ref_doc-doc-br_nfissuedate(4) }-{ ls_nf_ref_doc-doc-br_nfissuedate+4(2) }-{ ls_nf_ref_doc-doc-br_nfissuedate+6 }T12:00:00+03:00|.
+***          ELSE.
+***            <inf_comp>-knwc110-dt_emissao_doc = |{ ls_nf_ref_doc-doc-br_nfissuedate(4) }-{ ls_nf_ref_doc-doc-br_nfissuedate+4(2) }-{ ls_nf_ref_doc-doc-br_nfissuedate+6 }T00:00:00+03:00|.
+***          ENDIF.
+***          <inf_comp>-knwc110-cod_empresa        = ls_nf_ref_doc-doc-companycode.
+***          <inf_comp>-knwc110-cod_filial         = ls_nf_ref_doc-doc-businessplace.
+***          <inf_comp>-knwc110-cd_pessoa_rem_dest = ls_nf_ref_doc-doc-br_nfpartner.
+
+          "--- C113 — um por item referenciado dentro deste cabeçalho ---
+          LOOP AT t_refnflist INTO DATA(ls_ref_item)
+            WHERE br_reference = ls_header-br_reference.
+
+            READ TABLE t_nf_ref INTO DATA(ls_nf_ref_item)
+              WITH KEY doc-br_notafiscal    = ls_ref_item-br_reference
+                       nf-br_notafiscalitem = ls_ref_item-br_referenceitem.
+            IF sy-subrc <> 0. CONTINUE. ENDIF.
+
+            APPEND INITIAL LINE TO <inf_comp>-integracaoNotaFiscRefList ASSIGNING FIELD-SYMBOL(<c113>).
+
+***            "COD SEQUENCIAL C113
+***            FIELD-SYMBOLS <counter_ref> TYPE ty_counter_ref.
+***            READ TABLE lt_counters_ref ASSIGNING <counter_ref> WITH KEY br_reference = ls_header-br_reference.
+***            IF sy-subrc <> 0.
+***              INSERT VALUE #( br_reference = ls_header-br_reference
+***                              counter      = 0 ) INTO TABLE lt_counters_ref.
+***              READ TABLE lt_counters_ref ASSIGNING <counter_ref> WITH KEY br_reference = ls_header-br_reference.
+***            ENDIF.
+***            <counter_ref>-counter += 1.
+
+            <c113>-knwc113-dm_entrada_saida    = ls_objeto-knwc100-dm_entrada_saida.
+            <c113>-knwc113-dm_emitente         = ls_objeto-knwc100-dm_emitente.
+            <c113>-knwc113-serie_subserie      = ls_objeto-knwc100-serie_subserie.
+            <c113>-knwc113-nr_documento        = ls_objeto-knwc100-nr_documento.
+            <c113>-knwc113-cod_empresa         = ls_objeto-knwc100-cod_empresa.
+            <c113>-knwc113-cod_filial          = ls_objeto-knwc100-cod_filial.
+            <c113>-knwc113-cd_pessoa_rem_dest  = ls_objeto-knwc100-cd_pessoa_remet_dest.
+            <c113>-knwc113-nr_item             = ls_ref_item-nr_item.
+            <c113>-knwc113-cd_modelo           = ls_objeto-knwc100-cd_modelo_doc.
+            "<c113>-knwc113-serie_doc_refer     = ls_nf_ref_item-doc-br_nfseries.
+            <c113>-knwc113-nr_doc_refer        = ls_nf_ref_doc-doc-br_nfenumber.
+            <c113>-knwc113-cd_pessoa_refer     = ls_nf_ref_doc-doc-br_nfpartner.
+            <c113>-knwc113-dm_entr_saida_refer = COND #( WHEN ls_nf_ref_doc-doc-br_nfdirection = '2' THEN 'S' ELSE 'E' ).
+            <c113>-knwc113-dm_emitente_refer   = COND #( WHEN ls_nf_ref_doc-doc-br_nfisincomingissdbycust = 'X'
+                                                             OR ls_nf_ref_doc-doc-br_nfdirection = '2'
+                                                             OR ls_nf_ref_doc-doc-br_nfdirection = '4'
+                                                                THEN '0' ELSE '1' ).
+            IF ls_nf_ref_doc-doc-br_nfissuedate+6 = '01'.
+              <c113>-knwc113-dt_doc_refer = |{ ls_nf_ref_doc-doc-br_nfissuedate(4) }-{ ls_nf_ref_doc-doc-br_nfissuedate+4(2) }-{ ls_nf_ref_doc-doc-br_nfissuedate+6 }T12:00:00+03:00|.
+            ELSE.
+              <c113>-knwc113-dt_doc_refer = |{ ls_nf_ref_doc-doc-br_nfissuedate(4) }-{ ls_nf_ref_doc-doc-br_nfissuedate+4(2) }-{ ls_nf_ref_doc-doc-br_nfissuedate+6 }T00:00:00+03:00|.
+            ENDIF.
+            <c113>-knwc113-nr_chave_refer = |{ ls_nf_ref_doc-act-region }{ ls_nf_ref_doc-act-br_nfeissueyear }{ ls_nf_ref_doc-act-br_nfeissuemonth }{ ls_nf_ref_doc-act-br_nfeaccesskeycnpjorcpf }| &&
+                                            |{ ls_nf_ref_doc-act-br_nfemodel }{ ls_nf_ref_doc-act-br_nfeseries }{ ls_nf_ref_doc-act-br_nfenumber }{ ls_nf_ref_doc-act-br_nferandomnumber }{ ls_nf_ref_doc-act-br_nfecheckdigit }|.
+
+            <c113>-knwc113-subser_doc_ref      = ls_nf_ref_doc-doc-br_nfseries.
+
+***            <c113>-knwc113-dm_entrada_saida    = <inf_comp>-knwc110-dm_entrada_saida.
+***            <c113>-knwc113-dm_emitente         = <inf_comp>-knwc110-dm_emitente.
+***            <c113>-knwc113-serie_subserie      = <inf_comp>-knwc110-serie_subserie.
+***            <c113>-knwc113-nr_documento        = <inf_comp>-knwc110-nr_documento.
+***            <c113>-knwc113-cod_empresa         = <inf_comp>-knwc110-cod_empresa.
+***            <c113>-knwc113-cod_filial          = <inf_comp>-knwc110-cod_filial.
+***            <c113>-knwc113-cd_pessoa_rem_dest  = <inf_comp>-knwc110-cd_pessoa_rem_dest.
+***            <c113>-knwc113-nr_item             = CONV string( <counter_ref>-counter ).
+***            <c113>-knwc113-cd_modelo           = ls_nf_ref_item-doc-br_nfmodel.
+***            "<c113>-knwc113-serie_doc_refer     = ls_nf_ref_item-doc-br_nfseries.
+***            <c113>-knwc113-nr_doc_refer        = ls_objeto-knwc100-nr_documento.
+***            <c113>-knwc113-cd_pessoa_refer     = ls_objeto-knwc100-cd_pessoa_remet_dest.
+***            <c113>-knwc113-dm_entr_saida_refer = ls_objeto-knwc100-dm_entrada_saida. "CHUTE
+***            <c113>-knwc113-dm_emitente_refer   = ls_objeto-knwc100-dm_emitente.      "CHUTE
+***            <c113>-knwc113-dt_doc_refer        = ls_objeto-knwc100-dt_emissao_doc.                "CHUTE: conversão dats→timestampl
+***            <c113>-knwc113-nr_chave_refer      = ls_objeto-knwc100-nr_chave_eletr.                "CHUTE: join i_br_nfeactive da referenciada
+***            <c113>-knwc113-subser_doc_ref      = ls_objeto-knwc100-serie_subserie.                "CHUTE: sem campo direto no CDS
+
+          ENDLOOP. "t_refnflist WHERE br_reference
+
+        ENDLOOP. "t_ref_headers
 
       ENDLOOP.
 
@@ -3062,7 +3261,6 @@ CLASS lcl_process IMPLEMENTATION.
       AND i_glaccount~companycode = @sel-company
       WHERE nf~br_notafiscal IN @r_docnum
       INTO TABLE @t_nfitem. "J_BNFLIN
-
     "MOVE-CORRESPONDING t_nfitem TO lt_awkey.
     DATA: ls_awkey  TYPE ty_awkey.
     LOOP AT t_nfitem INTO DATA(ls_t_nfitem).
@@ -3104,7 +3302,6 @@ CLASS lcl_process IMPLEMENTATION.
 
     ENDIF.
 
-
     SELECT *
       FROM i_regiontext
       WHERE language = 'P'
@@ -3129,6 +3326,17 @@ CLASS lcl_process IMPLEMENTATION.
     gv_branch_cnpj = build_cnpj( |{ ls_branch-cnpj_raiz }{ ls_branch-cnpj_filial }| ).
     "p_nfdoc-doc-companycode = s_branch_sov-sov_company.
     "p_nfdoc-doc-businessplace = s_branch_sov-sov_branch.
+
+    "notas complementares C110 e C113
+    SELECT doc~*, nf~*, act~* from i_br_nfdocument as doc
+      INNER JOIN i_br_nfitem AS nf
+      ON doc~BR_NotaFiscal = nf~BR_NotaFiscal
+      LEFT JOIN i_br_nfeactive AS act
+      ON doc~br_notafiscal = act~br_notafiscal
+      FOR ALL ENTRIES IN @t_nfitem
+      WHERE nf~BR_NotaFiscal = @t_nfitem-nf-BR_ReferenceNFNumber
+      AND   nf~BR_NotaFiscalItem = @t_nfitem-nf-BR_ReferenceNFItem
+      INTO TABLE @DATA(t_nf_ref).
 
   ENDMETHOD.
   METHOD normalize.

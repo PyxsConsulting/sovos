@@ -34,7 +34,8 @@ LOOP AT gt_data INTO DATA(ls_data).
     <root>-knwReinfR4020-id_referencia      = lv_root_id.
     <root>-knwReinfR4020-id_evento          = lv_root_id.
     <root>-knwReinfR4020-dm_retificacao     = '1'.
-    <root>-knwReinfR4020-dt_apuracao        = ls_data-clearingdate.
+    DATA(lv_dt_apura) = |{ ls_data-clearingdate+6(2) }{ ls_data-clearingdate+4(2) }{ ls_data-clearingdate(4) }|.
+    <root>-knwReinfR4020-dt_apuracao        = lv_dt_apura.
     <root>-knwReinfR4020-dm_inscricao_estab     = '1'.
     <root>-knwReinfR4020-nr_inscricao_estab = ls_nfs-br_businessplacecnpj.
     <root>-knwReinfR4020-nr_cnpj_benef      = ls_nfs-br_nfpartnercnpj.
