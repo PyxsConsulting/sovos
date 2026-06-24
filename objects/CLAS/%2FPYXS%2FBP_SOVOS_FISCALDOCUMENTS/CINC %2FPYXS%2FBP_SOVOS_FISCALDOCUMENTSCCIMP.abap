@@ -2915,17 +2915,6 @@ CLASS lcl_process IMPLEMENTATION.
             WITH KEY doc-br_notafiscal = ls_header-br_reference.
           IF sy-subrc <> 0. CONTINUE. ENDIF.
 
-          APPEND INITIAL LINE TO ls_objeto-notaFiscalInfComplementarList ASSIGNING FIELD-SYMBOL(<inf_comp>).
-          "--- C110 ---
-          <inf_comp>-knwc110-dm_entrada_saida   = ls_objeto-knwc100-dm_entrada_saida.
-          <inf_comp>-knwc110-dm_emitente        = ls_objeto-knwc100-dm_emitente.
-          <inf_comp>-knwc110-serie_subserie     = ls_objeto-knwc100-serie_subserie.
-          <inf_comp>-knwc110-nr_documento       = ls_objeto-knwc100-nr_documento.
-          <inf_comp>-knwc110-dt_emissao_doc     = ls_objeto-knwc100-dt_emissao_doc.
-          <inf_comp>-knwc110-cod_empresa        = ls_objeto-knwc100-cod_empresa.
-          <inf_comp>-knwc110-cod_filial         = ls_objeto-knwc100-cod_filial.
-          <inf_comp>-knwc110-cd_pessoa_rem_dest = ls_objeto-knwc100-cd_pessoa_remet_dest.
-
 ***          "--- C110 ---
 ***          <inf_comp>-knwc110-dm_entrada_saida   = COND #( WHEN ls_nf_ref_doc-doc-br_nfdirection = '2' THEN 'S' ELSE 'E' ).
 ***          <inf_comp>-knwc110-dm_emitente        = COND #( WHEN ls_nf_ref_doc-doc-br_nfisincomingissdbycust = 'X'
@@ -2947,10 +2936,24 @@ CLASS lcl_process IMPLEMENTATION.
           LOOP AT t_refnflist INTO DATA(ls_ref_item)
             WHERE br_reference = ls_header-br_reference.
 
+
             READ TABLE t_nf_ref INTO DATA(ls_nf_ref_item)
               WITH KEY doc-br_notafiscal    = ls_ref_item-br_reference
                        nf-br_notafiscalitem = ls_ref_item-br_referenceitem.
             IF sy-subrc <> 0. CONTINUE. ENDIF.
+
+            APPEND INITIAL LINE TO ls_objeto-notaFiscalInfComplementarList ASSIGNING FIELD-SYMBOL(<inf_comp>).
+            "--- C110 ---
+            <inf_comp>-knwc110-dm_entrada_saida   = ls_objeto-knwc100-dm_entrada_saida.
+            <inf_comp>-knwc110-dm_emitente        = ls_objeto-knwc100-dm_emitente.
+            <inf_comp>-knwc110-serie_subserie     = ls_objeto-knwc100-serie_subserie.
+            <inf_comp>-knwc110-nr_documento       = ls_objeto-knwc100-nr_documento.
+            <inf_comp>-knwc110-dt_emissao_doc     = ls_objeto-knwc100-dt_emissao_doc.
+            <inf_comp>-knwc110-cod_empresa        = ls_objeto-knwc100-cod_empresa.
+            <inf_comp>-knwc110-cod_filial         = ls_objeto-knwc100-cod_filial.
+            <inf_comp>-knwc110-cd_pessoa_rem_dest = ls_objeto-knwc100-cd_pessoa_remet_dest.
+            <inf_comp>-knwc110-nr_item            = ls_ref_item-nr_item.
+            <inf_comp>-knwc110-cd_ref_0450        = 'Nota com referencia'.  "p_nfdoc-doc-BR_NFObservationText.
 
             APPEND INITIAL LINE TO <inf_comp>-integracaoNotaFiscRefList ASSIGNING FIELD-SYMBOL(<c113>).
 
@@ -2973,6 +2976,7 @@ CLASS lcl_process IMPLEMENTATION.
             <c113>-knwc113-cd_pessoa_rem_dest  = ls_objeto-knwc100-cd_pessoa_remet_dest.
             <c113>-knwc113-nr_item             = ls_ref_item-nr_item.
             <c113>-knwc113-cd_modelo           = ls_objeto-knwc100-cd_modelo_doc.
+            <c113>-knwc113-dt_emissao_doc      = ls_objeto-knwc100-dt_emissao_doc.
             "<c113>-knwc113-serie_doc_refer     = ls_nf_ref_item-doc-br_nfseries.
             <c113>-knwc113-nr_doc_refer        = ls_nf_ref_doc-doc-br_nfenumber.
             <c113>-knwc113-cd_pessoa_refer     = ls_nf_ref_doc-doc-br_nfpartner.
