@@ -2954,6 +2954,7 @@ CLASS lcl_process IMPLEMENTATION.
             <inf_comp>-knwc110-cd_pessoa_rem_dest = ls_objeto-knwc100-cd_pessoa_remet_dest.
             <inf_comp>-knwc110-nr_item            = ls_ref_item-nr_item.
             <inf_comp>-knwc110-cd_ref_0450        = '000010'.  "p_nfdoc-doc-BR_NFObservationText.
+            <inf_comp>-knwc110-ds_complementar    = 'Documento Referenciado'.
 
             APPEND INITIAL LINE TO <inf_comp>-integracaoNotaFiscRefList ASSIGNING FIELD-SYMBOL(<c113>).
 
