@@ -2895,7 +2895,7 @@ CLASS lcl_process IMPLEMENTATION.
 
               "coleta só a chave do cabeçalho
               "APPEND VALUE #( br_reference = ls_nfitem-nf-br_referencenfnumber ) TO t_ref_headers.
-              APPEND VALUE #( br_reference = ls_nfitem-nf-br_notafiscal ) TO t_ref_headers.
+              APPEND VALUE #( br_reference = ls_nfitem-nf-br_referencenfnumber ) TO t_ref_headers.
 
             ENDIF.
 
@@ -3336,7 +3336,7 @@ CLASS lcl_process IMPLEMENTATION.
       FOR ALL ENTRIES IN @t_nfitem
       WHERE nf~BR_NotaFiscal = @t_nfitem-nf-BR_ReferenceNFNumber
       AND   nf~BR_NotaFiscalItem = @t_nfitem-nf-BR_ReferenceNFItem
-      INTO TABLE @DATA(t_nf_ref).
+      INTO TABLE @t_nf_ref.
 
   ENDMETHOD.
   METHOD normalize.
