@@ -901,16 +901,11 @@ CLASS lcl_process DEFINITION FRIENDS lhc_sovos_fiscaldocuments.
         nr_item            TYPE p LENGTH 15 DECIMALS 2,
       END OF ty_knwc197,
 
-
-
-
-
       BEGIN OF ty_integracaonotafiscalajustel,
         knw0190 TYPE ty_knw0190,
         knw0200 TYPE ty_knw0200,
         knwc197 TYPE ty_knwc197,
       END OF ty_integracaonotafiscalajustel,
-
 
       BEGIN OF ty_knw0460,
         dt_inicial       TYPE string,
@@ -925,7 +920,6 @@ CLASS lcl_process DEFINITION FRIENDS lhc_sovos_fiscaldocuments.
         ds_obs           TYPE string,
         id               TYPE string,
       END OF ty_knw0460,
-
 
       BEGIN OF ty_knwc195,
         dm_emitente        TYPE string,
@@ -942,7 +936,6 @@ CLASS lcl_process DEFINITION FRIENDS lhc_sovos_fiscaldocuments.
         cd_pessoa_rem_dest TYPE string,
         nr_item            TYPE p LENGTH 15 DECIMALS 2,
       END OF ty_knwc195,
-
 
       BEGIN OF ty_notafiscalobservacaolancame,
         knwc195                        TYPE ty_knwc195,
@@ -973,6 +966,7 @@ CLASS lcl_process DEFINITION FRIENDS lhc_sovos_fiscaldocuments.
        END OF ty_knwc113,
 
       BEGIN OF ty_integracaoNotaFiscRefList,
+        knw0150                        TYPE ty_knw0150,
         knwc113                        TYPE ty_knwc113,
       END OF ty_integracaoNotaFiscRefList,
 
@@ -2967,6 +2961,16 @@ CLASS lcl_process IMPLEMENTATION.
 ***              READ TABLE lt_counters_ref ASSIGNING <counter_ref> WITH KEY br_reference = ls_header-br_reference.
 ***            ENDIF.
 ***            <counter_ref>-counter += 1.
+
+            <c113>-knw0150-cod_empresa         = ls_objeto-knwc100-cod_empresa.
+            <c113>-knw0150-cod_filial          = ls_objeto-knwc100-cod_filial.
+            <c113>-knw0150-nm_razao_social     = ls_branch-nome_fantasia.
+            <c113>-knw0150-nr_cnpj_cpf         = ls_nf_ref_doc-doc-br_businessplacecnpj.
+            <c113>-knw0150-cd_municipio        = ls_branch-taxjurisdiction+3.
+            <c113>-knw0150-cd_pais             = get_ibge_country( ls_branch-countrycode ).
+            <c113>-knw0150-dt_inicial          = '1900-01-01T00:00:00+03:00'.
+            <c113>-knw0150-cd_pessoa           = ls_branch-cod_estab.
+            <c113>-knw0150-ds_endereco         = ls_branch-endereco.
 
             <c113>-knwc113-dm_entrada_saida    = ls_objeto-knwc100-dm_entrada_saida.
             <c113>-knwc113-dm_emitente         = ls_objeto-knwc100-dm_emitente.
