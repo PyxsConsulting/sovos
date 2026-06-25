@@ -1202,6 +1202,7 @@ CLASS lcl_process DEFINITION FRIENDS lhc_sovos_fiscaldocuments.
                 t_imp_di           TYPE TABLE OF i_br_nfimportdocument,
                 t_exp_di           TYPE TABLE OF i_br_nfexportdocument,
                 t_branch           TYPE TABLE OF /pyxs/sov_nf_branch,
+                t_branch_sov       TYPE TABLE OF /pyxs/sov_branch,
                 "lt_ftx    TYPE TABLE OF YY1_GLAccount,
                 "lt_imp_adi TYPE TABLE OF I_BR_NFADDITIONIMPORTDOC,
                 "lt_pharma TYPE TABLE OF I_BR_NFPHARMACEUTICAL.
@@ -3000,6 +3001,31 @@ CLASS lcl_process IMPLEMENTATION.
 
             <c113>-knwc113-subser_doc_ref      = ls_nf_ref_doc-doc-br_nfseries.
 
+***            READ TABLE t_branch_sov INTO DATA(ls_branch_sov)
+***              WITH KEY company_code    = ls_nf_ref_doc-doc-CompanyCode
+***                       branch          = ls_nf_ref_doc-doc-BusinessPlace.
+***            IF sy-subrc = 0.
+***              <c113>-knw0150-cod_empresa         = ls_branch_sov-sov_company.
+***              <c113>-knw0150-cod_filial          = ls_branch_sov-sov_branch.
+***            ELSE.
+***              <c113>-knw0150-cod_empresa         = ls_objeto-knwc100-cod_empresa.
+***              <c113>-knw0150-cod_filial          = ls_objeto-knwc100-cod_filial.
+***            ENDIF.
+
+            <c113>-knw0150-cod_empresa         = ls_objeto-knwc100-cod_empresa.
+            <c113>-knw0150-cod_filial          = ls_objeto-knwc100-cod_filial.
+
+            <c113>-knw0150-nm_razao_social     = ls_nf_ref_doc-doc-br_nfpartnername1.
+            <c113>-knw0150-nr_cnpj_cpf         = COND #( WHEN ls_nf_ref_doc-doc-br_nfpartnercnpj IS NOT INITIAL THEN ls_nf_ref_doc-doc-br_nfpartnercnpj ELSE ls_nf_ref_doc-doc-br_nfpartnercpf ).
+            <c113>-knw0150-cd_municipio        = ls_nf_ref_doc-doc-br_nfpartnertaxjurisdiction+3.
+            <c113>-knw0150-cd_pais             = get_ibge_country( ls_nf_ref_doc-doc-br_nfpartnercountrycode ).
+            <c113>-knw0150-dt_inicial          = '1900-01-01T00:00:00+03:00'.
+            <c113>-knw0150-cd_pessoa           = ls_nf_ref_doc-doc-br_nfpartner.
+            <c113>-knw0150-ds_endereco         = ls_nf_ref_doc-doc-br_nfpartnerstreetname.
+            <c113>-knw0150-nr_inscr_est        = ls_nf_ref_doc-doc-br_nfpartnerstatetaxnumber.
+
+
+
 ***            <c113>-knwc113-dm_entrada_saida    = <inf_comp>-knwc110-dm_entrada_saida.
 ***            <c113>-knwc113-dm_emitente         = <inf_comp>-knwc110-dm_emitente.
 ***            <c113>-knwc113-serie_subserie      = <inf_comp>-knwc110-serie_subserie.
@@ -3164,6 +3190,11 @@ CLASS lcl_process IMPLEMENTATION.
       AND branch = @sel-branch
       INTO @s_branch_sov.
 
+    SELECT *
+      FROM /pyxs/sov_branch
+    WHERE company_code = @sel-company
+      AND branch = @sel-branch
+      INTO TABLE @t_branch_sov.
 
     SELECT *
       FROM i_br_nfpartner

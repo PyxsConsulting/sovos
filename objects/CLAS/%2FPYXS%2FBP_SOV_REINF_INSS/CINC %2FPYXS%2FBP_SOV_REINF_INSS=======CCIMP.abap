@@ -573,6 +573,7 @@ CLASS lcl_process IMPLEMENTATION.
       <root>-knwReinfR2010NotaList
       ASSIGNING FIELD-SYMBOL(<nota>).
 
+
     <nota>-cd_empresa     = gs_branch_sov-sov_company.
     <nota>-cd_filial      = gs_branch_sov-sov_branch.
     <nota>-id_referencia  = lv_root_id.
@@ -583,6 +584,9 @@ CLASS lcl_process IMPLEMENTATION.
     <nota>-vl_bruto       = format_amount( iv_value = ls_nfs-br_nftotalamount ).
     <nota>-ds_observacao  =
       |Doc contábil { ls_data-accountingdocument }|.
+    IF <nota>-nr_serie IS INITIAL OR <nota>-nr_serie = ' '.
+      <nota>-nr_serie = '000'.
+    ENDIF.
 
     " Servico line — one per iteration, NR_ITEM_SERVICO always 1
     APPEND INITIAL LINE TO
