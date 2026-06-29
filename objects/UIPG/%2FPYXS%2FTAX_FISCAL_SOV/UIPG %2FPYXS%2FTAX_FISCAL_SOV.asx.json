@@ -10,7 +10,7 @@
     "CREATED_BY":"SAP_CUSTOMER",
     "CREATED_ON":"+020260220164848",
     "MODIFIED_BY":"SAP_CUSTOMER",
-    "MODIFIED_ON":"+020260529125941",
+    "MODIFIED_ON":"+020260626182304",
     "BASE_ID":"",
     "MERGE_ID":"",
     "ABAP_LANGUAGE_VERSION":"5"
@@ -47,6 +47,13 @@
     "ID":"CONFIG",
     "PARENT_SECTION_ID":"",
     "IDX":4
+   },
+   {
+    "PAGE_ID":"/PYXS/TAX_FISCAL_SOV",
+    "VERSION":"A",
+    "ID":"CONTABIL",
+    "PARENT_SECTION_ID":"",
+    "IDX":5
    },
    {
     "PAGE_ID":"/PYXS/TAX_FISCAL_SOV",
@@ -97,6 +104,14 @@
     "VERSION":"A",
     "SECTION_ID":"CONFIG",
     "ID":"CONFIG_VIZ_1",
+    "TYPE":"AD",
+    "IDX":1
+   },
+   {
+    "PAGE_ID":"/PYXS/TAX_FISCAL_SOV",
+    "VERSION":"A",
+    "SECTION_ID":"CONTABIL",
+    "ID":"CONTABIL_VIZ_1",
     "TYPE":"AD",
     "IDX":1
    },
@@ -181,6 +196,14 @@
    {
     "PAGE_ID":"/PYXS/TAX_FISCAL_SOV",
     "VERSION":"A",
+    "ID":"CONTABIL_VIZ_1",
+    "UIAD_ID":"/PYXS/SOV_DOCCON_UI5R",
+    "TILE_ID":"UI5R_1A1F880B998894F8A3067DCCA1A4CAB6B6E585F9_AL",
+    "TILE_DISPLAY_FORMAT":"TI"
+   },
+   {
+    "PAGE_ID":"/PYXS/TAX_FISCAL_SOV",
+    "VERSION":"A",
     "ID":"FISCAL_EXTRACTORS_VIZ_1",
     "UIAD_ID":"/PYXS/SOV_FISCAL_UI5R",
     "TILE_ID":"UI5R_B9C9B1662D606C0B90F68FB41D4180748C72C505_AL",
@@ -237,6 +260,13 @@
     "VERSION":"A",
     "ID":"CONFIG",
     "TITLE":"Configurações"
+   },
+   {
+    "LANGU":"P",
+    "PAGE_ID":"/PYXS/TAX_FISCAL_SOV",
+    "VERSION":"A",
+    "ID":"CONTABIL",
+    "TITLE":"Contábil"
    },
    {
     "LANGU":"P",

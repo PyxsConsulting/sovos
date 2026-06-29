@@ -612,7 +612,7 @@ ENDMETHOD.
     IF iv_with_time IS INITIAL.
       rv_date = |{ iv_date+0(4) }-{ iv_date+4(2) }-{ iv_date+6(2) }|.
     ELSE.
-      rv_date = |{ iv_date+0(4) }-{ iv_date+4(2) }-{ iv_date+6(2) }T00:00:00+03:00|.
+      rv_date = |{ iv_date+0(4) }-{ iv_date+4(2) }-{ iv_date+6(2) }T12:00:00+03:00|.
     ENDIF.
   ENDMETHOD.
 
@@ -886,7 +886,7 @@ ENDMETHOD.
       EXPORTING iv_anomes    = sel-anomes
       IMPORTING ev_first_day = lv_first_day
                 ev_last_day  = lv_last_day ).
-    lv_dt_ini = |{ lv_last_day DATE = ISO }T00:00:00.000Z|.
+    lv_dt_ini = |{ lv_last_day DATE = ISO }T12:00:00.000Z|.
 
     CLEAR: t_out.
 
@@ -1055,8 +1055,8 @@ ENDMETHOD.
       "estorno avulso? puxa pela ordem de produção + cod do material
 
       "--- knw0200 – cadastro do produto ---
-      ls_objeto-knw0200-dt_inicial        = '1900-01-01T00:00:00+03:00'.
-      "ls_objeto-knw0200-dt_importacao     = '1900-01-01T00:00:00+03:00'.
+      ls_objeto-knw0200-dt_inicial        = '1900-01-01T12:00:00+03:00'.
+      "ls_objeto-knw0200-dt_importacao     = '1900-01-01T12:00:00+03:00'.
       ls_objeto-knw0200-cod_empresa       = CONV i( s_branch_sov-sov_company ).
       ls_objeto-knw0200-cod_filial        = CONV i( s_branch_sov-sov_branch ).
       ls_objeto-knw0200-cd_produto_serv   = ls_mov-material.
@@ -1105,8 +1105,8 @@ ENDMETHOD.
       "--- knw0190 – unidade de medida ---
       ls_objeto-knw0190-cod_empresa   = CONV i( s_branch_sov-sov_company ).
       ls_objeto-knw0190-cod_filial    = CONV i( s_branch_sov-sov_branch ).
-      ls_objeto-knw0190-dt_inicial    = '1900-01-01T00:00:00+03:00'.
-      "ls_objeto-knw0190-dt_importacao = '1900-01-01T00:00:00+03:00'.
+      ls_objeto-knw0190-dt_inicial    = '1900-01-01T12:00:00+03:00'.
+      "ls_objeto-knw0190-dt_importacao = '1900-01-01T12:00:00+03:00'.
       ls_objeto-knw0190-ds_unidade    = ls_prod-unitofmeasure_e.
       ls_objeto-knw0190-ds_descricao  = ls_prod-unitofmeasurename.
 
@@ -1171,8 +1171,8 @@ ENDMETHOD.
         "----------------------------------------------------------
         " 0200 do insumo
         "----------------------------------------------------------
-        ls_item_cons-knw0200produtoinsumo-dt_inicial        = '1900-01-01T00:00:00+03:00'.
-        "ls_item_cons-knw0200produtoinsumo-dt_importacao     = '1900-01-01T00:00:00+03:00'.
+        ls_item_cons-knw0200produtoinsumo-dt_inicial        = '1900-01-01T12:00:00+03:00'.
+        "ls_item_cons-knw0200produtoinsumo-dt_importacao     = '1900-01-01T12:00:00+03:00'.
         ls_item_cons-knw0200produtoinsumo-cod_empresa       = CONV #( s_branch_sov-sov_company ).
         ls_item_cons-knw0200produtoinsumo-cod_filial        = CONV #( s_branch_sov-sov_branch ).
         ls_item_cons-knw0200produtoinsumo-cd_produto_serv   = ls_cons-material.
@@ -1237,8 +1237,8 @@ ENDMETHOD.
         "----------------------------------------------------------
         ls_item_cons-knw0190produtoinsumo-cod_empresa   = CONV #( s_branch_sov-sov_company ).
         ls_item_cons-knw0190produtoinsumo-cod_filial    = CONV #( s_branch_sov-sov_branch ).
-        ls_item_cons-knw0190produtoinsumo-dt_inicial    = '1900-01-01T00:00:00+03:00'.
-        "ls_item_cons-knw0190produtoinsumo-dt_importacao = '1900-01-01T00:00:00+03:00'.
+        ls_item_cons-knw0190produtoinsumo-dt_inicial    = '1900-01-01T12:00:00+03:00'.
+        "ls_item_cons-knw0190produtoinsumo-dt_importacao = '1900-01-01T12:00:00+03:00'.
         ls_item_cons-knw0190produtoinsumo-ds_unidade    = ls_prod_cons-unitofmeasure_e.
         ls_item_cons-knw0190produtoinsumo-ds_descricao  = ls_prod_cons-unitofmeasurename.
 

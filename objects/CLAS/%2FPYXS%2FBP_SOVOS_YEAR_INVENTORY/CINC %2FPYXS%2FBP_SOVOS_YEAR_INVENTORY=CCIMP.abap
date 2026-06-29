@@ -1200,7 +1200,7 @@ CLASS lcl_process IMPLEMENTATION.
     IF iv_with_time IS INITIAL.
       rv_date = |{ iv_date+6(2) }{ iv_date+4(2) }{ iv_date(4) }|.
     ELSE.
-      rv_date = |{ iv_date+6(2) }{ iv_date+4(2) }{ iv_date(4) }T00:00:00+03:00|.
+      rv_date = |{ iv_date+6(2) }{ iv_date+4(2) }{ iv_date(4) }T12:00:00+03:00|.
     ENDIF.
 
   ENDMETHOD.
@@ -1267,14 +1267,14 @@ CLASS lcl_process IMPLEMENTATION.
       ls_objeto-knw0190-cod_empresa    = CONV i( s_branch_sov-sov_company ).
       ls_objeto-knw0190-cod_filial     = CONV i( s_branch_sov-sov_branch ).
       "ls_objeto-knw0190-id_usuario_imp = sy-uname.
-      ls_objeto-knw0190-dt_inicial     = '1900-01-01T00:00:00+03:00'.
-      "ls_objeto-knw0190-dt_importacao  = '1900-01-01T00:00:00+03:00'.
+      ls_objeto-knw0190-dt_inicial     = '1900-01-01T12:00:00+03:00'.
+      "ls_objeto-knw0190-dt_importacao  = '1900-01-01T12:00:00+03:00'.
       ls_objeto-knw0190-ds_unidade     = ls_data-unitofmeasure_e.
       ls_objeto-knw0190-ds_descricao   = ls_data-unitofmeasurename.
 
       " ─── KNW0200 ───
 
-      ls_objeto-knw0200-dt_inicial         = '1900-01-01T00:00:00+03:00'.
+      ls_objeto-knw0200-dt_inicial         = '1900-01-01T12:00:00+03:00'.
       ls_objeto-knw0200-cod_empresa        = CONV i( s_branch_sov-sov_company ).
       ls_objeto-knw0200-cod_filial         = CONV i( s_branch_sov-sov_branch ).
       ls_objeto-knw0200-cd_produto_serv    = ls_data-product.
