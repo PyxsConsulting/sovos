@@ -137,7 +137,7 @@ CLASS lhc_reinflog IMPLEMENTATION.
     lv_end = last_day_of_months( day_in = lv_begin ).
 
     DATA(lo_proc) = NEW /pyxs/sovos_reinf_4020builder(
-*      iv_br_notafiscal  =
+      iv_br_notafiscal  = key-%param-BrNotafiscal
       iv_date_begin     = lv_begin
       iv_date_end       = lv_end
       iv_company_doce   = key-%param-comapnycode

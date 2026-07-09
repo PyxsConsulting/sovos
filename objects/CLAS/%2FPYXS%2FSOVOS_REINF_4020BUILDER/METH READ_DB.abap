@@ -61,7 +61,7 @@
              WHERE nfi~br_nfsourcedocumentnumber  = @gt_data-originalreferencedocument
                AND nf~businessplace               = @sel-branch
                AND nf~br_nfpartner                IN @sel-partner
-               "AND nf~br_notafiscal               IN @sel-br_notafiscal
+               AND nf~br_notafiscal               IN @sel-document
                "AND nft~br_nfitemhaswithholdingtax = 'X'
          INTO TABLE @gt_nfs.
       ENDIF.
