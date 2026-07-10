@@ -49,7 +49,7 @@
               nf~br_nfhasserviceitem, nf~br_nfissuedby, nf~br_nfsituationcode,
               nft~br_taxtype, nft~br_nfitembaseamount, nft~br_nfitemtaxrate,
               nft~br_nfitemtaxamount, nft~br_nfitemwhldgcollectioncode, nft~taxgroup, nf~br_businessplacecnpj, nf~br_nfpartnercnpj,
-              nf~br_nfpartnername1, nfi~br_lc116servicecode, nf~br_nftotalamount
+              nf~br_nfpartnername1, nfi~br_lc116servicecode, nf~br_nftotalamount, nf~br_nfpostingdate
          FROM i_br_nfitem AS nfi
 *     ON jo~OriginalReferenceDocument = nfi~BR_NFSourceDocumentNumber
          INNER JOIN i_br_nfdocument AS nf

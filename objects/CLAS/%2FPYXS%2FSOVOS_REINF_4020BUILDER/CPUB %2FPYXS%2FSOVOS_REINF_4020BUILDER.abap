@@ -196,6 +196,7 @@ CLASS /pyxs/sovos_reinf_4020builder DEFINITION
              br_nfpartnername1            TYPE i_br_nfdocument-br_nfpartnername1,
              br_lc116servicecode          TYPE i_br_nfitem-br_lc116servicecode,
              br_nftotalamount             TYPE i_br_nfdocument-br_nftotalamount,
+             br_nfpostingdate             TYPE i_br_nfdocument-br_nfpostingdate,
            END OF ty_nf_item,
 
            ty_r_tax_type TYPE RANGE OF i_br_nftax-taxgroup,

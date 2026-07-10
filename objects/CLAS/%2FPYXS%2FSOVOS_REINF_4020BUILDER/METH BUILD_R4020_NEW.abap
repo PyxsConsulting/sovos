@@ -34,7 +34,8 @@ LOOP AT gt_data INTO DATA(ls_data).
     <root>-knwReinfR4020-id_referencia      = lv_root_id.
     <root>-knwReinfR4020-id_evento          = lv_root_id.
     <root>-knwReinfR4020-dm_retificacao     = '1'.
-    DATA(lv_dt_apura) = |{ ls_data-clearingdate+6(2) }{ ls_data-clearingdate+4(2) }{ ls_data-clearingdate(4) }|.
+    "DATA(lv_dt_apura) = |{ ls_data-clearingdate+6(2) }{ ls_data-clearingdate+4(2) }{ ls_data-clearingdate(4) }|.
+    DATA(lv_dt_apura) = |{ ls_nfs-br_nfpostingdate+6(2) }{ ls_nfs-br_nfpostingdate+4(2) }{ ls_nfs-br_nfpostingdate(4) }|.
     <root>-knwReinfR4020-dt_apuracao        = lv_dt_apura.
     <root>-knwReinfR4020-dm_inscricao_estab     = '1'.
     <root>-knwReinfR4020-nr_inscricao_estab = ls_nfs-br_businessplacecnpj.
@@ -69,15 +70,20 @@ LOOP AT gt_data INTO DATA(ls_data).
 
   ENDIF.
 
+  READ TABLE mt_irf_types
+    WITH KEY categoriairf = ls_data-withholdingtaxtype
+    INTO DATA(ls_irf_type).
+
   DATA(lv_info_key) =
     "|{ lv_pgto_key }{ ls_data-accountingdocument }|.
-    |{ lv_pgto_key }{ ls_nfs-br_nfsnumber }|.
+    |{ lv_pgto_key }{ ls_nfs-br_nfsnumber }{ ls_irf_type-Imposto } |.
 
   READ TABLE <root>-knwReinfR4020InfoPgtoList
     ASSIGNING FIELD-SYMBOL(<info>)
     WITH KEY ds_observ = lv_info_key.
 
   IF sy-subrc <> 0.
+
 
     DATA(lv_seq_info) = 1.
 
@@ -99,12 +105,11 @@ LOOP AT gt_data INTO DATA(ls_data).
     "<info>-id_referencia    = lv_info_key.
     <info>-id_seq_pagto     = <pgto>-id_seq_pagto.
     <info>-id_seq_info_pgto = lv_seq_info.
-    <info>-dt_fato_gerador  =
-      format_date(
-        iv_date = ls_nfs-br_nfissuedate ).
-    <info>-vl_bruto =
-      format_amount(
-        iv_value = ls_nfs-br_nftotalamount ).
+    <info>-dt_fato_gerador  = format_date( iv_date = ls_nfs-br_nfissuedate ).
+    IF ls_irf_type-Imposto = 'PCC'.
+      <info>-dt_fato_gerador  = format_date( iv_date = ls_data-clearingdate ).
+    ENDIF.
+    <info>-vl_bruto = format_amount( iv_value = ls_nfs-br_nftotalamount ).
     "<info>-ds_observ = |Doc contábil { ls_data-accountingdocument }|.
     <info>-ds_observ = lv_info_key.
     <info>-dm_fci_scp      = ''.
@@ -136,11 +141,6 @@ LOOP AT gt_data INTO DATA(ls_data).
     <ret>-id_seq_pagto      = <info>-id_seq_pagto.
     <ret>-id_seq_info_pgto  = <info>-id_seq_info_pgto.
   ENDIF.
-
-
-  READ TABLE mt_irf_types
-    WITH KEY categoriairf = ls_data-withholdingtaxtype
-    INTO DATA(ls_irf_type).
 
     IF <ret>-vl_ir IS INITIAL.
       <ret>-vl_ir = '0'.
