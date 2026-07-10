@@ -101,7 +101,7 @@ LOOP AT gt_data INTO DATA(ls_data).
     <info>-id_seq_info_pgto = lv_seq_info.
     <info>-dt_fato_gerador  =
       format_date(
-        iv_date = ls_data-clearingdate ).
+        iv_date = ls_nfs-br_nfissuedate ).
     <info>-vl_bruto =
       format_amount(
         iv_value = ls_nfs-br_nftotalamount ).
