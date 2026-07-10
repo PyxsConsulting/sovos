@@ -43,6 +43,7 @@
   REPLACE ALL OCCURRENCES OF '"vl_pis_pasep"'       IN rv_json WITH '"VL_PIS_PASEP"'.
   REPLACE ALL OCCURRENCES OF '"vl_base_agreg"'      IN rv_json WITH '"VL_BASE_AGREG"'.
   REPLACE ALL OCCURRENCES OF '"vl_agreg"'           IN rv_json WITH '"VL_AGREG"'.
+  REPLACE ALL OCCURRENCES OF ' "'           IN rv_json WITH '"'.
 
 
   REPLACE ALL OCCURRENCES OF '"' IN rv_json WITH '\"'.
