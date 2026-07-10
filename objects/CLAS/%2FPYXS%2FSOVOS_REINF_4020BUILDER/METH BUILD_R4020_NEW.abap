@@ -21,8 +21,13 @@ LOOP AT gt_data INTO DATA(ls_data).
     CONTINUE.
   ENDIF.
 
+  READ TABLE mt_irf_types
+    WITH KEY categoriairf = ls_data-withholdingtaxtype
+    INTO DATA(ls_irf_type).
+
   DATA(lv_root_id) =
-    |{ ls_data-clearingdate(6) }{ ls_nfs-br_nfpartner }|.
+    |{ ls_data-clearingdate(6) }{ ls_nfs-br_nfpartner }{ ls_irf_type-Imposto }|.
+    "|{ ls_data-clearingdate(6) }{ ls_nfs-br_nfpartner }|.
 
   READ TABLE gt_objects ASSIGNING FIELD-SYMBOL(<root>)
     WITH KEY knwReinfR4020-id_referencia = lv_root_id.
@@ -34,8 +39,10 @@ LOOP AT gt_data INTO DATA(ls_data).
     <root>-knwReinfR4020-id_referencia      = lv_root_id.
     <root>-knwReinfR4020-id_evento          = lv_root_id.
     <root>-knwReinfR4020-dm_retificacao     = '1'.
-    "DATA(lv_dt_apura) = |{ ls_data-clearingdate+6(2) }{ ls_data-clearingdate+4(2) }{ ls_data-clearingdate(4) }|.
     DATA(lv_dt_apura) = |{ ls_nfs-br_nfpostingdate+6(2) }{ ls_nfs-br_nfpostingdate+4(2) }{ ls_nfs-br_nfpostingdate(4) }|.
+    IF ls_irf_type-imposto = 'PCC'.
+      lv_dt_apura = |{ ls_data-clearingdate+6(2) }{ ls_data-clearingdate+4(2) }{ ls_data-clearingdate(4) }|.
+    ENDIF.
     <root>-knwReinfR4020-dt_apuracao        = lv_dt_apura.
     <root>-knwReinfR4020-dm_inscricao_estab     = '1'.
     <root>-knwReinfR4020-nr_inscricao_estab = ls_nfs-br_businessplacecnpj.
@@ -70,13 +77,9 @@ LOOP AT gt_data INTO DATA(ls_data).
 
   ENDIF.
 
-  READ TABLE mt_irf_types
-    WITH KEY categoriairf = ls_data-withholdingtaxtype
-    INTO DATA(ls_irf_type).
-
   DATA(lv_info_key) =
     "|{ lv_pgto_key }{ ls_data-accountingdocument }|.
-    |{ lv_pgto_key }{ ls_nfs-br_nfsnumber }{ ls_irf_type-Imposto } |.
+    |{ lv_pgto_key }{ ls_nfs-br_nfsnumber }|.
 
   READ TABLE <root>-knwReinfR4020InfoPgtoList
     ASSIGNING FIELD-SYMBOL(<info>)
