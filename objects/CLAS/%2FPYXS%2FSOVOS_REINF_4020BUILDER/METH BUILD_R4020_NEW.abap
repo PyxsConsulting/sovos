@@ -48,7 +48,7 @@ LOOP AT gt_data INTO DATA(ls_data).
 
   READ TABLE <root>-reinfR4020PgtoList
     ASSIGNING FIELD-SYMBOL(<pgto>)
-    WITH KEY id_referencia = lv_pgto_key.
+    WITH KEY ds_observacao = lv_pgto_key.
 
   IF sy-subrc <> 0.
 
@@ -65,16 +65,17 @@ LOOP AT gt_data INTO DATA(ls_data).
     "<pgto>-id_referencia = lv_pgto_key.
     <pgto>-id_seq_pagto  = lv_seq_pagto.
     <pgto>-nr_nat_rend   = lv_natureza.
-    <pgto>-ds_observacao = ''.
+    <pgto>-ds_observacao = lv_pgto_key.
 
   ENDIF.
 
   DATA(lv_info_key) =
-    |{ lv_pgto_key }{ ls_data-accountingdocument }|.
+    "|{ lv_pgto_key }{ ls_data-accountingdocument }|.
+    |{ lv_pgto_key }{ ls_nfs-br_nfsnumber }|.
 
   READ TABLE <root>-knwReinfR4020InfoPgtoList
     ASSIGNING FIELD-SYMBOL(<info>)
-    WITH KEY id_referencia = lv_info_key.
+    WITH KEY ds_observ = lv_info_key.
 
   IF sy-subrc <> 0.
 
@@ -82,7 +83,7 @@ LOOP AT gt_data INTO DATA(ls_data).
 
     LOOP AT <root>-knwReinfR4020InfoPgtoList
       ASSIGNING FIELD-SYMBOL(<tmp_info>)
-      WHERE id_seq_pagto = <pgto>-id_seq_pagto.
+      WHERE id_referencia = lv_root_id.
 
       lv_seq_info = lv_seq_info + 1.
 
@@ -104,8 +105,8 @@ LOOP AT gt_data INTO DATA(ls_data).
     <info>-vl_bruto =
       format_amount(
         iv_value = ls_nfs-br_nftotalamount ).
-    <info>-ds_observ =
-      |Doc contábil { ls_data-accountingdocument }|.
+    "<info>-ds_observ = |Doc contábil { ls_data-accountingdocument }|.
+    <info>-ds_observ = lv_info_key.
     <info>-dm_fci_scp      = ''.
     <info>-nr_insc_fci_scp = ''.
     <info>-nr_perc_scp     = ''.
@@ -117,7 +118,10 @@ LOOP AT gt_data INTO DATA(ls_data).
 
   READ TABLE <root>-knwReinfR4020InfoPgtoRetList
     ASSIGNING FIELD-SYMBOL(<ret>)
-    WITH KEY id_referencia = lv_info_key.
+    WITH KEY id_referencia = lv_root_id
+             id_seq_pagto = <info>-id_seq_pagto
+             id_seq_info_pgto =  <info>-id_seq_info_pgto.
+
 
   IF sy-subrc <> 0.
 
@@ -131,8 +135,8 @@ LOOP AT gt_data INTO DATA(ls_data).
     "<ret>-id_referencia     = lv_info_key.
     <ret>-id_seq_pagto      = <info>-id_seq_pagto.
     <ret>-id_seq_info_pgto  = <info>-id_seq_info_pgto.
-
   ENDIF.
+
 
   READ TABLE mt_irf_types
     WITH KEY categoriairf = ls_data-withholdingtaxtype
