@@ -25,9 +25,17 @@ LOOP AT gt_data INTO DATA(ls_data).
     WITH KEY categoriairf = ls_data-withholdingtaxtype
     INTO DATA(ls_irf_type).
 
+  IF ls_irf_type IS INITIAL.
+    CONTINUE.
+  ENDIF.
+
   DATA(lv_root_id) =
-    |{ ls_data-clearingdate(6) }{ ls_nfs-br_nfpartner }{ ls_irf_type-Imposto }|.
+    |{ ls_nfs-br_nfpostingdate(6) }{ ls_nfs-br_nfpartner }|.
     "|{ ls_data-clearingdate(6) }{ ls_nfs-br_nfpartner }|.
+
+  IF ls_irf_type-imposto = 'PCC'.
+    lv_root_id = |{ ls_data-clearingdate(6) }{ ls_nfs-br_nfpartner }{ ls_irf_type-Imposto }|.
+  ENDIF.
 
   READ TABLE gt_objects ASSIGNING FIELD-SYMBOL(<root>)
     WITH KEY knwReinfR4020-id_referencia = lv_root_id.
