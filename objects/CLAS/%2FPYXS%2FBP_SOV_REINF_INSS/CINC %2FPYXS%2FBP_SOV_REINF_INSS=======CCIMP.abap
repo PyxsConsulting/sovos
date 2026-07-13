@@ -518,7 +518,7 @@ CLASS lcl_process IMPLEMENTATION.
     ENDIF.
 
     DATA(lv_root_id) =
-      |{ ls_data-clearingdate(6) }{ ls_nfs-br_nfpartner }{ ls_nfs-br_nfnumber }|.
+      |{ ls_nfs-br_nfissuedate(6) }{ ls_nfs-br_nfpartner }{ ls_nfs-br_nfnumber }|.
 
     READ TABLE gt_objects ASSIGNING FIELD-SYMBOL(<root>)
       WITH KEY knwReinfR2010-id_referencia = lv_root_id.
@@ -529,7 +529,7 @@ CLASS lcl_process IMPLEMENTATION.
       <root>-knwReinfR2010-cd_filial           = gs_branch_sov-sov_branch.
       <root>-knwReinfR2010-id_referencia       = lv_root_id.
       <root>-knwReinfR2010-dm_retificacao      = '1'.
-      <root>-knwReinfR2010-dt_apuracao         = ls_data-clearingdate.
+      <root>-knwReinfR2010-dt_apuracao         = ls_nfs-br_nfissuedate.
       <root>-knwReinfR2010-dm_inscricao_obra   = '1'.
       <root>-knwReinfR2010-nr_inscricao_obra   = ls_nfs-br_businessplacecnpj.
       <root>-knwReinfR2010-dm_obra             = '0'.
@@ -544,12 +544,12 @@ CLASS lcl_process IMPLEMENTATION.
     ENDIF.
 
     " Accumulate totals on the root header
-    <root>-knwReinfR2010-vl_total_bruto +=
+    <root>-knwReinfR2010-vl_total_bruto =
       abs( ls_nfs-br_nftotalamount ).
-    <root>-knwReinfR2010-vl_total_base +=
+    <root>-knwReinfR2010-vl_total_base =
       abs( ls_data-whldgtaxbaseamtincocodecrcy ).
     <root>-knwReinfR2010-vl_total_retencao +=
-      abs( ls_data-whldgtaxbaseamtincocodecrcy ).
+      abs( ls_data-whldgtaxamtintransaccrcy ).
 
     READ TABLE gt_item_counter ASSIGNING FIELD-SYMBOL(<counter>)
       WITH TABLE KEY id_referencia = lv_root_id.
@@ -569,42 +569,53 @@ CLASS lcl_process IMPLEMENTATION.
       lv_nr_item_nota = 1.
     ENDIF.
 
-    APPEND INITIAL LINE TO
-      <root>-knwReinfR2010NotaList
-      ASSIGNING FIELD-SYMBOL(<nota>).
 
+    READ TABLE <root>-knwReinfR2010NotaList
+      ASSIGNING FIELD-SYMBOL(<nota>)
+      WITH KEY id_referencia = lv_root_id.
 
-    <nota>-cd_empresa     = gs_branch_sov-sov_company.
-    <nota>-cd_filial      = gs_branch_sov-sov_branch.
-    <nota>-id_referencia  = lv_root_id.
-    <nota>-nr_item_nota   = lv_nr_item_nota.
-    <nota>-nr_serie       = ls_nfs-br_nfseries.
-    <nota>-nr_documento   = ls_nfs-br_nfnumber.
-    <nota>-dt_emissao     = format_date_yyyymmdd( iv_date = ls_nfs-br_nfissuedate ).
-    <nota>-vl_bruto       = format_amount( iv_value = ls_nfs-br_nftotalamount ).
-    <nota>-ds_observacao  =
-      |Doc contábil { ls_data-accountingdocument }|.
-    IF <nota>-nr_serie IS INITIAL OR <nota>-nr_serie = ' '.
-      <nota>-nr_serie = '000'.
+    IF sy-subrc <> 0.
+        APPEND INITIAL LINE TO
+          <root>-knwReinfR2010NotaList
+          ASSIGNING <nota>.
+
+        <nota>-cd_empresa     = gs_branch_sov-sov_company.
+        <nota>-cd_filial      = gs_branch_sov-sov_branch.
+        <nota>-id_referencia  = lv_root_id.
+        <nota>-nr_item_nota   = lv_nr_item_nota.
+        <nota>-nr_serie       = ls_nfs-br_nfseries.
+        <nota>-nr_documento   = ls_nfs-br_nfnumber.
+        <nota>-dt_emissao     = format_date_yyyymmdd( iv_date = ls_nfs-br_nfissuedate ).
+        <nota>-vl_bruto       = format_amount( iv_value = ls_nfs-br_nftotalamount ).
+        <nota>-ds_observacao  = ''.
+          "|Doc contábil { ls_data-accountingdocument }|.
+        IF <nota>-nr_serie IS INITIAL OR <nota>-nr_serie = ' '.
+          <nota>-nr_serie = '000'.
+        ENDIF.
     ENDIF.
 
-    " Servico line — one per iteration, NR_ITEM_SERVICO always 1
-    APPEND INITIAL LINE TO
-      <root>-knwReinfR2010ServicoList
-      ASSIGNING FIELD-SYMBOL(<serv>).
+    READ TABLE <root>-knwReinfR2010ServicoList
+      ASSIGNING FIELD-SYMBOL(<serv>)
+      WITH KEY id_referencia = lv_root_id.
 
-    <serv>-cd_empresa        = gs_branch_sov-sov_company.
-    <serv>-cd_filial         = gs_branch_sov-sov_branch.
-    <serv>-id_referencia     = lv_root_id.
-    <serv>-nr_item_nota      = lv_nr_item_nota.
-    <serv>-nr_item_servico   = 1.
-    <serv>-cd_tipo_servico   = ls_nfs-br_lc116servicecode.
-    <serv>-vl_base_retencao  =
-      format_amount(
-        iv_value = abs( ls_data-whldgtaxbaseamtincocodecrcy ) ).
-    <serv>-vl_retencao       =
-      format_amount(
-        iv_value = abs( ls_data-whldgtaxamtintransaccrcy ) ).
+    IF sy-subrc <> 0.
+        APPEND INITIAL LINE TO
+          <root>-knwReinfR2010ServicoList
+          ASSIGNING <serv>.
+
+        <serv>-cd_empresa        = gs_branch_sov-sov_company.
+        <serv>-cd_filial         = gs_branch_sov-sov_branch.
+        <serv>-id_referencia     = lv_root_id.
+        <serv>-nr_item_nota      = lv_nr_item_nota.
+        <serv>-nr_item_servico   = 1.
+        <serv>-cd_tipo_servico   = ls_nfs-br_lc116servicecode.
+        <serv>-vl_base_retencao  =
+          format_amount(
+            iv_value = abs( ls_data-whldgtaxbaseamtincocodecrcy ) ).
+        <serv>-vl_retencao       +=
+          format_amount(
+            iv_value = abs( ls_data-whldgtaxamtintransaccrcy ) ).
+    ENDIF.
 
   ENDLOOP.
 
