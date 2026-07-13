@@ -34,6 +34,7 @@ CLASS lcl_process DEFINITION FRIENDS lhc_SOV_REINF_INSS.
         companycode TYPE i_companycode-companycode,
         plant       TYPE i_plant-plant,
         anomes      TYPE string,
+        document    TYPE i_br_nfdocument-br_notafiscal,
       END OF ty_sel,
 
       BEGIN OF ty_tax_item,
@@ -266,6 +267,7 @@ CLASS lhc_sov_reinf_inss IMPLEMENTATION.
     lcl_process=>sel-companycode = key-%param-CompanyCode.
     lcl_process=>sel-plant       = key-%param-BusinessPlace.
     lcl_process=>sel-anomes      = key-%param-AnoMes.
+    lcl_process=>sel-document    = key-%param-BrNotafiscal.
 
     IF lcl_process=>sel-companycode IS INITIAL OR lcl_process=>sel-plant IS INITIAL.
       APPEND VALUE #( %action-sendintegration = if_abap_behv=>mk-on ) TO failed-/pyxs/sov_reinf_inss.
@@ -484,6 +486,7 @@ CLASS lcl_process IMPLEMENTATION.
       FOR ALL ENTRIES IN @gt_data
       WHERE nfi~br_nfsourcedocumentnumber = @gt_data-originalreferencedocument
         AND nf~businessplace              = @sel-plant
+        AND nf~br_notafiscal              = @sel-document
       INTO TABLE @gt_nfs.
 
     SORT gt_data BY companycode accountingdocument fiscalyear accountingdocumentitem.
