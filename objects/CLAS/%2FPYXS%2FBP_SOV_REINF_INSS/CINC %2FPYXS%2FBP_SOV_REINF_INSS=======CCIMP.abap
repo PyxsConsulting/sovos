@@ -612,13 +612,12 @@ CLASS lcl_process IMPLEMENTATION.
         <serv>-nr_item_nota      = lv_nr_item_nota.
         <serv>-nr_item_servico   = 1.
         <serv>-cd_tipo_servico   = ls_nfs-br_lc116servicecode.
-        <serv>-vl_base_retencao  =
-          format_amount(
-            iv_value = abs( ls_data-whldgtaxbaseamtincocodecrcy ) ).
-        <serv>-vl_retencao       +=
-          format_amount(
-            iv_value = abs( ls_data-whldgtaxamtintransaccrcy ) ).
+        <serv>-vl_base_retencao  = '0'.
+        <serv>-vl_retencao       += '0'.
     ENDIF.
+
+    <serv>-vl_base_retencao =  abs( ls_data-whldgtaxbaseamtincocodecrcy ).
+    <serv>-vl_retencao      += abs( ls_data-whldgtaxamtintransaccrcy ).
 
   ENDLOOP.
 
