@@ -98,6 +98,15 @@
     "DOMVALUE_L":"PCC",
     "DOMVALUE_H":"",
     "APPVAL":""
+   },
+   {
+    "DOMNAME":"/PYXS/Z_IMPOSTO_DOM",
+    "AS4LOCAL":"N",
+    "VALPOS":6,
+    "AS4VERS":0,
+    "DOMVALUE_L":"INSS",
+    "DOMVALUE_H":"",
+    "APPVAL":""
    }
   ]
  },
@@ -159,6 +168,17 @@
     "DOMVAL_LD":"",
     "DOMVAL_HD":"",
     "DOMVALUE_L":"PCC"
+   },
+   {
+    "DOMNAME":"/PYXS/Z_IMPOSTO_DOM",
+    "DDLANGUAGE":"P",
+    "AS4LOCAL":"N",
+    "VALPOS":6,
+    "AS4VERS":0,
+    "DDTEXT":"INSS",
+    "DOMVAL_LD":"",
+    "DOMVAL_HD":"",
+    "DOMVALUE_L":"INSS"
    }
   ]
  },
