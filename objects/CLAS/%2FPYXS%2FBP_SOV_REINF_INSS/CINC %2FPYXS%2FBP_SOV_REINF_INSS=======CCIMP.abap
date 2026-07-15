@@ -436,7 +436,7 @@ CLASS lcl_process IMPLEMENTATION.
     SELECT * FROM /pyxs/sov_natren       INTO TABLE @mt_nature.
 
     LOOP AT mt_irf_types INTO DATA(ls_irf_type).
-      CHECK ls_irf_type-imposto <> 'INSS'.
+      CHECK ls_irf_type-imposto = 'INSS'.
       APPEND VALUE #( sign = 'I' option = 'EQ' low = ls_irf_type-categoriairf ) TO lr_irf_types.
     ENDLOOP.
 
