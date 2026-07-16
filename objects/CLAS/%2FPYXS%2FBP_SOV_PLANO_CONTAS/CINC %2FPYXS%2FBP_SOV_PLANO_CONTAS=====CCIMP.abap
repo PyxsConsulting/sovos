@@ -319,6 +319,22 @@ CLASS lcl_process IMPLEMENTATION.
 
     METHOD  read_db.
 
+    DATA lr_glaccount TYPE RANGE OF i_glaccounthierarchynode-glaccount.
+    DATA lr_accounthierarchy TYPE RANGE OF i_glaccounthierarchynode-glaccounthierarchy.
+
+    IF sel-glaccount IS NOT INITIAL.
+      lr_glaccount = VALUE #(
+        ( sign   = 'I'
+          option = 'EQ'
+          low    = sel-glaccount ) ).
+    ENDIF.
+    IF sel-accounthierarchy IS NOT INITIAL.
+      lr_accounthierarchy = VALUE #(
+        ( sign   = 'I'
+          option = 'EQ'
+          low    = sel-accounthierarchy ) ).
+    ENDIF.
+
     SELECT a~hierarchynode,
            c~companycode,
            c~companycodename,
@@ -353,9 +369,9 @@ CLASS lcl_process IMPLEMENTATION.
         INNER JOIN i_companycode AS c
            ON a~chartofaccounts = c~chartofaccounts
         WHERE c~companycode = @sel-companycode
-          AND a~glaccounthierarchy = @sel-accounthierarchy
+          AND a~glaccounthierarchy IN @lr_accounthierarchy
           AND a~ChartOfAccounts = @sel-chartofaccounts
-          AND a~GLAccount = @sel-glaccount )
+          AND a~GLAccount IN @lr_glaccount )
      ORDER BY hierarchynodelevel, hierarchynodesequence ASCENDING
       INTO TABLE @t_data.
 

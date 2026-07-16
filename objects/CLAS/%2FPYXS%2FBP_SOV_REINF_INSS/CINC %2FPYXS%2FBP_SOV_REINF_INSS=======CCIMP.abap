@@ -108,6 +108,7 @@ CLASS lcl_process DEFINITION FRIENDS lhc_SOV_REINF_INSS.
         br_nfpartnername1            TYPE i_br_nfdocument-br_nfpartnername1,
         br_lc116servicecode          TYPE i_br_nfitem-br_lc116servicecode,
         br_nftotalamount             TYPE i_br_nfdocument-br_nftotalamount,
+        BR_EFDREINFServiceCode       TYPE i_br_nfitem-BR_EFDREINFServiceCode,
       END OF ty_nf_data,
 
       ty_t_nf_data TYPE STANDARD TABLE OF ty_nf_data WITH NON-UNIQUE DEFAULT KEY,
@@ -465,6 +466,11 @@ CLASS lcl_process IMPLEMENTATION.
 
     CHECK gt_data IS NOT INITIAL.
 
+
+    IF sel-document IS NOT INITIAL.
+      APPEND VALUE #( sign = 'I' option = 'EQ' low = sel-document ) TO r_docnum.
+    ENDIF.
+
     SELECT nfi~br_notafiscal, nfi~br_notafiscalitem, nfi~br_nfsourcedocumenttype,
            nfi~br_nfsourcedocumentnumber,                              "#EC CI_NO_TRANSFORM
            nfi~br_nfsourcedocumentitem, nf~br_nftype, nf~br_nfdirection,
@@ -476,7 +482,8 @@ CLASS lcl_process IMPLEMENTATION.
            nft~br_taxtype, nft~br_nfitembaseamount, nft~br_nfitemtaxrate,
            nft~br_nfitemtaxamount, nft~br_nfitemwhldgcollectioncode, nft~taxgroup,
            nf~br_businessplacecnpj, nf~br_nfpartnercnpj, nf~br_nfpartnername1,
-           nfi~br_lc116servicecode, nf~br_nftotalamount
+           nfi~br_lc116servicecode, nf~br_nftotalamount,
+           nfi~BR_EFDREINFServiceCode
       FROM i_br_nfitem AS nfi
       INNER JOIN i_br_nfdocument AS nf
         ON nf~br_notafiscal = nfi~br_notafiscal
@@ -486,7 +493,7 @@ CLASS lcl_process IMPLEMENTATION.
       FOR ALL ENTRIES IN @gt_data
       WHERE nfi~br_nfsourcedocumentnumber = @gt_data-originalreferencedocument
         AND nf~businessplace              = @sel-plant
-        AND nf~br_notafiscal              = @sel-document
+        AND nf~br_notafiscal             IN @r_docnum
       INTO TABLE @gt_nfs.
 
     SORT gt_data BY companycode accountingdocument fiscalyear accountingdocumentitem.
@@ -516,12 +523,12 @@ CLASS lcl_process IMPLEMENTATION.
 
     CHECK sy-subrc = 0.
 
-    IF ls_nfs-br_lc116servicecode IS INITIAL.
-      CONTINUE.
-    ENDIF.
+***    IF ls_nfs-br_lc116servicecode IS INITIAL.
+***      CONTINUE.
+***    ENDIF.
 
     DATA(lv_root_id) =
-      |{ ls_nfs-br_nfissuedate(6) }{ ls_nfs-br_nfpartner }{ ls_nfs-br_nfnumber }|.
+      |{ ls_data-clearingdate(6) }{ ls_nfs-br_nfpartner }{ ls_nfs-br_nfnumber }|.
 
     READ TABLE gt_objects ASSIGNING FIELD-SYMBOL(<root>)
       WITH KEY knwReinfR2010-id_referencia = lv_root_id.
@@ -532,7 +539,7 @@ CLASS lcl_process IMPLEMENTATION.
       <root>-knwReinfR2010-cd_filial           = gs_branch_sov-sov_branch.
       <root>-knwReinfR2010-id_referencia       = lv_root_id.
       <root>-knwReinfR2010-dm_retificacao      = '1'.
-      <root>-knwReinfR2010-dt_apuracao         = ls_nfs-br_nfissuedate.
+      <root>-knwReinfR2010-dt_apuracao         = format_date_yyyymmdd( ls_data-clearingdate ).
       <root>-knwReinfR2010-dm_inscricao_obra   = '1'.
       <root>-knwReinfR2010-nr_inscricao_obra   = ls_nfs-br_businessplacecnpj.
       <root>-knwReinfR2010-dm_obra             = '0'.
@@ -611,7 +618,7 @@ CLASS lcl_process IMPLEMENTATION.
         <serv>-id_referencia     = lv_root_id.
         <serv>-nr_item_nota      = lv_nr_item_nota.
         <serv>-nr_item_servico   = 1.
-        <serv>-cd_tipo_servico   = ls_nfs-br_lc116servicecode.
+        <serv>-cd_tipo_servico   = ls_nfs-BR_EFDREINFServiceCode.
         <serv>-vl_base_retencao  = '0'.
         <serv>-vl_retencao       += '0'.
     ENDIF.

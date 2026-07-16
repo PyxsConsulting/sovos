@@ -229,15 +229,27 @@ CLASS lcl_process IMPLEMENTATION.
     METHOD  read_db.
 
     DATA lr_postingdates TYPE RANGE OF i_journalentry-postingdate.
+    DATA lr_accountingdocument TYPE RANGE OF i_journalentry-accountingdocument.
+    DATA lr_ledger TYPE RANGE OF i_journalentry-ledger.
 
     lr_postingdates = VALUE #(
-      (
-        sign   = 'I'
+      ( sign   = 'I'
         option = 'BT'
         low    = lcl_process=>sel-postingstartdate
-        high   = lcl_process=>sel-postingenddate
-      )
-    ).
+        high   = lcl_process=>sel-postingenddate ) ).
+    IF sel-accountingdocument IS NOT INITIAL.
+      lr_accountingdocument = VALUE #(
+        ( sign   = 'I'
+          option = 'EQ'
+          low    = sel-accountingdocument ) ).
+    ENDIF.
+    IF sel-ledger IS NOT INITIAL.
+      lr_ledger = VALUE #(
+        ( sign   = 'I'
+          option = 'EQ'
+          low    = sel-ledger ) ).
+    ENDIF.
+
 
     SELECT hdr~*, itm~*, cpn~*,
     i_glaccount~\_text[ language = 'P' ]-glaccountname
@@ -253,13 +265,13 @@ CLASS lcl_process IMPLEMENTATION.
       AND i_glaccount~companycode = @sel-companycode
       WHERE hdr~companycode = @sel-companycode
         AND hdr~postingdate IN @lr_postingdates
-        AND hdr~accountingdocument = @sel-accountingdocument
+        AND hdr~accountingdocument IN @lr_accountingdocument
         AND hdr~fiscalyear = @sel-fiscalyear
         "AND hdr~accountingdocumenttype = @sel-
         AND hdr~accountingdocumentcategory NOT IN ('D','S','V','W','Z','M')
         "AND itm~glaccount = @sel-
-        AND itm~sourceledger = @sel-ledger
-        AND hdr~Branch = @sel-branch
+        AND itm~sourceledger IN @lr_ledger
+*        AND hdr~Branch = @sel-branch
 *        AND hdr~AccountingDocumentCategory IN @open
         INTO TABLE @t_data.
 
