@@ -7,9 +7,9 @@
     "SRVDNAME":"/PYXS/SOVOS",
     "VERSION":"A",
     "CHANGED_BY":"SAP_CUSTOMER",
-    "CHANGED_ON":"2026-07-04",
-    "CHANGED_AT":"21:04:16",
-    "DT_UUID":"FA163E7B7AB51FD19DFD7D4D0D65B6D9",
+    "CHANGED_ON":"2026-07-22",
+    "CHANGED_AT":"10:29:37",
+    "DT_UUID":"FA163E7B7AB51FD1A1B707A62631F710",
     "SOURCE_ORIGIN":"0",
     "SRVD_SOURCE_TYPE":"S",
     "ABAP_LANGUAGE_VERSION":"5"
@@ -35,7 +35,7 @@
    {
     "SRVDNAME":"/PYXS/SOVOS",
     "VERSION":"A",
-    "SOURCE":"@EndUserText.label: 'Definição de serviço para SOVOS'\r\ndefine service /PYXS/SOVOS {\r\n  expose /PYXS/SOVOS_FiscalDocuments;\r\n  expose /PYXS/SovosBranchData;\r\n  expose /PYXS/SOVOS_NaturezaRendimento;\r\n  expose /PYXS/ReinfLog;\r\n  expose /PYXS/SOVOS_InventoryLog;\r\n  expose /PYXS/SOV_ITENS_PRODUZ_LOG;\r\n  expose /PYXS/SOV_TAXTYPE_IRF;\r\n  expose /PYXS/SOVOS_YEAR_INVENTORY;\r\n  expose /PYXS/SOV_REINF_INSS;\r\n  expose /PYXS/SOV_LANC_CONTABIL;\r\n  expose /PYXS/SOV_PLANO_CONTAS;\r\n}"
+    "SOURCE":"@EndUserText.label: 'Definição de serviço para SOVOS'\r\ndefine service /PYXS/SOVOS {\r\n  expose /PYXS/SOVOS_FiscalDocuments;\r\n  expose /PYXS/SovosBranchData;\r\n  expose /PYXS/SOVOS_NaturezaRendimento;\r\n  expose /PYXS/ReinfLog;\r\n  expose /PYXS/SOVOS_InventoryLog;\r\n  expose /PYXS/SOV_ITENS_PRODUZ_LOG;\r\n  expose /PYXS/SOV_TAXTYPE_IRF;\r\n  expose /PYXS/SOVOS_YEAR_INVENTORY;\r\n  expose /PYXS/SOV_REINF_INSS;\r\n  expose /PYXS/SOV_LANC_CONTABIL;\r\n  expose /PYXS/SOV_PLANO_CONTAS;\r\n  expose /PYXS/SOVOS_CODIGOREINF;\r\n}"
    }
   ]
  },
@@ -79,6 +79,15 @@
     "SRVDNAME":"/PYXS/SOVOS",
     "SERVICE":"/PYXS/SOVOS",
     "EXPOSED_ARTIFACT":"/PYXS/SOVOSBRANCHDATA",
+    "EXPOSED_ARTIFACT_TYPE":"E",
+    "EXPOSED_ALIAS":"",
+    "EXPOSED_ALIAS_RAW":"",
+    "INCL_SERVICE":""
+   },
+   {
+    "SRVDNAME":"/PYXS/SOVOS",
+    "SERVICE":"/PYXS/SOVOS",
+    "EXPOSED_ARTIFACT":"/PYXS/SOVOS_CODIGOREINF",
     "EXPOSED_ARTIFACT_TYPE":"E",
     "EXPOSED_ALIAS":"",
     "EXPOSED_ALIAS_RAW":"",
@@ -176,8 +185,8 @@
     "SERVICE":"/PYXS/SOVOS",
     "SERVICE_RAW":"/PYXS/SOVOS",
     "SOURCE_TYPE":"S",
-    "DT_UUID":"FA163E7B7AB51FD19DFD7D4D0D65B6D9",
-    "RT_HASH":"7F8B43D8D9908395A1DBB9B5F157B6592744B1C2",
+    "DT_UUID":"FA163E7B7AB51FD1A1B707A62631F710",
+    "RT_HASH":"DEE11334026CE4CC02BAC1C60F9707AA7EE0067F",
     "GEN_VERSION":"0"
    }
   ]

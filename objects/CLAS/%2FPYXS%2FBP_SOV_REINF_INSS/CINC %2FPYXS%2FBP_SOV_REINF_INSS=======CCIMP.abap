@@ -109,6 +109,7 @@ CLASS lcl_process DEFINITION FRIENDS lhc_SOV_REINF_INSS.
         br_lc116servicecode          TYPE i_br_nfitem-br_lc116servicecode,
         br_nftotalamount             TYPE i_br_nfdocument-br_nftotalamount,
         BR_EFDREINFServiceCode       TYPE i_br_nfitem-BR_EFDREINFServiceCode,
+        material                     TYPE i_br_nfitem-Material,
       END OF ty_nf_data,
 
       ty_t_nf_data TYPE STANDARD TABLE OF ty_nf_data WITH NON-UNIQUE DEFAULT KEY,
@@ -193,6 +194,7 @@ CLASS lcl_process DEFINITION FRIENDS lhc_SOV_REINF_INSS.
       gt_objects    TYPE tt_r2010_objects,
       gt_nfs        TYPE ty_t_nf_data,
       mt_nature     TYPE TABLE OF /pyxs/sov_natren,
+      mt_cdreinf     TYPE TABLE OF /pyxs/sov_cdrein,
       mt_irf_types  TYPE TABLE OF /pyxs/sov_taxtype_irf,
       gt_root       TYPE ty_t_root_r2010.        " replaces ls_root / lt_root
 
@@ -435,6 +437,7 @@ CLASS lcl_process IMPLEMENTATION.
 
     SELECT * FROM /pyxs/sov_taxtype_irf INTO TABLE @mt_irf_types.
     SELECT * FROM /pyxs/sov_natren       INTO TABLE @mt_nature.
+    SELECT * FROM /pyxs/sov_cdrein    INTO TABLE @mt_cdreinf.
 
     LOOP AT mt_irf_types INTO DATA(ls_irf_type).
       CHECK ls_irf_type-imposto = 'INSS'.
@@ -483,7 +486,8 @@ CLASS lcl_process IMPLEMENTATION.
            nft~br_nfitemtaxamount, nft~br_nfitemwhldgcollectioncode, nft~taxgroup,
            nf~br_businessplacecnpj, nf~br_nfpartnercnpj, nf~br_nfpartnername1,
            nfi~br_lc116servicecode, nf~br_nftotalamount,
-           nfi~BR_EFDREINFServiceCode
+           nfi~BR_EFDREINFServiceCode,
+           nfi~material
       FROM i_br_nfitem AS nfi
       INNER JOIN i_br_nfdocument AS nf
         ON nf~br_notafiscal = nfi~br_notafiscal
@@ -609,6 +613,8 @@ CLASS lcl_process IMPLEMENTATION.
       WITH KEY id_referencia = lv_root_id.
 
     IF sy-subrc <> 0.
+
+
         APPEND INITIAL LINE TO
           <root>-knwReinfR2010ServicoList
           ASSIGNING <serv>.
@@ -621,6 +627,13 @@ CLASS lcl_process IMPLEMENTATION.
         <serv>-cd_tipo_servico   = ls_nfs-BR_EFDREINFServiceCode.
         <serv>-vl_base_retencao  = '0'.
         <serv>-vl_retencao       += '0'.
+
+        READ TABLE mt_cdreinf
+          INTO DATA(ls_cdreinf)
+          WITH KEY material = ls_nfs-material.
+        IF sy-subrc = '0'.
+          <serv>-cd_tipo_servico = ls_cdreinf-codreinf.
+        ENDIF.
     ENDIF.
 
     <serv>-vl_base_retencao =  abs( ls_data-whldgtaxbaseamtincocodecrcy ).

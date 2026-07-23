@@ -1,0 +1,1 @@
+CLASS /pyxs/bp_sovos_codigoreinf DEFINITION PUBLIC ABSTRACT FINAL FOR BEHAVIOR OF /pyxs/sovos_codigoreinf.
