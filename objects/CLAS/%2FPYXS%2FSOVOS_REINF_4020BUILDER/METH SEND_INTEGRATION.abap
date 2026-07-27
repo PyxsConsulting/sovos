@@ -169,7 +169,7 @@
 ***                              ELSE 'Erro no serviço' ).
 ***
 ***    ELSE.
-***
+***"
 ***      LOOP AT lo_ret->('MENSAGENS')->* ASSIGNING FIELD-SYMBOL(<lv_msg>).
 ***        APPEND INITIAL LINE TO /pyxs/bp_reinflog=>lt_log ASSIGNING <log>.
 ***        <log>-id = sy-tabix.
@@ -184,4 +184,5 @@
 ***      ENDLOOP.
 ***    ENDIF.
   ENDLOOP.
+
   ENDMETHOD.

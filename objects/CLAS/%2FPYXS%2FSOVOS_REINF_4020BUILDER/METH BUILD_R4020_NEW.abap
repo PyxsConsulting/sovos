@@ -9,7 +9,7 @@ LOOP AT gt_data INTO DATA(ls_data).
   CHECK sy-subrc = 0.
 
   IF ls_nfs-br_lc116servicecode IS INITIAL.
-    CLEAR gt_objects.
+    "CLEAR gt_objects.
     CONTINUE.
   ENDIF.
 

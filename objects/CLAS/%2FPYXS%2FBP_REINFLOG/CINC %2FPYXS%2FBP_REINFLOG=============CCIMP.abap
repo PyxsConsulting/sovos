@@ -79,7 +79,7 @@ CLASS lhc_reinflog IMPLEMENTATION.
 
     DATA(key) = keys[ 1 ].
 
-    " ── Validação de campos obrigatórios ──────────────────────────────
+    "" ── Validação de campos obrigatórios ──────────────────────────────
     IF key-%param-comapnycode IS INITIAL
     OR key-%param-businessplace IS INITIAL
     OR key-%param-anomes IS INITIAL.
@@ -145,7 +145,31 @@ CLASS lhc_reinflog IMPLEMENTATION.
       iv_partner        = |{ key-%param-partner ALPHA = IN }|
     ).
 
-    DATA(ls_reinf) = /pyxs/bp_reinflog=>lt_log[ 1 ].
+    DATA ls_reinf TYPE /pyxs/sov_reinf.
+
+    TRY.
+
+    ls_reinf = /pyxs/bp_reinflog=>lt_log[ 1 ].
+
+  CATCH cx_sy_itab_line_not_found.
+
+    APPEND INITIAL LINE TO failed-/pyxs/reinflog ASSIGNING <failed>.
+    <failed>-%cid = key-%cid.
+    <failed>-%action-sendintegration = if_abap_behv=>mk-on.
+
+    APPEND INITIAL LINE TO reported-/pyxs/reinflog ASSIGNING <reported>.
+    <reported>-%cid = key-%cid.
+    <reported>-%action-sendintegration = if_abap_behv=>mk-on.
+    <reported>-%msg = new_message(
+      id       = '/PYXS/SOVOS_REINF'
+      number   = '003'
+      severity = if_abap_behv_message=>severity-error ).
+
+    RETURN.
+
+ENDTRY.
+
+
     APPEND INITIAL LINE TO result ASSIGNING FIELD-SYMBOL(<res>).
     <res>-%param-anomes = ls_reinf-ano_mes.
     <res>-%param-evento = ls_reinf-evento.
