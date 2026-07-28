@@ -194,7 +194,7 @@ CLASS lcl_process DEFINITION FRIENDS lhc_SOV_REINF_INSS.
       gt_objects    TYPE tt_r2010_objects,
       gt_nfs        TYPE ty_t_nf_data,
       mt_nature     TYPE TABLE OF /pyxs/sov_natren,
-      mt_cdreinf     TYPE TABLE OF /pyxs/sov_cdrein,
+      mt_cdreinf     TYPE TABLE OF /pyxs/sov_cdrei2,
       mt_irf_types  TYPE TABLE OF /pyxs/sov_taxtype_irf,
       gt_root       TYPE ty_t_root_r2010.        " replaces ls_root / lt_root
 
@@ -437,7 +437,7 @@ CLASS lcl_process IMPLEMENTATION.
 
     SELECT * FROM /pyxs/sov_taxtype_irf INTO TABLE @mt_irf_types.
     SELECT * FROM /pyxs/sov_natren       INTO TABLE @mt_nature.
-    SELECT * FROM /pyxs/sov_cdrein    INTO TABLE @mt_cdreinf.
+    SELECT * FROM /pyxs/sov_cdrei2    INTO TABLE @mt_cdreinf.
 
     LOOP AT mt_irf_types INTO DATA(ls_irf_type).
       CHECK ls_irf_type-imposto = 'INSS'.
