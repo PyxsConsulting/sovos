@@ -4,7 +4,7 @@
   "data":
   [
    {
-    "TABNAME":"/PYXS/SOV_CDREIN",
+    "TABNAME":"/PYXS/SOV_CDREI2",
     "AS4LOCAL":"L",
     "AS4VERS":0,
     "TABCLASS":"TRANSP",
@@ -67,11 +67,11 @@
   "data":
   [
    {
-    "TABNAME":"/PYXS/SOV_CDREIN",
+    "TABNAME":"/PYXS/SOV_CDREI2",
     "DDLANGUAGE":"P",
     "AS4LOCAL":"N",
     "AS4VERS":0,
-    "DDTEXT":"Codigo Reinf por material"
+    "DDTEXT":"Tabela dos codigos do reinf INSS"
    }
   ]
  },
@@ -80,7 +80,7 @@
   "data":
   [
    {
-    "TABNAME":"/PYXS/SOV_CDREIN",
+    "TABNAME":"/PYXS/SOV_CDREI2",
     "FIELDNAME":"CLIENT",
     "AS4LOCAL":"N",
     "AS4VERS":0,
@@ -113,7 +113,7 @@
     "SRS_ID":0
    },
    {
-    "TABNAME":"/PYXS/SOV_CDREIN",
+    "TABNAME":"/PYXS/SOV_CDREI2",
     "FIELDNAME":"CODREINF",
     "AS4LOCAL":"N",
     "AS4VERS":0,
@@ -146,7 +146,7 @@
     "SRS_ID":0
    },
    {
-    "TABNAME":"/PYXS/SOV_CDREIN",
+    "TABNAME":"/PYXS/SOV_CDREI2",
     "FIELDNAME":"MATERIAL",
     "AS4LOCAL":"N",
     "AS4VERS":0,
@@ -157,14 +157,14 @@
     "CHECKTABLE":"",
     "ADMINFIELD":"0",
     "INTTYPE":"C",
-    "INTLEN":100,
+    "INTLEN":80,
     "REFTABLE":"",
     "PRECFIELD":"",
     "REFFIELD":"",
     "CONROUT":"",
     "NOTNULL":"X",
     "DATATYPE":"CHAR",
-    "LENG":50,
+    "LENG":40,
     "DECIMALS":0,
     "DOMNAME":"",
     "SHLPORIGIN":"",
@@ -185,21 +185,21 @@
   "data":
   [
    {
-    "TABNAME":"/PYXS/SOV_CDREIN",
+    "TABNAME":"/PYXS/SOV_CDREI2",
     "DDLANGUAGE":"P",
     "AS4LOCAL":"N",
     "FIELDNAME":"CLIENT",
     "DDTEXT":""
    },
    {
-    "TABNAME":"/PYXS/SOV_CDREIN",
+    "TABNAME":"/PYXS/SOV_CDREI2",
     "DDLANGUAGE":"P",
     "AS4LOCAL":"N",
     "FIELDNAME":"CODREINF",
     "DDTEXT":""
    },
    {
-    "TABNAME":"/PYXS/SOV_CDREIN",
+    "TABNAME":"/PYXS/SOV_CDREI2",
     "DDLANGUAGE":"P",
     "AS4LOCAL":"N",
     "FIELDNAME":"MATERIAL",
@@ -212,7 +212,7 @@
   "data":
   [
    {
-    "TABNAME":"/PYXS/SOV_CDREIN",
+    "TABNAME":"/PYXS/SOV_CDREI2",
     "AS4LOCAL":"N",
     "AS4VERS":0,
     "TABKAT":"0",
@@ -242,7 +242,7 @@
   "data":
   [
    {
-    "TYPENAME":"/PYXS/SOV_CDREIN",
+    "TYPENAME":"/PYXS/SOV_CDREI2",
     "STATE":"N",
     "TYPEKIND":"TABL"
    }
@@ -255,7 +255,7 @@
    {
     "PGMID":"R3TR",
     "OBJECT":"TABL",
-    "OBJ_NAME":"/PYXS/SOV_CDREIN",
+    "OBJ_NAME":"/PYXS/SOV_CDREI2",
     "KORRNUM":"",
     "SRCSYSTEM":"...",
     "AUTHOR":"SAP_CUSTOMER",
@@ -272,8 +272,8 @@
     "CRELEASE":"",
     "DELFLAG":"",
     "TRANSLTTXT":"",
-    "CREATED_ON":"2026-07-22",
-    "CHECK_DATE":"2026-07-22",
+    "CREATED_ON":"2026-07-28",
+    "CHECK_DATE":"2026-07-28",
     "CHECK_CFG":""
    }
   ]

@@ -2,7 +2,7 @@ managed implementation in class /pyxs/bp_sovos_codigoreinf unique;
 strict ( 2 );
 with draft;
 define behavior for /PYXS/SOVOS_CODIGOREINF //alias <alias_name>
-persistent table /pyxs/sov_cdrein
+persistent table /pyxs/sov_cdrei2
 draft table /pyxs/sov_cdre_d
 lock master total etag material
 authorization master ( instance )
@@ -21,7 +21,7 @@ authorization master ( instance )
   }
 
   field ( readonly : update ) material;
-  mapping for /pyxs/sov_cdrein
+  mapping for /pyxs/sov_cdrei2
     {
       material = material;
       codreinf = codreinf;

@@ -33,7 +33,7 @@
     "REFRESH_INTERVALL":0,
     "DISPLAY_NUMBER_UNIT":"",
     "FLAVOR_ID":"",
-    "CHANGED_AT":"+020260727141806",
+    "CHANGED_AT":"+020260728085008",
     "CHANGED_BY":"SAP_CUSTOMER",
     "MASTERLANG":"",
     "ACH_COMPONENT":"",
@@ -63,7 +63,7 @@
     "TILE_TYPE":"S",
     "CUSTOM_TILE_TYPE":"",
     "DEFAULT_TILE":"X",
-    "TILE_CONFIG_STRING":"{\"tileConfiguration\":\"{\\\"display_icon_url\\\":\\\"\\\",\\\"display_info_text\\\":\\\"\\\",\\\"display_title_text\\\":\\\"Códigos do Reinf INSS\\\",\\\"display_subtitle_text\\\":\\\"Cadastro por material\\\",\\\"navigation_use_semantic_object\\\":true,\\\"navigation_target_url\\\":\\\"#SovosCodreinf-maintain\\\",\\\"navigation_semantic_object\\\":\\\"SovosCodreinf\\\",\\\"navigation_semantic_action\\\":\\\"maintain\\\",\\\"navigation_semantic_parameters\\\":\\\"\\\",\\\"display_search_keywords\\\":\\\"\\\",\\\"display_number_unit\\\":\\\"\\\",\\\"service_url\\\":\\\"\\\",\\\"service_refresh_interval\\\":0}\"}",
+    "TILE_CONFIG_STRING":"{\"tileConfiguration\":\"{\\\"display_icon_url\\\":\\\"\\\",\\\"display_info_text\\\":\\\"\\\",\\\"display_title_text\\\":\\\"SOVOS - Códigos do Reinf INSS\\\",\\\"display_subtitle_text\\\":\\\"Cadastro por material\\\",\\\"navigation_use_semantic_object\\\":true,\\\"navigation_target_url\\\":\\\"#SovosCodreinf-maintain\\\",\\\"navigation_semantic_object\\\":\\\"SovosCodreinf\\\",\\\"navigation_semantic_action\\\":\\\"maintain\\\",\\\"navigation_semantic_parameters\\\":\\\"\\\",\\\"display_search_keywords\\\":\\\"\\\",\\\"display_number_unit\\\":\\\"\\\",\\\"service_url\\\":\\\"\\\",\\\"service_refresh_interval\\\":0}\"}",
     "TILE_ICON":"",
     "TILE_PARAMETERS":"",
     "SERVICE_BASE_URL":"",
@@ -83,7 +83,7 @@
     "LANGU":"E",
     "APP_ID":"/PYXS/SOV_CDREIN_UI5R",
     "TILE_ID":"UI5R_462E88DE1D8E07AE02B8FF74F1433C113C63E044_AL",
-    "TILE_TITLE":"Códigos do Reinf INSS",
+    "TILE_TITLE":"SOVOS - Códigos do Reinf INSS",
     "TILE_SUBTITLE":"Cadastro por material",
     "TILE_KEYWORDS":"",
     "TILE_INFORMATION":""
@@ -97,11 +97,11 @@
    {
     "APP_ID":"/PYXS/SOV_CDREIN_UI5R",
     "LANGU":"E",
-    "TILE_TITLE":"Códigos do Reinf INSS",
+    "TILE_TITLE":"SOVOS - Códigos do Reinf INSS",
     "TILE_SUBTITLE":"Cadastro por material",
     "TILE_KEYWORDS":"",
     "TILE_INFORMATION":"",
-    "ALT_SMART_LINK_TITLE":"Códigos do Reinf INSS",
+    "ALT_SMART_LINK_TITLE":"SOVOS - Códigos do Reinf INSS",
     "DESCRIPTION":"CRUD para tabela do s4"
    }
   ]
@@ -130,8 +130,8 @@
     "CRELEASE":"",
     "DELFLAG":"",
     "TRANSLTTXT":"",
-    "CREATED_ON":"2026-07-27",
-    "CHECK_DATE":"2026-07-27",
+    "CREATED_ON":"2026-07-28",
+    "CHECK_DATE":"2026-07-28",
     "CHECK_CFG":""
    }
   ]
