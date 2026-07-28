@@ -11,6 +11,12 @@ CLASS /pyxs/sov_json_conversion DEFINITION
         RETURNING
           VALUE(ret) TYPE string,
 
+      convert_contabil
+        IMPORTING
+          json       TYPE string
+        RETURNING
+          VALUE(ret) TYPE string,
+
       convert_reinf
         IMPORTING
           json       TYPE string
