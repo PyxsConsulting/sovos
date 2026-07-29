@@ -498,6 +498,9 @@ CLASS lcl_process IMPLEMENTATION.
       WHERE nfi~br_nfsourcedocumentnumber = @gt_data-originalreferencedocument
         AND nf~businessplace              = @sel-plant
         AND nf~br_notafiscal             IN @r_docnum
+        "não pegar estornos e notas canceladas
+        and nf~BR_NFIsCanceled NE 'X'
+        and nf~br_nftype NE 'A1'
       INTO TABLE @gt_nfs.
 
     SORT gt_data BY companycode accountingdocument fiscalyear accountingdocumentitem.
