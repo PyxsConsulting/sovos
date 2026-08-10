@@ -202,8 +202,10 @@ CLASS /pyxs/sovos_reinf_4020builder DEFINITION
            ty_r_tax_type TYPE RANGE OF i_br_nftax-taxgroup,
            tt_r4020_objects TYPE STANDARD TABLE OF ty_root_r4020 WITH DEFAULT KEY.
 
-    DATA: gt_data TYPE TABLE OF ty_tax_item,
-          gt_nfs  TYPE TABLE OF ty_nf_item.
+    DATA: gt_data    TYPE TABLE OF ty_tax_item,
+          gt_data_ir TYPE TABLE OF ty_tax_item,
+          gt_nfs     TYPE TABLE OF ty_nf_item,
+          gt_nfs_ir  TYPE TABLE OF ty_nf_item.
 
 *******************************************************************
     DATA    gt_r1000 TYPE TABLE OF ty_r1000.

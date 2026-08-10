@@ -5,6 +5,9 @@ CLASS lhc_sovos_fiscaldocuments DEFINITION INHERITING FROM cl_abap_behavior_hand
 
   PRIVATE SECTION.
 
+    TYPES: ty_failed_fiscaldocuments   TYPE TABLE FOR FAILED /pyxs/sovos_fiscaldocuments,
+       ty_reported_fiscaldocuments TYPE TABLE FOR REPORTED /pyxs/sovos_fiscaldocuments.
+
     METHODS get_instance_authorizations FOR INSTANCE AUTHORIZATION
       IMPORTING keys REQUEST requested_authorizations FOR /pyxs/sovos_fiscaldocuments RESULT result.
 
@@ -1255,6 +1258,7 @@ CLASS lcl_process DEFINITION FRIENDS lhc_sovos_fiscaldocuments.
                   p_str             TYPE clike
         RETURNING VALUE(normalized) TYPE string,
       send_integration,
+      "extract_json,"
       get_ibge_country
         IMPORTING
                   p_country   TYPE clike
@@ -1878,6 +1882,79 @@ CLASS lcl_process IMPLEMENTATION.
   ENDMETHOD.
 
 
+  "METHOD extract_json.
+
+  "LOOP AT t_out INTO DATA(ls_doc).
+    "DATA(lv_docnum) = ls_doc-docnum.
+    "CLEAR ls_doc-docnum.
+
+    "DATA(json_out) = /ui2/cl_json=>serialize(
+      "EXPORTING
+        "data             = ls_doc
+        "compress         = abap_true
+        "pretty_name      = /ui2/cl_json=>pretty_mode-none
+        "assoc_arrays     = abap_false
+        "assoc_arrays_opt = abap_false ).
+
+    "json_out = /pyxs/sov_json_conversion=>convert_sovos( json_out ).
+
+    "APPEND INITIAL LINE TO /pyxs/bp_sovos_fiscaldocuments=>lt_log ASSIGNING FIELD-SYMBOL(<log>).
+    "GET TIME STAMP FIELD DATA(time).
+    "<log>-timedate      = time.
+    "<log>-br_notafiscal = lv_docnum.
+    "<log>-response       = json_out.
+    "<log>-returncode     = '000'.
+    "<log>-returnreason   = 'JSON extraído - Nota Fiscal Própria'.
+  "ENDLOOP.
+
+  "LOOP AT t_out_e INTO ls_doc.
+    "lv_docnum = ls_doc-docnum.
+    "CLEAR ls_doc-docnum.
+
+    "json_out = /ui2/cl_json=>serialize(
+      "EXPORTING
+        "data             = ls_doc
+        "compress         = abap_true
+        "pretty_name      = /ui2/cl_json=>pretty_mode-none
+        "assoc_arrays     = abap_false
+        "assoc_arrays_opt = abap_false ).
+
+    "json_out = /pyxs/sov_json_conversion=>convert_sovos( json_out ).
+
+    "APPEND INITIAL LINE TO /pyxs/bp_sovos_fiscaldocuments=>lt_log ASSIGNING <log>.
+    "GET TIME STAMP FIELD time.
+    "<log>-timedate      = time.
+    "<log>-br_notafiscal = lv_docnum.
+    "<log>-response       = json_out.
+    "<log>-returncode     = '000'.
+    "<log>-returnreason   = 'JSON extraído - Nota Fiscal Terceiros'.
+  "ENDLOOP.
+
+  "LOOP AT t_out_srv INTO DATA(ls_doc_srv).
+    "lv_docnum = ls_doc_srv-docnum.
+    "CLEAR ls_doc_srv-docnum.
+
+    "json_out = /ui2/cl_json=>serialize(
+      "EXPORTING
+        "data             = ls_doc_srv
+        "compress         = abap_true
+        "pretty_name      = /ui2/cl_json=>pretty_mode-none
+        "assoc_arrays     = abap_false
+        "assoc_arrays_opt = abap_false ).
+
+    "json_out = /pyxs/sov_json_conversion=>convert_sovos( json_out ).
+
+    "APPEND INITIAL LINE TO /pyxs/bp_sovos_fiscaldocuments=>lt_log ASSIGNING <log>.
+    "GET TIME STAMP FIELD time.
+    "<log>-timedate      = time.
+    "<log>-br_notafiscal = lv_docnum.
+    "<log>-response       = json_out.
+    "<log>-returncode     = '000'.
+    "<log>-returnreason   = 'JSON extraído - Nota Serviço'.
+  "ENDLOOP.
+
+"ENDMETHOD.
+
   METHOD get_ibge_state.
     CONSTANTS:
       gc_ro_uf   TYPE c LENGTH 3 VALUE 'RO',
@@ -2324,11 +2401,11 @@ CLASS lcl_process IMPLEMENTATION.
 *      ls_objeto-knwc100-dt_entrada         = |{ p_nfdoc-doc-br_nfpostingdate(4) }-{ p_nfdoc-doc-br_nfpostingdate+4(2) }-{ p_nfdoc-doc-br_nfpostingdate+6 }T| &&
 *      |{ p_nfdoc-doc-creationtime(2) }:{ p_nfdoc-doc-creationtime+2(2) }:{ p_nfdoc-doc-creationtime+4(2) }+03:00|.
       IF p_nfdoc-doc-br_nfissuedate+6 = '01'.
-        ls_objeto-knwc100-dt_emissao_doc     = |{ p_nfdoc-doc-br_nfissuedate(4) }-{ p_nfdoc-doc-br_nfissuedate+4(2) }-{ p_nfdoc-doc-br_nfissuedate+6 }T12:00:00+03:00|.
+        ls_objeto-knwc100-dt_emissao_doc     = |{ p_nfdoc-doc-br_nfissuedate(4) }-{ p_nfdoc-doc-br_nfissuedate+4(2) }-{ p_nfdoc-doc-br_nfissuedate+6 }T00:00:00-03:00|.
       ELSE.
-        ls_objeto-knwc100-dt_emissao_doc     = |{ p_nfdoc-doc-br_nfissuedate(4) }-{ p_nfdoc-doc-br_nfissuedate+4(2) }-{ p_nfdoc-doc-br_nfissuedate+6 }T12:00:00+03:00|.
+        ls_objeto-knwc100-dt_emissao_doc     = |{ p_nfdoc-doc-br_nfissuedate(4) }-{ p_nfdoc-doc-br_nfissuedate+4(2) }-{ p_nfdoc-doc-br_nfissuedate+6 }T00:00:00-03:00|.
       ENDIF.
-      ls_objeto-knwc100-dt_entrada         = |{ p_nfdoc-doc-br_nfpostingdate(4) }-{ p_nfdoc-doc-br_nfpostingdate+4(2) }-{ p_nfdoc-doc-br_nfpostingdate+6 }T12:00:00+03:00|.
+      ls_objeto-knwc100-dt_entrada         = |{ p_nfdoc-doc-br_nfpostingdate(4) }-{ p_nfdoc-doc-br_nfpostingdate+4(2) }-{ p_nfdoc-doc-br_nfpostingdate+6 }T00:00:00-03:00|.
 
       ls_objeto-knwc100-cd_modelo_doc      = p_nfdoc-doc-br_nfmodel.
       ls_objeto-knwc100-nr_chave_eletr     = |{ p_nfdoc-act-region }{ p_nfdoc-act-br_nfeissueyear }{ p_nfdoc-act-br_nfeissuemonth }{ p_nfdoc-act-br_nfeaccesskeycnpjorcpf }| &&
@@ -2366,7 +2443,7 @@ CLASS lcl_process IMPLEMENTATION.
         ls_objeto-integracaoconhecimentotrans-knwd100-id_empresa = p_nfdoc-doc-companycode.
         ls_objeto-integracaoconhecimentotrans-knwd100-dm_emitente = ls_objeto-knwc100-dm_emitente.
         ls_objeto-integracaoconhecimentotrans-knwd100-nr_documento = p_nfdoc-doc-br_nfenumber.
-        ls_objeto-integracaoconhecimentotrans-knwd100-dt_entrada = |{ p_nfdoc-doc-br_nfpostingdate(4) }-{ p_nfdoc-doc-br_nfpostingdate+4(2) }-{ p_nfdoc-doc-br_nfpostingdate+6 }T12:00:00+03:00|.
+        ls_objeto-integracaoconhecimentotrans-knwd100-dt_entrada = |{ p_nfdoc-doc-br_nfpostingdate(4) }-{ p_nfdoc-doc-br_nfpostingdate+4(2) }-{ p_nfdoc-doc-br_nfpostingdate+6 }T00:00:00-03:00|.
         ls_objeto-integracaoconhecimentotrans-knwd100-dt_emissao = ls_objeto-knwc100-dt_emissao_doc.
         ls_objeto-integracaoconhecimentotrans-knwd100-nr_serie = p_nfdoc-doc-br_nfseries.
         ls_objeto-integracaoconhecimentotrans-knwd100-dt_aquisicao_prestacao = ls_objeto-knwc100-dt_emissao_doc.
@@ -2403,7 +2480,7 @@ CLASS lcl_process IMPLEMENTATION.
           ls_objeto-knw0150emitente-cd_municipio    = p_nfdoc-doc-br_nfpartnertaxjurisdiction+3. "ls_vendor-taxjurisdiction+3.
           ls_objeto-knw0150emitente-cd_pais         = get_ibge_country( p_nfdoc-doc-br_nfpartnercountrycode )."get_ibge_country( ls_vendor-country ).
           ls_objeto-knw0150emitente-cd_pessoa       = p_nfdoc-doc-br_nfpartner.
-          ls_objeto-knw0150emitente-dt_inicial      = '1900-01-01T12:00:00+03:00'.
+          ls_objeto-knw0150emitente-dt_inicial      = '1900-01-01T00:00:00-03:00'.
           ls_objeto-knw0150emitente-ds_endereco     = p_nfdoc-doc-br_nfpartnerstreetname. "ls_vendor-bpaddrstreetname.
           "ls_objeto-knw0150emitente-dm_contribuinte
 
@@ -2425,7 +2502,7 @@ CLASS lcl_process IMPLEMENTATION.
           ls_objeto-knw0150destinatario-nr_cnpj_cpf     = p_nfdoc-doc-br_businessplacecnpj. "( |{ ls_branch-cnpj_raiz }{ ls_branch-cnpj_filial }| ).
           ls_objeto-knw0150destinatario-cd_municipio    = ls_branch-taxjurisdiction+3.
           ls_objeto-knw0150destinatario-cd_pais         = get_ibge_country( ls_branch-countrycode ).
-          ls_objeto-knw0150destinatario-dt_inicial      = '1900-01-01T12:00:00+03:00'.
+          ls_objeto-knw0150destinatario-dt_inicial      = '1900-01-01T00:00:00-03:00'.
           ls_objeto-knw0150destinatario-cd_pessoa       = ls_branch-cod_estab.
           ls_objeto-knw0150destinatario-ds_endereco     = ls_branch-endereco.
 
@@ -2451,7 +2528,7 @@ CLASS lcl_process IMPLEMENTATION.
           ls_objeto-knw0150emitente-cd_municipio    = ls_branch-taxjurisdiction+3.
           ls_objeto-knw0150emitente-cd_pais         = get_ibge_country( ls_branch-countrycode ).
           ls_objeto-knw0150emitente-ds_endereco     = ls_branch-endereco.
-          ls_objeto-knw0150emitente-dt_inicial      = '1900-01-01T12:00:00+03:00'.
+          ls_objeto-knw0150emitente-dt_inicial      = '1900-01-01T00:00:00-03:00'.
           ls_objeto-knw0150emitente-cd_pessoa       = ls_branch-cod_estab.
           ls_objeto-knwc100-cod_mun_orig = ls_branch-taxjurisdiction+3.
 
@@ -2466,7 +2543,7 @@ CLASS lcl_process IMPLEMENTATION.
           ls_objeto-knw0150destinatario-nr_cnpj_cpf     = COND #( WHEN p_nfdoc-doc-br_nfpartnercnpj IS NOT INITIAL THEN p_nfdoc-doc-br_nfpartnercnpj ELSE p_nfdoc-doc-br_nfpartnercpf ).
           ls_objeto-knw0150destinatario-nr_inscr_est    = p_nfdoc-doc-br_nfpartnerstatetaxnumber."ls_customer-taxnumber3.
           ls_objeto-knw0150destinatario-ds_endereco     = p_nfdoc-doc-br_nfpartnerstreetname. "ls_customer-bpaddrstreetname.
-          ls_objeto-knw0150destinatario-dt_inicial      = '1900-01-01T12:00:00+03:00'.
+          ls_objeto-knw0150destinatario-dt_inicial      = '1900-01-01T00:00:00-03:00'.
 
           ls_objeto-knw0150destinatario-cd_municipio    = p_nfdoc-doc-br_nfpartnertaxjurisdiction+3. "ls_customer-taxjurisdiction+3.
           ls_objeto-knw0150destinatario-cd_pais         = get_ibge_country( p_nfdoc-doc-br_nfpartnercountrycode ). "get_ibge_country( ls_customer-country ).
@@ -2692,7 +2769,7 @@ CLASS lcl_process IMPLEMENTATION.
 *                <obslancamentofiscallist>-knw0460-cod_filial       = ls_objeto-knwc100-cod_filial.
 *                <obslancamentofiscallist>-knw0460-id               = <obslancamentofiscallist>-knwc195-cd_0460.
 *                <obslancamentofiscallist>-knw0460-id_usuario_imp   = <obslancamentofiscallist>-knwc195-id_usuario_imp.
-*                <obslancamentofiscallist>-knw0460-dt_inicial       = '1900-01-01T12:00:00+03:00'.
+*                <obslancamentofiscallist>-knw0460-dt_inicial       = '1900-01-01T00:00:00-03:00'.
 *                "<obslancamentofiscallist>-knw0460-dt_importacao    = ''.
 *                <obslancamentofiscallist>-knw0460-cd_obs           = <obslancamentofiscallist>-knwc195-cd_0460.
 *                <obslancamentofiscallist>-knw0460-ds_obs           = <obslancamentofiscallist>-knwc195-ds_complementar.
@@ -2795,7 +2872,7 @@ CLASS lcl_process IMPLEMENTATION.
           <item>-knw0190-cod_filial         = ls_objeto-knwc100-cod_filial.
           <item>-knw0190-ds_unidade         = ls_nfitem-unitofmeasure_e. "ls_nfitem-baseunit.
           <item>-knw0190-ds_descricao       = ls_nfitem-unitofmeasurename."ls_nfitem-unitofmeasure_e.
-          <item>-knw0190-dt_inicial         = '1900-01-01T12:00:00+03:00'.
+          <item>-knw0190-dt_inicial         = '1900-01-01T00:00:00-03:00'.
 
           " Material/Produto
           <item>-knw0200-cod_empresa        = ls_objeto-knwc100-cod_empresa.
@@ -2803,7 +2880,7 @@ CLASS lcl_process IMPLEMENTATION.
           <item>-knw0200-cd_produto_serv    = ls_nfitem-nf-material.
           <item>-knw0200-ds_produto_serv    = ls_nfitem-nf-materialname.
           <item>-knw0200-unidade            = ls_nfitem-unitofmeasure_e. "ls_nfitem-baseunit.
-          <item>-knw0200-dt_inicial         = '1900-01-01T12:00:00+03:00'.
+          <item>-knw0200-dt_inicial         = '1900-01-01T00:00:00-03:00'.
           "<item>-knw0200-dm_tipo_item       = '09'.
           <item>-knw0200-cd_ncm             = normalize( p_str = ls_nfitem-nf-ncmcode ).
           <item>-knw0200-dm_origem_produto  = ls_nfitem-nf-br_materialorigin.
@@ -2839,11 +2916,11 @@ CLASS lcl_process IMPLEMENTATION.
           <item>-knw0400-cod_grupoempresa   = ls_nfitem-nf-br_efdreinfservicecode.
 *          <item>-knw0400-dt_movimento   = |{ p_nfdoc-doc-br_nfpostingdate(4) }-{ p_nfdoc-doc-br_nfpostingdate+4(2) }-{ p_nfdoc-doc-br_nfpostingdate+6 }T| &&
 *                                             |{ p_nfdoc-doc-creationtime(2) }:{ p_nfdoc-doc-creationtime+2(2) }:{ p_nfdoc-doc-creationtime+4(2) }+03:00|.
-          <item>-knw0400-dt_movimento   = |{ p_nfdoc-doc-br_nfpostingdate(4) }-{ p_nfdoc-doc-br_nfpostingdate+4(2) }-{ p_nfdoc-doc-br_nfpostingdate+6 }T12:00:00+03:00|.
+          <item>-knw0400-dt_movimento   = |{ p_nfdoc-doc-br_nfpostingdate(4) }-{ p_nfdoc-doc-br_nfpostingdate+4(2) }-{ p_nfdoc-doc-br_nfpostingdate+6 }T00:00:00-03:00|.
 
           <item>-knw0400-cd_fiscal      = ls_nfitem-nf-br_cfopcode. "ls_nfitem-nf-ncmcode.
           <item>-knw0400-ds_cd_fiscal   = p_nfdoc-doc-br_nfoperationtypedesc.
-          <item>-knw0400-dt_inicial   = '1900-01-01T12:00:00+03:00'.
+          <item>-knw0400-dt_inicial   = '1900-01-01T00:00:00-03:00'.
 
           "conta contabil
           <item>-knw0500-cod_empresa  = ls_objeto-knwc100-cod_empresa.
@@ -2862,7 +2939,7 @@ CLASS lcl_process IMPLEMENTATION.
             <item>-knw0500-ds_plano_conta = 'Sem Conta'.
           ENDIF.
           "<item>-knw0500-cd_plano_conta = ls_nfitem-nf-glaccount.
-          <item>-knw0500-dt_inicial = '1900-01-01T12:00:00+03:00'.
+          <item>-knw0500-dt_inicial = '1900-01-01T00:00:00-03:00'.
 *          IF <item>-knw0500-cd_plano_conta IS INITIAL.
 *            <item>-knw0500-cd_plano_conta = gs_comapany_code-chartofaccounts.
 *          ENDIF.
@@ -2875,8 +2952,7 @@ CLASS lcl_process IMPLEMENTATION.
           "ls_objeto-knwc100-vl_frete += ls_nfitem-nf-br_nffreightamountwithtaxes.
           "ls_objeto-knwc100-vl_seguro += ls_nfitem-nf-br_nfinsuranceamountwithtaxes.
           "ls_objeto-knwc100-vl_outras_desp += ls_nfitem-nf-br_nfexpensesamountwithtaxes.
-          ls_objeto-knwc100-vl_ipi += <item>-knwc170-vl_ipi.
-          ls_objeto-knwc100-vl_icms_substit += <item>-knwc170-vl_icms_substit.
+
 
             "C110 C113 gravando codigos de referencia para preenchimento posterior
             IF ls_nfitem-nf-br_referencenfnumber IS NOT INITIAL.
@@ -2919,9 +2995,9 @@ CLASS lcl_process IMPLEMENTATION.
 ***          <inf_comp>-knwc110-serie_subserie     = ls_nf_ref_doc-doc-br_nfseries.
 ***          <inf_comp>-knwc110-nr_documento       = ls_nf_ref_doc-doc-br_nfenumber.
 ***          IF ls_nf_ref_doc-doc-br_nfissuedate+6 = '01'.
-***            <inf_comp>-knwc110-dt_emissao_doc = |{ ls_nf_ref_doc-doc-br_nfissuedate(4) }-{ ls_nf_ref_doc-doc-br_nfissuedate+4(2) }-{ ls_nf_ref_doc-doc-br_nfissuedate+6 }T12:00:00+03:00|.
+***            <inf_comp>-knwc110-dt_emissao_doc = |{ ls_nf_ref_doc-doc-br_nfissuedate(4) }-{ ls_nf_ref_doc-doc-br_nfissuedate+4(2) }-{ ls_nf_ref_doc-doc-br_nfissuedate+6 }T00:00:00-03:00|.
 ***          ELSE.
-***            <inf_comp>-knwc110-dt_emissao_doc = |{ ls_nf_ref_doc-doc-br_nfissuedate(4) }-{ ls_nf_ref_doc-doc-br_nfissuedate+4(2) }-{ ls_nf_ref_doc-doc-br_nfissuedate+6 }T12:00:00+03:00|.
+***            <inf_comp>-knwc110-dt_emissao_doc = |{ ls_nf_ref_doc-doc-br_nfissuedate(4) }-{ ls_nf_ref_doc-doc-br_nfissuedate+4(2) }-{ ls_nf_ref_doc-doc-br_nfissuedate+6 }T00:00:00-03:00|.
 ***          ENDIF.
 ***          <inf_comp>-knwc110-cod_empresa        = ls_nf_ref_doc-doc-companycode.
 ***          <inf_comp>-knwc110-cod_filial         = ls_nf_ref_doc-doc-businessplace.
@@ -2969,7 +3045,7 @@ CLASS lcl_process IMPLEMENTATION.
             <c113>-knw0150-nr_cnpj_cpf         = ls_nf_ref_doc-doc-br_businessplacecnpj.
             <c113>-knw0150-cd_municipio        = ls_branch-taxjurisdiction+3.
             <c113>-knw0150-cd_pais             = get_ibge_country( ls_branch-countrycode ).
-            <c113>-knw0150-dt_inicial          = '1900-01-01T12:00:00+03:00'.
+            <c113>-knw0150-dt_inicial          = '1900-01-01T00:00:00-03:00'.
             <c113>-knw0150-cd_pessoa           = ls_branch-cod_estab.
             <c113>-knw0150-ds_endereco         = ls_branch-endereco.
 
@@ -2992,9 +3068,9 @@ CLASS lcl_process IMPLEMENTATION.
                                                              OR ls_nf_ref_doc-doc-br_nfdirection = '4'
                                                                 THEN '0' ELSE '1' ).
             IF ls_nf_ref_doc-doc-br_nfissuedate+6 = '01'.
-              <c113>-knwc113-dt_doc_refer = |{ ls_nf_ref_doc-doc-br_nfissuedate(4) }-{ ls_nf_ref_doc-doc-br_nfissuedate+4(2) }-{ ls_nf_ref_doc-doc-br_nfissuedate+6 }T12:00:00+03:00|.
+              <c113>-knwc113-dt_doc_refer = |{ ls_nf_ref_doc-doc-br_nfissuedate(4) }-{ ls_nf_ref_doc-doc-br_nfissuedate+4(2) }-{ ls_nf_ref_doc-doc-br_nfissuedate+6 }T00:00:00-03:00|.
             ELSE.
-              <c113>-knwc113-dt_doc_refer = |{ ls_nf_ref_doc-doc-br_nfissuedate(4) }-{ ls_nf_ref_doc-doc-br_nfissuedate+4(2) }-{ ls_nf_ref_doc-doc-br_nfissuedate+6 }T12:00:00+03:00|.
+              <c113>-knwc113-dt_doc_refer = |{ ls_nf_ref_doc-doc-br_nfissuedate(4) }-{ ls_nf_ref_doc-doc-br_nfissuedate+4(2) }-{ ls_nf_ref_doc-doc-br_nfissuedate+6 }T00:00:00-03:00|.
             ENDIF.
             <c113>-knwc113-nr_chave_refer = |{ ls_nf_ref_doc-act-region }{ ls_nf_ref_doc-act-br_nfeissueyear }{ ls_nf_ref_doc-act-br_nfeissuemonth }{ ls_nf_ref_doc-act-br_nfeaccesskeycnpjorcpf }| &&
                                             |{ ls_nf_ref_doc-act-br_nfemodel }{ ls_nf_ref_doc-act-br_nfeseries }{ ls_nf_ref_doc-act-br_nfenumber }{ ls_nf_ref_doc-act-br_nferandomnumber }{ ls_nf_ref_doc-act-br_nfecheckdigit }|.
@@ -3019,7 +3095,7 @@ CLASS lcl_process IMPLEMENTATION.
             <c113>-knw0150-nr_cnpj_cpf         = COND #( WHEN ls_nf_ref_doc-doc-br_nfpartnercnpj IS NOT INITIAL THEN ls_nf_ref_doc-doc-br_nfpartnercnpj ELSE ls_nf_ref_doc-doc-br_nfpartnercpf ).
             <c113>-knw0150-cd_municipio        = ls_nf_ref_doc-doc-br_nfpartnertaxjurisdiction+3.
             <c113>-knw0150-cd_pais             = get_ibge_country( ls_nf_ref_doc-doc-br_nfpartnercountrycode ).
-            <c113>-knw0150-dt_inicial          = '1900-01-01T12:00:00+03:00'.
+            <c113>-knw0150-dt_inicial          = '1900-01-01T00:00:00-03:00'.
             <c113>-knw0150-cd_pessoa           = ls_nf_ref_doc-doc-br_nfpartner.
             <c113>-knw0150-ds_endereco         = ls_nf_ref_doc-doc-br_nfpartnerstreetname.
             <c113>-knw0150-nr_inscr_est        = ls_nf_ref_doc-doc-br_nfpartnerstatetaxnumber.
@@ -3630,8 +3706,8 @@ CLASS lcl_process IMPLEMENTATION.
       "ls_objeto-docnum = p_nfdoc-doc-br_notafiscal.
 
       CLEAR ls_objeto-knw0150.
-      ls_objeto-knw0150-dt_inicial      = '0001-01-01T12:00:00-02:00'.
-      ls_objeto-knw0150-dt_importacao   = '0001-01-01T12:00:00-02:00'.
+      ls_objeto-knw0150-dt_inicial      = '0001-01-01T00:00:00-03:00'.
+      ls_objeto-knw0150-dt_importacao   = '0001-01-01T00:00:00-03:00'.
       ls_objeto-knw0150-cod_empresa     = p_nfdoc-doc-companycode.
       ls_objeto-knw0150-cod_filial      = p_nfdoc-doc-businessplace.
       ls_objeto-knw0150-cd_pessoa       = p_nfdoc-doc-br_nfpartner.
@@ -3680,13 +3756,13 @@ CLASS lcl_process IMPLEMENTATION.
 
       " Datas
       ls_objeto-knwa100-dt_emissao =
-        |{ p_nfdoc-doc-br_nfissuedate(4) }-{ p_nfdoc-doc-br_nfissuedate+4(2) }-{ p_nfdoc-doc-br_nfissuedate+6 }T12:00:00-03:00|.
+        |{ p_nfdoc-doc-br_nfissuedate(4) }-{ p_nfdoc-doc-br_nfissuedate+4(2) }-{ p_nfdoc-doc-br_nfissuedate+6 }T00:00:00-03:00|.
 
       ls_objeto-knwa100-dt_execucao =
-        |{ p_nfdoc-doc-br_nfpostingdate(4) }-{ p_nfdoc-doc-br_nfpostingdate+4(2) }-{ p_nfdoc-doc-br_nfpostingdate+6 }T12:00:00-03:00|.
+        |{ p_nfdoc-doc-br_nfpostingdate(4) }-{ p_nfdoc-doc-br_nfpostingdate+4(2) }-{ p_nfdoc-doc-br_nfpostingdate+6 }T00:00:00-03:00|.
 
       ls_objeto-knwa100-dt_escrituracao =
-        |{ p_nfdoc-doc-br_nfpostingdate(4) }-{ p_nfdoc-doc-br_nfpostingdate+4(2) }-{ p_nfdoc-doc-br_nfpostingdate+6 }T12:00:00-03:00|.
+        |{ p_nfdoc-doc-br_nfpostingdate(4) }-{ p_nfdoc-doc-br_nfpostingdate+4(2) }-{ p_nfdoc-doc-br_nfpostingdate+6 }T00:00:00-03:00|.
 
 
       " Indicadores
@@ -3788,7 +3864,7 @@ CLASS lcl_process IMPLEMENTATION.
         ls_objeto-knw0500-cd_plan_cta_tot = ls_nfitem-chartofaccounts.
         ls_objeto-knw0500-ds_plano_conta = ls_nfitem-glaccountname.
         ls_objeto-knw0500-cd_plano_conta = ls_nfitem-nf-glaccount.
-        ls_objeto-knw0500-dt_inicial = '1900-01-01T12:00:00+03:00'.
+        ls_objeto-knw0500-dt_inicial = '1900-01-01T00:00:00-03:00'.
 
         APPEND INITIAL LINE TO ls_objeto-integracaonotafiscalservico ASSIGNING FIELD-SYMBOL(<item>).
 
@@ -3901,7 +3977,7 @@ CLASS lcl_process IMPLEMENTATION.
           <item>-knw0190-cod_filial         = ls_objeto-knwa100-cod_filial.
           <item>-knw0190-ds_unidade         = ls_nfitem-baseunit.
           <item>-knw0190-ds_descricao         = ls_nfitem-unitofmeasure_e.
-          <item>-knw0190-dt_inicial         = '1900-01-01T12:00:00+03:00'.
+          <item>-knw0190-dt_inicial         = '1900-01-01T00:00:00-03:00'.
 
           " Material/Produto
           <item>-knw0200-cod_empresa        = ls_objeto-knwa100-cod_empresa.
@@ -3909,7 +3985,7 @@ CLASS lcl_process IMPLEMENTATION.
           <item>-knw0200-cd_produto_serv  = ls_nfitem-nf-material.
           <item>-knw0200-ds_produto_serv = ls_nfitem-nf-materialname.
           <item>-knw0200-unidade = ls_nfitem-baseunit.
-          <item>-knw0200-dt_inicial         = '1900-01-01T12:00:00+03:00'.
+          <item>-knw0200-dt_inicial         = '1900-01-01T00:00:00-03:00'.
           <item>-knw0200-dm_tipo_item = '09'.
 
         ENDLOOP.

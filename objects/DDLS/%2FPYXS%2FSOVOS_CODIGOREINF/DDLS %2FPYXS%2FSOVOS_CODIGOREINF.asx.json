@@ -12,7 +12,7 @@
     "SOURCE":"@AccessControl.authorizationCheck: #NOT_REQUIRED\r\n@EndUserText.label: 'Codigo do Reinf por material'\r\n@Metadata.ignorePropagatedAnnotations: true\r\ndefine root view entity /PYXS/SOVOS_CODIGOREINF as select from /pyxs/sov_cdrei2\r\n{\r\n    \r\n    @UI.lineItem: [{ position: 10 }]\r\n    @UI.selectionField : [{position: 10}]\r\n    @EndUserText.label: 'Material'\r\n    key material as material,  \r\n    @UI.lineItem: [{ position: 20 }]\r\n    @UI.selectionField : [{position: 20}]\r\n    @EndUserText.label: 'Cod. Reinf'\r\n    codreinf as codreinf\r\n}\r\n/*+[internal] {\n\"BASEINFO\":\n{\n\"FROM\":\n[\n\"/PYXS/SOV_CDREI2\"\n],\n\"ASSOCIATED\":\n[],\n\"BASE\":\n[],\n\"ANNO_REF\":\n[],\n\"SCALAR_FUNCTION\":\n[],\n\"VERSION\":0,\n\"ANNOREF_EVALUATION_ERROR\":\"\"\n}\n}*/",
     "PARENTNAME":"",
     "ACTFLAG":"",
-    "CHGFLAG":"",
+    "CHGFLAG":"J,W4T2",
     "SOURCE_TYPE":"W",
     "SOURCE_ORIGIN":"0",
     "ABAP_LANGUAGE_VERSION":"5"

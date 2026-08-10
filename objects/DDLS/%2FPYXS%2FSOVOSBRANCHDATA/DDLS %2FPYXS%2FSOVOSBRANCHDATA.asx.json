@@ -12,7 +12,7 @@
     "SOURCE":"@AccessControl.authorizationCheck: #NOT_REQUIRED\r\n@EndUserText.label: 'Conversão de Filial Sovos'\r\n@Metadata.ignorePropagatedAnnotations: true\r\ndefine root view entity /PYXS/SovosBranchData as select from /pyxs/sov_branch\r\n{\r\n    @UI.lineItem: [{ position: 10 }]\r\n    @UI.selectionField : [{position: 10}]\r\n    key company_code as CompanyCode,\r\n    @UI.lineItem: [{ position: 20 }]\r\n    key branch as Branch,\r\n    @UI.lineItem: [{ position: 30 }]\r\n    @EndUserText.label: 'SOVOS - Empresa'\r\n    sov_company as SovosCompany,\r\n    @UI.lineItem: [{ position: 40 }]\r\n    @EndUserText.label: 'SOVOS - Filial'\r\n    sov_branch as SovosBranch\r\n}\r\n/*+[internal] {\n\"BASEINFO\":\n{\n\"FROM\":\n[\n\"/PYXS/SOV_BRANCH\"\n],\n\"ASSOCIATED\":\n[],\n\"BASE\":\n[],\n\"ANNO_REF\":\n[],\n\"SCALAR_FUNCTION\":\n[],\n\"VERSION\":0,\n\"ANNOREF_EVALUATION_ERROR\":\"\"\n}\n}*/",
     "PARENTNAME":"",
     "ACTFLAG":"",
-    "CHGFLAG":"",
+    "CHGFLAG":"J,WT42",
     "SOURCE_TYPE":"W",
     "SOURCE_ORIGIN":"0",
     "ABAP_LANGUAGE_VERSION":"5"

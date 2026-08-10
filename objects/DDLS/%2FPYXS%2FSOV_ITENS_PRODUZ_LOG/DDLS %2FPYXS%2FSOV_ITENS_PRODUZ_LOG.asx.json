@@ -12,7 +12,7 @@
     "SOURCE":"@AccessControl.authorizationCheck: #NOT_REQUIRED\r\n@EndUserText.label: 'View - Log de Itens Produzidos'\r\n@Metadata.ignorePropagatedAnnotations: true\r\ndefine root view entity /PYXS/SOV_ITENS_PRODUZ_LOG as select from /pyxs/sov_prdlog\r\n{\r\n\r\n    @EndUserText.label: 'Data/Hora'\r\n    key timedate as Timedate,\r\n\r\n    @UI.lineItem: [{\r\n        type: #FOR_ACTION,\r\n        dataAction: 'SendIntegration',\r\n        label: 'Enviar Integração'\r\n    }]\r\n    @EndUserText.label: 'Ano/Mes (AAAAMM)'\r\n    @UI.selectionField: [{ position: 30 }]\r\n    key anomes as Anomes,\r\n\r\n    @EndUserText.label: 'Centro'\r\n    @UI.selectionField: [{ position: 40 }]\r\n    key plant as Plant,\r\n\r\n    @EndUserText.label: 'Id'\r\n    @UI.selectionField: [{ position: 50 }]\r\n    key id as Id,\r\n\r\n    @EndUserText.label: 'Código Retorno'\r\n    @UI.selectionField: [{ position: 60 }]\r\n    returncode as Returncode,\r\n\r\n    @EndUserText.label: 'Motivo'\r\n    @UI.selectionField: [{ position: 70 }]\r\n    returnreason as Returnreason,\r\n\r\n    @EndUserText.label: 'Resposta'\r\n    @UI.selectionField: [{ position: 80 }]\r\n    response as Response\r\n\r\n}\r\n/*+[internal] {\n\"BASEINFO\":\n{\n\"FROM\":\n[\n\"/PYXS/SOV_PRDLOG\"\n],\n\"ASSOCIATED\":\n[],\n\"BASE\":\n[],\n\"ANNO_REF\":\n[],\n\"SCALAR_FUNCTION\":\n[],\n\"VERSION\":0,\n\"ANNOREF_EVALUATION_ERROR\":\"\"\n}\n}*/",
     "PARENTNAME":"",
     "ACTFLAG":"",
-    "CHGFLAG":"",
+    "CHGFLAG":"J,WT42",
     "SOURCE_TYPE":"W",
     "SOURCE_ORIGIN":"0",
     "ABAP_LANGUAGE_VERSION":"5"

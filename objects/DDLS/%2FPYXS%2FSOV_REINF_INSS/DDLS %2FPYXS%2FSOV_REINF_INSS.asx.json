@@ -12,7 +12,7 @@
     "SOURCE":"@AccessControl.authorizationCheck: #NOT_REQUIRED\r\n@EndUserText.label: 'Entity Sovos - Reinf Inss'\r\n@Metadata.ignorePropagatedAnnotations: true\r\ndefine root view entity /PYXS/SOV_REINF_INSS as select from /pyxs/sov_reinss\r\n{\r\n    @UI.lineItem: [{ type: #FOR_ACTION, dataAction: 'SendIntegration', label: 'Enviar Integração', position: 10 }]\r\n    @EndUserText.label: 'Data/Hora'\r\n    @UI.selectionField : [{position: 10}]\r\n    key time as Time,\r\n    @EndUserText.label: 'Ano Mes referência'\r\n    @UI.lineItem: [{ position: 20 }]\r\n    @UI.selectionField : [{position: 20}]\r\n    key ano_mes as AnoMes,\r\n    @EndUserText.label: 'Parceiro'\r\n    @UI.lineItem: [{ position: 30 }]\r\n    @UI.selectionField : [{position: 30}]\r\n    key partner as Partner,\r\n    @EndUserText.label: 'Evento Reinf'\r\n    @UI.lineItem: [{ position: 40 }]\r\n    key evento as Evento,\r\n    @EndUserText.label: 'Contagem'\r\n    @UI.lineItem: [{ position: 50 }]\r\n    key id as Id,\r\n    @EndUserText.label: 'Código de retorno'\r\n    @UI.lineItem: [{ position: 60 }]\r\n    resultado as Resultado,\r\n    @EndUserText.label: 'Mensagem de retorno'\r\n    @UI.lineItem: [{ position: 70 }]\r\n    retorno as Retorno\r\n}\r\n/*+[internal] {\n\"BASEINFO\":\n{\n\"FROM\":\n[\n\"/PYXS/SOV_REINSS\"\n],\n\"ASSOCIATED\":\n[],\n\"BASE\":\n[],\n\"ANNO_REF\":\n[],\n\"SCALAR_FUNCTION\":\n[],\n\"VERSION\":0,\n\"ANNOREF_EVALUATION_ERROR\":\"\"\n}\n}*/",
     "PARENTNAME":"",
     "ACTFLAG":"",
-    "CHGFLAG":"",
+    "CHGFLAG":"J,WT42",
     "SOURCE_TYPE":"W",
     "SOURCE_ORIGIN":"0",
     "ABAP_LANGUAGE_VERSION":"5"

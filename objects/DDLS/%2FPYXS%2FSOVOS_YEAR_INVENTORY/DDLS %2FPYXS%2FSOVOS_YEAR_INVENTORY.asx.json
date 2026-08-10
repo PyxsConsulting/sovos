@@ -12,7 +12,7 @@
     "SOURCE":"@AccessControl.authorizationCheck: #NOT_REQUIRED\r\n@EndUserText.label: 'Sovos - Inventário Anual'\r\n@Metadata.ignorePropagatedAnnotations: true\r\ndefine root view entity /PYXS/SOVOS_YEAR_INVENTORY as select from /pyxs/sov_yr_inv\r\n{\r\n    @EndUserText.label: 'Data/Hora'\r\n    key timedate as Timedate,\r\n    @UI.lineItem: [{ type: #FOR_ACTION, dataAction: 'SendIntegration', label: 'Enviar Integração' }]\r\n    @EndUserText.label: 'Ano/Mes (AAAAMM)'\r\n    @UI.selectionField: [{position: 30}]\r\n    key anomes as Anomes,\r\n    @EndUserText.label: 'Material'\r\n    @UI.selectionField: [{position: 40}]\r\n    key material as Material,\r\n    @EndUserText.label: 'Id'\r\n    @UI.selectionField: [{position: 50}]\r\n    key id as Id,\r\n    @EndUserText.label: 'Retorno'\r\n    @UI.selectionField: [{position: 60}]\r\n    returncode as Returncode,\r\n    @EndUserText.label: 'Motivo'\r\n    @UI.selectionField: [{position: 70}]\r\n    returnreason as Returnreason,\r\n    @EndUserText.label: 'Resposta'\r\n    @UI.selectionField: [{position: 80}]\r\n    response as Response\r\n}\r\n/*+[internal] {\n\"BASEINFO\":\n{\n\"FROM\":\n[\n\"/PYXS/SOV_YR_INV\"\n],\n\"ASSOCIATED\":\n[],\n\"BASE\":\n[],\n\"ANNO_REF\":\n[],\n\"SCALAR_FUNCTION\":\n[],\n\"VERSION\":0,\n\"ANNOREF_EVALUATION_ERROR\":\"\"\n}\n}*/",
     "PARENTNAME":"",
     "ACTFLAG":"",
-    "CHGFLAG":"",
+    "CHGFLAG":"J,WT42",
     "SOURCE_TYPE":"W",
     "SOURCE_ORIGIN":"0",
     "ABAP_LANGUAGE_VERSION":"5"

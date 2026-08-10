@@ -30,12 +30,9 @@ LOOP AT gt_data INTO DATA(ls_data).
   ENDIF.
 
   DATA(lv_root_id) =
-    "|{ ls_nfs-br_nfpostingdate(6) }{ ls_nfs-br_nfpartner }|.
-    "|{ ls_data-clearingdate(6) }{ ls_nfs-br_nfpartner }|.
-    |{ ls_nfs-br_nfpostingdate(6) }{ ls_nfs-br_nfpartner }N{ ls_nfs-br_nfsnumber }|.
-
+    |{ ls_nfs-br_nfpostingdate(6) }{ ls_nfs-br_nfpartner }|.
   IF ls_irf_type-imposto = 'PCC'.
-    lv_root_id = |{ lv_root_id }{ ls_irf_type-Imposto }|.
+    lv_root_id = |{ ls_data-clearingdate(6) }{ ls_nfs-br_nfpartner }|.
   ENDIF.
 
   READ TABLE gt_objects ASSIGNING FIELD-SYMBOL(<root>)
@@ -86,7 +83,8 @@ LOOP AT gt_data INTO DATA(ls_data).
 
   ENDIF.
 
-  DATA(lv_info_key) = lv_pgto_key.
+  DATA(lv_info_key) =
+    |{ lv_pgto_key }{ ls_nfs-br_nfsnumber }|.
     "|{ lv_pgto_key }{ ls_data-accountingdocument }|.
     "|{ lv_pgto_key }{ ls_nfs-br_nfsnumber }|.
 
@@ -96,12 +94,12 @@ LOOP AT gt_data INTO DATA(ls_data).
 
   IF sy-subrc <> 0.
 
-
     DATA(lv_seq_info) = 1.
 
     LOOP AT <root>-knwReinfR4020InfoPgtoList
       ASSIGNING FIELD-SYMBOL(<tmp_info>)
-      WHERE id_referencia = lv_root_id.
+      WHERE id_referencia = lv_root_id
+        AND id_seq_pagto = <pgto>-id_seq_pagto.
 
       lv_seq_info = lv_seq_info + 1.
 
@@ -130,7 +128,6 @@ LOOP AT gt_data INTO DATA(ls_data).
     <info>-dm_jud          = ''.
     <info>-cd_pais_resid   = ''.
     <info>-dt_escr_cont    = ''.
-
   ENDIF.
 
   READ TABLE <root>-knwReinfR4020InfoPgtoRetList
@@ -138,7 +135,6 @@ LOOP AT gt_data INTO DATA(ls_data).
     WITH KEY id_referencia = lv_root_id
              id_seq_pagto = <info>-id_seq_pagto
              id_seq_info_pgto =  <info>-id_seq_info_pgto.
-
 
   IF sy-subrc <> 0.
 

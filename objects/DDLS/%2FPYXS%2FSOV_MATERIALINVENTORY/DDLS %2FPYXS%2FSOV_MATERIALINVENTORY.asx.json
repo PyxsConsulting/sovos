@@ -12,7 +12,7 @@
     "SOURCE":"@AccessControl.authorizationCheck: #NOT_REQUIRED\r\n@EndUserText.label: 'Inventário de materiais'\r\n@Metadata.ignorePropagatedAnnotations: true\r\ndefine root view entity /PYXS/SOV_MaterialInventory as select from I_Product as prd\r\n                inner join I_ProductValuationBasic as val\r\n                        on val.Product = prd.Product\r\n                inner join I_MaterialStock as stk\r\n                        on stk.Material = prd.Product\r\n{\r\n    key prd.Product,\r\n    key val.ValuationArea,\r\n    key val.ValuationType,\r\n    prd.ProductCategory,\r\n    prd.BaseUnit,\r\n    val.ValuationClass,\r\n    val.ProductUsageType,\r\n    curr_to_decfloat_amount( val.StandardPrice ) / val.PriceUnitQty  as StandardPrice,\r\n    curr_to_decfloat_amount( val.MovingAveragePrice ) / val.PriceUnitQty  as MovingAveragePrice,\r\n    case  \r\n      when stk.Customer <> '' then concat( 'C', stk.Customer )\r\n      when stk.Supplier <> '' then concat( 'F', stk.Supplier )\r\n      else ''\r\n    end as Partner,\r\n    @Semantics.quantity.unitOfMeasure: 'BaseUnit'\r\n    stk.MatlWrhsStkQtyInMatlBaseUnit \r\n    \r\n}\r\n/*+[internal] {\n\"BASEINFO\":\n{\n\"FROM\":\n[\n\"I_MATERIALSTOCK\",\n\"I_PRODUCT\",\n\"I_PRODUCTVALUATIONBASIC\"\n],\n\"ASSOCIATED\":\n[],\n\"BASE\":\n[],\n\"ANNO_REF\":\n[],\n\"SCALAR_FUNCTION\":\n[],\n\"VERSION\":0,\n\"ANNOREF_EVALUATION_ERROR\":\"\"\n}\n}*/",
     "PARENTNAME":"",
     "ACTFLAG":"",
-    "CHGFLAG":"",
+    "CHGFLAG":"J,W4T2",
     "SOURCE_TYPE":"W",
     "SOURCE_ORIGIN":"0",
     "ABAP_LANGUAGE_VERSION":"5"

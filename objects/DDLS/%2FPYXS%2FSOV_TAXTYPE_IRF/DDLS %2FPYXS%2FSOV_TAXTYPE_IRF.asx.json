@@ -12,7 +12,7 @@
     "SOURCE":"@AccessControl.authorizationCheck: #NOT_REQUIRED\r\n@EndUserText.label: 'Categoria de Imposto IRF'\r\n@Metadata.ignorePropagatedAnnotations: true\r\ndefine root view entity /PYXS/SOV_TAXTYPE_IRF as select from /pyxs/sov_taxtyp\r\n{  \r\n    @UI.lineItem: [{ position: 10 }]\r\n    @UI.selectionField : [{position: 10}]\r\n    @EndUserText.label: 'Categoria IRF'    \r\n    @Consumption.valueHelpDefinition: [\r\n        {\r\n            entity: {\r\n                name: '/PYXS/ZI_WHT_CODE_VH', \r\n                element: 'WithholdingTaxCode'\r\n            } \r\n        }\r\n    ]\r\n    key categoriairf as CategoriaIrf,\r\n    @UI.lineItem: [{ position: 20 }]\r\n    @UI.selectionField : [{position: 20}]\r\n    @EndUserText.label: 'Imposto'\r\n    @Consumption.valueHelpDefinition: [\r\n        {\r\n            entity: {\r\n                name: '/PYXS/ZI_TAX_VH', \r\n                element: 'Imposto'\r\n            } \r\n        }\r\n    ]\r\n    imposto as Imposto\r\n}\r\n/*+[internal] {\n\"BASEINFO\":\n{\n\"FROM\":\n[\n\"/PYXS/SOV_TAXTYP\"\n],\n\"ASSOCIATED\":\n[],\n\"BASE\":\n[],\n\"ANNO_REF\":\n[],\n\"SCALAR_FUNCTION\":\n[],\n\"VERSION\":0,\n\"ANNOREF_EVALUATION_ERROR\":\"\"\n}\n}*/",
     "PARENTNAME":"",
     "ACTFLAG":"",
-    "CHGFLAG":"",
+    "CHGFLAG":"J,WT42",
     "SOURCE_TYPE":"W",
     "SOURCE_ORIGIN":"0",
     "ABAP_LANGUAGE_VERSION":"5"

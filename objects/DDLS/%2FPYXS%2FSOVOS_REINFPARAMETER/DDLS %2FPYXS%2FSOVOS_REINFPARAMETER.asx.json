@@ -12,7 +12,7 @@
     "SOURCE":"@EndUserText.label: 'Parametros de seleção reinf'\r\ndefine root abstract entity /PYXS/SOVOS_REINFParameter\r\n{\r\n  @EndUserText.label: 'Empresa'\r\n  @UI.selectionField: [{position: 1}]\r\n  @Consumption.valueHelpDefinition: [{ entity: {name: 'I_CompanyCode', element: 'CompanyCode'  }}]\r\n  @Consumption.filter: {mandatory: true, selectionType: #SINGLE}\r\n  ComapnyCode   : bukrs;\r\n  @EndUserText.label: 'Local de Negócio'\r\n  @UI.selectionField: [{position: 2}]\r\n  @Consumption.valueHelpDefinition: [{\r\n  entity        : {name: 'I_BR_BusinessPlace', element: 'Branch'},\r\n  additionalBinding: [{\r\n    localElement: 'ComapnyCode',\r\n    element     : 'CompanyCode',\r\n    usage       : #FILTER_AND_RESULT\r\n  }]\r\n  }]\r\n  @Consumption.filter: {mandatory: true, selectionType: #SINGLE}\r\n  BusinessPlace : abap.char(4);\r\n  @EndUserText.label: 'Ano/Mes (AAAAMM)'\r\n  @UI.selectionField: [{position: 3}]\r\n  AnoMes        : abap.char(6);\r\n  @EndUserText.label: 'Paceiro'\r\n  @UI.selectionField: [{position: 4}]\r\n  @Consumption.valueHelpDefinition: [{ entity: {name: 'I_BusinessPartner', element: 'BusinessPartner'  }}]\r\n  Partner       : abap.char(10);\r\n  @EndUserText.label: 'Documento'\r\n  @UI.selectionField: [{position: 5}]\r\n  BrNotafiscal : abap.numc(10);\r\n\r\n}\r\n/*+[internal] {\n\"BASEINFO\":\n{\n\"FROM\":\n[],\n\"ASSOCIATED\":\n[],\n\"BASE\":\n[],\n\"ANNO_REF\":\n[],\n\"SCALAR_FUNCTION\":\n[],\n\"VERSION\":0,\n\"ANNOREF_EVALUATION_ERROR\":\"\"\n}\n}*/",
     "PARENTNAME":"",
     "ACTFLAG":"",
-    "CHGFLAG":"",
+    "CHGFLAG":",W4",
     "SOURCE_TYPE":"A",
     "SOURCE_ORIGIN":"0",
     "ABAP_LANGUAGE_VERSION":"5"
