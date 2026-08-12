@@ -30,6 +30,10 @@ CLASS lhc_sovos_fiscaldocuments DEFINITION INHERITING FROM cl_abap_behavior_hand
       IMPORTING keys FOR ACTION /pyxs/sovos_fiscaldocuments~sendintegration
       RESULT    res  .
 
+    "METHODS extractjson FOR MODIFY
+      "IMPORTING keys FOR ACTION /pyxs/sovos_fiscaldocuments~extractjson
+      "RESULT    res  .
+
 
 ENDCLASS.
 
@@ -1258,7 +1262,7 @@ CLASS lcl_process DEFINITION FRIENDS lhc_sovos_fiscaldocuments.
                   p_str             TYPE clike
         RETURNING VALUE(normalized) TYPE string,
       send_integration,
-      "extract_json,"
+      extract_json,
       get_ibge_country
         IMPORTING
                   p_country   TYPE clike
@@ -1882,78 +1886,78 @@ CLASS lcl_process IMPLEMENTATION.
   ENDMETHOD.
 
 
-  "METHOD extract_json.
+  METHOD extract_json.
 
-  "LOOP AT t_out INTO DATA(ls_doc).
-    "DATA(lv_docnum) = ls_doc-docnum.
-    "CLEAR ls_doc-docnum.
+  LOOP AT t_out INTO DATA(ls_doc).
+    DATA(lv_docnum) = ls_doc-docnum.
+    CLEAR ls_doc-docnum.
 
-    "DATA(json_out) = /ui2/cl_json=>serialize(
-      "EXPORTING
-        "data             = ls_doc
-        "compress         = abap_true
-        "pretty_name      = /ui2/cl_json=>pretty_mode-none
-        "assoc_arrays     = abap_false
-        "assoc_arrays_opt = abap_false ).
+    DATA(json_out) = /ui2/cl_json=>serialize(
+      EXPORTING
+        data             = ls_doc
+        compress         = abap_true
+        pretty_name      = /ui2/cl_json=>pretty_mode-none
+        assoc_arrays     = abap_false
+        assoc_arrays_opt = abap_false ).
 
-    "json_out = /pyxs/sov_json_conversion=>convert_sovos( json_out ).
+    json_out = /pyxs/sov_json_conversion=>convert_sovos( json_out ).
 
-    "APPEND INITIAL LINE TO /pyxs/bp_sovos_fiscaldocuments=>lt_log ASSIGNING FIELD-SYMBOL(<log>).
-    "GET TIME STAMP FIELD DATA(time).
-    "<log>-timedate      = time.
-    "<log>-br_notafiscal = lv_docnum.
-    "<log>-response       = json_out.
-    "<log>-returncode     = '000'.
-    "<log>-returnreason   = 'JSON extraído - Nota Fiscal Própria'.
-  "ENDLOOP.
+    APPEND INITIAL LINE TO /pyxs/bp_sovos_fiscaldocuments=>lt_log ASSIGNING FIELD-SYMBOL(<log>).
+    GET TIME STAMP FIELD DATA(time).
+    <log>-timedate      = time.
+    <log>-br_notafiscal = lv_docnum.
+    <log>-response       = json_out.
+    <log>-returncode     = '000'.
+    <log>-returnreason   = 'JSON extraído - Nota Fiscal Própria'.
+  ENDLOOP.
 
-  "LOOP AT t_out_e INTO ls_doc.
-    "lv_docnum = ls_doc-docnum.
-    "CLEAR ls_doc-docnum.
+  LOOP AT t_out_e INTO ls_doc.
+    lv_docnum = ls_doc-docnum.
+    CLEAR ls_doc-docnum.
 
-    "json_out = /ui2/cl_json=>serialize(
-      "EXPORTING
-        "data             = ls_doc
-        "compress         = abap_true
-        "pretty_name      = /ui2/cl_json=>pretty_mode-none
-        "assoc_arrays     = abap_false
-        "assoc_arrays_opt = abap_false ).
+    json_out = /ui2/cl_json=>serialize(
+      EXPORTING
+        data             = ls_doc
+        compress         = abap_true
+        pretty_name      = /ui2/cl_json=>pretty_mode-none
+        assoc_arrays     = abap_false
+        assoc_arrays_opt = abap_false ).
 
-    "json_out = /pyxs/sov_json_conversion=>convert_sovos( json_out ).
+    json_out = /pyxs/sov_json_conversion=>convert_sovos( json_out ).
 
-    "APPEND INITIAL LINE TO /pyxs/bp_sovos_fiscaldocuments=>lt_log ASSIGNING <log>.
-    "GET TIME STAMP FIELD time.
-    "<log>-timedate      = time.
-    "<log>-br_notafiscal = lv_docnum.
-    "<log>-response       = json_out.
-    "<log>-returncode     = '000'.
-    "<log>-returnreason   = 'JSON extraído - Nota Fiscal Terceiros'.
-  "ENDLOOP.
+    APPEND INITIAL LINE TO /pyxs/bp_sovos_fiscaldocuments=>lt_log ASSIGNING <log>.
+    GET TIME STAMP FIELD time.
+    <log>-timedate      = time.
+    <log>-br_notafiscal = lv_docnum.
+    <log>-response       = json_out.
+    <log>-returncode     = '000'.
+    <log>-returnreason   = 'JSON extraído - Nota Fiscal Terceiros'.
+  ENDLOOP.
 
-  "LOOP AT t_out_srv INTO DATA(ls_doc_srv).
-    "lv_docnum = ls_doc_srv-docnum.
-    "CLEAR ls_doc_srv-docnum.
+      LOOP AT t_out_srv INTO DATA(ls_doc_srv).
+        lv_docnum = ls_doc_srv-docnum.
+        CLEAR ls_doc_srv-docnum.
 
-    "json_out = /ui2/cl_json=>serialize(
-      "EXPORTING
-        "data             = ls_doc_srv
-        "compress         = abap_true
-        "pretty_name      = /ui2/cl_json=>pretty_mode-none
-        "assoc_arrays     = abap_false
-        "assoc_arrays_opt = abap_false ).
+        json_out = /ui2/cl_json=>serialize(
+          EXPORTING
+            data             = ls_doc_srv
+            compress         = abap_true
+            pretty_name      = /ui2/cl_json=>pretty_mode-none
+            assoc_arrays     = abap_false
+            assoc_arrays_opt = abap_false ).
 
-    "json_out = /pyxs/sov_json_conversion=>convert_sovos( json_out ).
+        json_out = /pyxs/sov_json_conversion=>convert_sovos( json_out ).
 
-    "APPEND INITIAL LINE TO /pyxs/bp_sovos_fiscaldocuments=>lt_log ASSIGNING <log>.
-    "GET TIME STAMP FIELD time.
-    "<log>-timedate      = time.
-    "<log>-br_notafiscal = lv_docnum.
-    "<log>-response       = json_out.
-    "<log>-returncode     = '000'.
-    "<log>-returnreason   = 'JSON extraído - Nota Serviço'.
-  "ENDLOOP.
+        APPEND INITIAL LINE TO /pyxs/bp_sovos_fiscaldocuments=>lt_log ASSIGNING <log>.
+        GET TIME STAMP FIELD time.
+        <log>-timedate      = time.
+        <log>-br_notafiscal = lv_docnum.
+        <log>-response       = json_out.
+        <log>-returncode     = '000'.
+        <log>-returnreason   = 'JSON extraído - Nota Serviço'.
+      ENDLOOP.
 
-"ENDMETHOD.
+  ENDMETHOD.
 
   METHOD get_ibge_state.
     CONSTANTS:
@@ -2678,14 +2682,17 @@ CLASS lcl_process IMPLEMENTATION.
                 IF ls_tax_itm-br_nfitembaseamount > 0.
                   <item>-knwc170-vl_ba_calc_icms  = ls_tax_itm-br_nfitembaseamount.
                   <item>-knwc170-vl_icms = ls_tax_itm-br_nfitemtaxamount.
+                  <item>-knwc170-aliq_icms = ls_tax_itm-br_nfitemtaxrate.
                 ELSEIF ls_tax_itm-br_nfitemotherbaseamount > 0.
-                  <item>-knwc170-vl_ba_calc_icms  = ls_tax_itm-br_nfitemotherbaseamount.
+                  <item>-knwc170-vl_ba_calc_icms  = '0.00'. "ls_tax_itm-br_nfitemotherbaseamount.
                   <item>-knwc170-vl_icms_outro = ls_tax_itm-br_nfitemtaxamount.
+                  <item>-knwc170-aliq_icms     = '0.00'. "ls_tax_itm-br_nfitemtaxrate.
                 ELSE.
-                  <item>-knwc170-vl_ba_calc_icms  = ls_tax_itm-br_nfitemexcludedbaseamount.
+                  <item>-knwc170-vl_ba_calc_icms  = '0.00'. "ls_tax_itm-br_nfitemexcludedbaseamount.
                   <item>-knwc170-vl_icms_isento = ls_tax_itm-br_nfitemtaxamount.
+                  <item>-knwc170-aliq_icms     = '0.00'.  "ls_tax_itm-br_nfitemtaxrate.
                 ENDIF.
-                <item>-knwc170-aliq_icms = ls_tax_itm-br_nfitemtaxrate.
+                "<item>-knwc170-aliq_icms = ls_tax_itm-br_nfitemtaxrate.
 *                <item>-knwc170-vl_icms_isento
 *               <item>-knwc170-vl_icms_outro
 *               <item>-knwc170-vl_icms_observ
@@ -3059,7 +3066,7 @@ CLASS lcl_process IMPLEMENTATION.
             <c113>-knwc113-nr_item             = ls_ref_item-nr_item.
             <c113>-knwc113-cd_modelo           = ls_objeto-knwc100-cd_modelo_doc.
             <c113>-knwc113-dt_emissao_doc      = ls_objeto-knwc100-dt_emissao_doc.
-            "<c113>-knwc113-serie_doc_refer     = ls_nf_ref_item-doc-br_nfseries.
+            <c113>-knwc113-serie_doc_refer     = ls_nf_ref_doc-doc-br_nfseries.
             <c113>-knwc113-nr_doc_refer        = ls_nf_ref_doc-doc-br_nfenumber.
             <c113>-knwc113-cd_pessoa_refer     = ls_nf_ref_doc-doc-br_nfpartner.
             <c113>-knwc113-dm_entr_saida_refer = COND #( WHEN ls_nf_ref_doc-doc-br_nfdirection = '2' THEN 'S' ELSE 'E' ).
@@ -3074,8 +3081,11 @@ CLASS lcl_process IMPLEMENTATION.
             ENDIF.
             <c113>-knwc113-nr_chave_refer = |{ ls_nf_ref_doc-act-region }{ ls_nf_ref_doc-act-br_nfeissueyear }{ ls_nf_ref_doc-act-br_nfeissuemonth }{ ls_nf_ref_doc-act-br_nfeaccesskeycnpjorcpf }| &&
                                             |{ ls_nf_ref_doc-act-br_nfemodel }{ ls_nf_ref_doc-act-br_nfeseries }{ ls_nf_ref_doc-act-br_nfenumber }{ ls_nf_ref_doc-act-br_nferandomnumber }{ ls_nf_ref_doc-act-br_nfecheckdigit }|.
-
-            <c113>-knwc113-subser_doc_ref      = ls_nf_ref_doc-doc-br_nfseries.
+            IF ls_nf_ref_doc-doc-BR_NFSubSeries IS NOT INITIAL.
+                <c113>-knwc113-subser_doc_ref      = ls_nf_ref_doc-doc-BR_NFSubSeries.
+            ELSE.
+                <c113>-knwc113-subser_doc_ref      = '000'.
+            ENDIF.
 
 ***            READ TABLE t_branch_sov INTO DATA(ls_branch_sov)
 ***              WITH KEY company_code    = ls_nf_ref_doc-doc-CompanyCode
@@ -4175,7 +4185,6 @@ CLASS lhc_sovos_fiscaldocuments IMPLEMENTATION.
         )  ).
 
   ENDMETHOD.
-
 
 
 ENDCLASS.
