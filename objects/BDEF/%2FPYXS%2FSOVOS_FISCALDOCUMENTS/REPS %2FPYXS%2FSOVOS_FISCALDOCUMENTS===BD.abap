@@ -13,6 +13,6 @@ authorization master ( instance )
   field ( readonly ) Timedate, BrNotafiscal, Id;
 
   static action SendIntegration deep parameter /PYXS/A_FiscalDocuments result [0..*] $self;
-  ///static action ExtractJson deep parameter /PYXS/A_FiscalDocuments result [0..*] $self;
+  //static action ExtractJson deep parameter /PYXS/A_FiscalDocuments result [0..*] $self;
 
 }

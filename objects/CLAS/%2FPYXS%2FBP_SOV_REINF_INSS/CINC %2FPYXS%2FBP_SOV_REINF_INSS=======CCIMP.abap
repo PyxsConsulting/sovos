@@ -602,7 +602,7 @@ CLASS lcl_process IMPLEMENTATION.
         <nota>-nr_item_nota   = lv_nr_item_nota.
         <nota>-nr_serie       = ls_nfs-br_nfseries.
         <nota>-nr_documento   = ls_nfs-br_nfnumber.
-        <nota>-dt_emissao     = format_date_yyyymmdd( iv_date = ls_nfs-br_nfissuedate ).
+        <nota>-dt_emissao     = format_date_yyyymmdd( iv_date = ls_data-clearingdate ).
         <nota>-vl_bruto       = format_amount( iv_value = ls_nfs-br_nftotalamount ).
         <nota>-ds_observacao  = ''.
           "|Doc contábil { ls_data-accountingdocument }|.
