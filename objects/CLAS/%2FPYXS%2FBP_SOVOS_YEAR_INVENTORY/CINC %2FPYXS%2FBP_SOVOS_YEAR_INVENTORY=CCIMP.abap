@@ -300,12 +300,30 @@ CLASS lcl_process DEFINITION FRIENDS lhc_sovos_year_inventory.
         act TYPE i_br_nfeactive,
       END OF ty_docs_act,
 
+***      BEGIN OF ty_grouped,
+***         material                    TYPE i_inventoryamtbyfsclperd-material,
+***         valuationquantity           TYPE i_inventoryamtbyfsclperd-valuationquantity,
+***         amountincompanycodecurrency TYPE i_inventoryamtbyfsclperd-amountincompanycodecurrency,
+***         movingaverageprice          TYPE i_productvaluationbasic-movingaverageprice,
+***         unitofmeasure               TYPE i_inventoryamtbyfsclperd-unitofmeasure,
+***         product                     TYPE i_product-product,
+***         productdescription          TYPE i_productdescription-productdescription,
+***         consumptiontaxctrlcode      TYPE i_productplantbasic-consumptiontaxctrlcode,
+***         productorigintype           TYPE i_productvaluationbasic-productorigintype,
+***         unitofmeasure_e             TYPE i_unitofmeasuretext-unitofmeasure_e,
+***         unitofmeasurename           TYPE i_unitofmeasuretext-unitofmeasurename,
+***         referenceproducttype        TYPE i_producttype-referenceproducttype,
+***         iscoproduct                 TYPE i_productplantbasic-IsCoProduct,
+***       END OF ty_grouped.
+
       BEGIN OF ty_grouped,
-         material                    TYPE i_inventoryamtbyfsclperd-material,
-         valuationquantity           TYPE i_inventoryamtbyfsclperd-valuationquantity,
+         material                    TYPE I_MaterialStockTimeSeries-material,
+         supplier                    TYPE I_MaterialStockTimeSeries-supplier,
+         customer                    TYPE I_MaterialStockTimeSeries-customer,
+         valuationquantity           TYPE I_MaterialStockTimeSeries-MatlWrhsStkQtyInMatlBaseUnit,
          amountincompanycodecurrency TYPE i_inventoryamtbyfsclperd-amountincompanycodecurrency,
          movingaverageprice          TYPE i_productvaluationbasic-movingaverageprice,
-         unitofmeasure               TYPE i_inventoryamtbyfsclperd-unitofmeasure,
+         unitofmeasure               TYPE I_MaterialStockTimeSeries-materialbaseunit,
          product                     TYPE i_product-product,
          productdescription          TYPE i_productdescription-productdescription,
          consumptiontaxctrlcode      TYPE i_productplantbasic-consumptiontaxctrlcode,
@@ -1243,17 +1261,26 @@ CLASS lcl_process IMPLEMENTATION.
 
 
       " ─── KNWH010 ───
+
+      data(lv_total) = ls_data-movingaverageprice * ls_data-valuationquantity.
+
       ls_objeto-knwh010-cod_empresa     = CONV i( s_branch_sov-sov_company ).
       ls_objeto-knwh010-cod_filial      = CONV i( s_branch_sov-sov_branch ).
       ls_objeto-knwh010-id_usuario_imp  = sy-uname.
       ls_objeto-knwh010-cd_produto_serv = ls_data-product.
       ls_objeto-knwh010-unidade         = ls_data-unitofmeasure_e.
-      ls_objeto-knwh010-vl_total        = ls_data-amountincompanycodecurrency. "vl_total.
+      "ls_objeto-knwh010-vl_total        = ls_data-amountincompanycodecurrency. "vl_total.
+      ls_objeto-knwh010-vl_total        = lv_total.
       ls_objeto-knwh010-qtde            = ls_data-valuationquantity.
       ls_objeto-knwh010-vl_unitario     = ls_data-movingaverageprice. "standardprice.
       ls_objeto-knwh010-dt_inventario   = lv_dt_ini.
       ls_objeto-knwh010-dm_sit_estoque  = 0.
-      ls_objeto-knwh010-vl_total_ir     = ls_data-amountincompanycodecurrency. " ls_data-productvaluationbasic-standardprice.
+      IF ls_data-customer IS NOT INITIAL OR ls_data-supplier IS NOT INITIAL.
+        ls_objeto-knwh010-dm_sit_estoque  = 1.
+      ENDIF.
+      "ls_objeto-knwh010-vl_total_ir     = ls_data-amountincompanycodecurrency. " ls_data-productvaluationbasic-standardprice.
+      ls_objeto-knwh010-vl_total_ir     = lv_total.
+
 
 
       "NUMERO DA CONTA 20260619
@@ -1529,11 +1556,57 @@ CLASS lcl_process IMPLEMENTATION.
       AND branch = @sel-businessplace
       INTO @s_branch_sov.
 
+***    select    stock~material,
+***         sum( stock~valuationquantity ) as val,
+***         sum( stock~amountincompanycodecurrency ) as amountincompanycodecurrency,
+***         max( productvaluationbasic~movingaverageprice ) as movingaverageprice,
+***         max( stock~unitofmeasure ) as un,
+***         max( product~product ) as product,
+***         max( productdescription~productdescription ) as productdescription,
+***         max( productplantbasic~consumptiontaxctrlcode ) as consumptiontaxctrlcode,
+***         max( productvaluationbasic~productorigintype ) as productorigintype,
+***         max( product~\_baseunitofmeasure-unitofmeasure_e ) as unitofmeasure_e,
+***         max( product~\_baseunitofmeasure\_text[ language = 'P' ]-unitofmeasurename ) as unitofmeasurename,
+***         max( product~\_producttype-referenceproducttype ) as referenceproducttype,
+***         max( productplantbasic~iscoproduct ) as iscoproduct
+***          from i_inventoryamtbyfsclperd(
+***           p_fiscalperiod = @sel-fiscalperiod,
+***           p_fiscalyear   = @sel-fiscalyear ) as stock
+***    INNER JOIN i_product AS product
+***      ON   stock~material = product~product
+***    INNER JOIN i_productdescription AS productdescription
+***      ON  stock~material = productdescription~product
+***      AND productdescription~language = 'P'
+***    INNER JOIN i_unitofmeasuretext AS unitofmeasuretext
+***      ON  stock~unitofmeasure         = unitofmeasuretext~unitofmeasure
+***      AND unitofmeasuretext~language  = 'P'
+***    INNER JOIN i_productplantbasic AS productplantbasic
+***      ON  stock~material       = productplantbasic~product
+***      AND stock~valuationarea  = productplantbasic~plant
+***    INNER JOIN i_productvaluationbasic AS productvaluationbasic
+***      ON  stock~material      = productvaluationbasic~product AND
+***          stock~valuationarea = productvaluationbasic~valuationarea
+***    INNER JOIN i_plant AS plant
+***      ON  stock~valuationarea = plant~valuationarea
+***    LEFT JOIN i_supplier AS supplier
+***      ON stock~supplier = supplier~supplier
+***    WHERE stock~companycode  = @sel-companycode
+***        AND stock~material     IN @sel-product
+***        AND plant~businessplace = @sel-businessplace
+***        AND productvaluationbasic~valuationtype = ''
+***        AND stock~ledger = '0L'
+***      group by stock~material
+***      INTO TABLE @gt_sel2.
+
     select    stock~material,
-         sum( stock~valuationquantity ) as val,
-         sum( stock~amountincompanycodecurrency ) as amountincompanycodecurrency,
+              stock~supplier,
+              stock~customer,
+         sum( stock~MatlWrhsStkQtyInMatlBaseUnit ) as val,
+         "sum( stock~\_InvtryPrcByPeriodEndDate( p_calendardate = '20260430' )-MaterialPriceUnitQty ) as amountincompanycodecurrency,
+         "sum( inv~amountincompanycodecurrency ) as amountincompanycodecurrency,
+         0 as amountincompanycodecurrency,
          max( productvaluationbasic~movingaverageprice ) as movingaverageprice,
-         max( stock~unitofmeasure ) as un,
+         max( stock~materialbaseunit ) as un,
          max( product~product ) as product,
          max( productdescription~productdescription ) as productdescription,
          max( productplantbasic~consumptiontaxctrlcode ) as consumptiontaxctrlcode,
@@ -1542,33 +1615,47 @@ CLASS lcl_process IMPLEMENTATION.
          max( product~\_baseunitofmeasure\_text[ language = 'P' ]-unitofmeasurename ) as unitofmeasurename,
          max( product~\_producttype-referenceproducttype ) as referenceproducttype,
          max( productplantbasic~iscoproduct ) as iscoproduct
-          from i_inventoryamtbyfsclperd(
-           p_fiscalperiod = @sel-fiscalperiod,
-           p_fiscalyear   = @sel-fiscalyear ) as stock
+          from I_MaterialStockTimeSeries(
+  p_startdate = @lv_date_f,
+  p_enddate = @lv_date_t,
+  p_periodtype = 'M' ) as stock
+    INNER JOIN i_plant AS plant0
+      ON  stock~plant = plant0~plant
+      and plant0~businessplace = @sel-businessplace
+    INNER JOIN i_valuationarea AS val
+      ON  val~valuationarea = plant0~valuationarea
+***    INNER JOIN I_InventoryAmtByFsclPerd(
+***           p_fiscalperiod = @lv_month,
+***           p_fiscalyear   = @lv_year
+***     ) AS inv
+***      ON inv~Ledger = '0L'
+***      and inv~CompanyCode = @sel-companycode
+***      and inv~CostEstimate = stock~CostEstimate
     INNER JOIN i_product AS product
       ON   stock~material = product~product
     INNER JOIN i_productdescription AS productdescription
       ON  stock~material = productdescription~product
       AND productdescription~language = 'P'
     INNER JOIN i_unitofmeasuretext AS unitofmeasuretext
-      ON  stock~unitofmeasure         = unitofmeasuretext~unitofmeasure
+      ON  stock~materialbaseunit         = unitofmeasuretext~unitofmeasure
       AND unitofmeasuretext~language  = 'P'
     INNER JOIN i_productplantbasic AS productplantbasic
       ON  stock~material       = productplantbasic~product
-      AND stock~valuationarea  = productplantbasic~plant
+      AND val~valuationarea  = productplantbasic~plant
     INNER JOIN i_productvaluationbasic AS productvaluationbasic
       ON  stock~material      = productvaluationbasic~product AND
-          stock~valuationarea = productvaluationbasic~valuationarea
+          val~valuationarea = productvaluationbasic~valuationarea
     INNER JOIN i_plant AS plant
-      ON  stock~valuationarea = plant~valuationarea
+      ON  val~valuationarea = plant~valuationarea
     LEFT JOIN i_supplier AS supplier
       ON stock~supplier = supplier~supplier
-    WHERE stock~companycode  = @sel-companycode
+    WHERE val~companycode  = @sel-companycode
         AND stock~material     IN @sel-product
         AND plant~businessplace = @sel-businessplace
         AND productvaluationbasic~valuationtype = ''
-        AND stock~ledger = '0L'
-      group by stock~material
+      group by stock~material,
+              stock~supplier,
+              stock~customer
       INTO TABLE @gt_sel2.
 
     SELECT SINGLE companycode, companycodename, chartofaccounts
