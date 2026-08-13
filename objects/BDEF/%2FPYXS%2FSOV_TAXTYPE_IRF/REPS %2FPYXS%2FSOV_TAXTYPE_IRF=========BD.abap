@@ -27,6 +27,7 @@ authorization master ( instance )
     {
       CategoriaIrf = categoriairf;
       Imposto = imposto;
+      Usardatapagto = usardatapagto;
     }
 
   validation validateCategoria on save { create; field CategoriaIrf; }
