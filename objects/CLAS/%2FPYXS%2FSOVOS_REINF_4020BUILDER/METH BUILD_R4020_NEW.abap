@@ -31,7 +31,7 @@ LOOP AT gt_data INTO DATA(ls_data).
 
   DATA(lv_root_id) =
     |{ ls_nfs-br_nfpostingdate(6) }{ ls_nfs-br_nfpartner }|.
-  IF ls_irf_type-imposto = 'PCC'.
+  IF ls_irf_type-Usardatapagto.
     lv_root_id = |{ ls_data-clearingdate(6) }{ ls_nfs-br_nfpartner }|.
   ENDIF.
 
@@ -46,7 +46,7 @@ LOOP AT gt_data INTO DATA(ls_data).
     <root>-knwReinfR4020-id_evento          = lv_root_id.
     <root>-knwReinfR4020-dm_retificacao     = '1'.
     DATA(lv_dt_apura) = |{ ls_nfs-br_nfpostingdate+6(2) }{ ls_nfs-br_nfpostingdate+4(2) }{ ls_nfs-br_nfpostingdate(4) }|.
-    IF ls_irf_type-imposto = 'PCC'.
+    IF ls_irf_type-Usardatapagto.
       lv_dt_apura = |{ ls_data-clearingdate+6(2) }{ ls_data-clearingdate+4(2) }{ ls_data-clearingdate(4) }|.
     ENDIF.
     <root>-knwReinfR4020-dt_apuracao        = lv_dt_apura.
@@ -116,7 +116,7 @@ LOOP AT gt_data INTO DATA(ls_data).
     <info>-id_seq_pagto     = <pgto>-id_seq_pagto.
     <info>-id_seq_info_pgto = lv_seq_info.
     <info>-dt_fato_gerador  = format_date( iv_date = ls_nfs-br_nfissuedate ).
-    IF ls_irf_type-Imposto = 'PCC'.
+    IF ls_irf_type-Usardatapagto.
       <info>-dt_fato_gerador  = format_date( iv_date = ls_data-clearingdate ).
     ENDIF.
     <info>-vl_bruto = format_amount( iv_value = ls_nfs-br_nftotalamount ).

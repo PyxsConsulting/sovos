@@ -23,8 +23,9 @@
       INTO @gs_branch_sov.
 
     LOOP AT mt_irf_types INTO DATA(ls_irf_type).
-      CHECK ls_irf_type-imposto <> 'IR'.
-      APPEND VALUE #( sign = 'I' option = 'EQ' low = ls_irf_type-categoriairf ) TO lr_irf_types.
+      IF ls_irf_type-Usardatapagto.
+        APPEND VALUE #( sign = 'I' option = 'EQ' low = ls_irf_type-categoriairf ) TO lr_irf_types.
+      ENDIF.
     ENDLOOP.
 
     IF lr_irf_types IS NOT INITIAL.
@@ -79,8 +80,9 @@
 
     CLEAR lr_irf_types.
     LOOP AT mt_irf_types INTO ls_irf_type.
-      CHECK ls_irf_type-imposto = 'IR'.
-      APPEND VALUE #( sign = 'I' option = 'EQ' low = ls_irf_type-categoriairf ) TO lr_irf_types.
+      IF NOT ls_irf_type-Usardatapagto.
+        APPEND VALUE #( sign = 'I' option = 'EQ' low = ls_irf_type-categoriairf ) TO lr_irf_types.
+      ENDIF.
     ENDLOOP.
 
     IF lr_irf_types IS NOT INITIAL.

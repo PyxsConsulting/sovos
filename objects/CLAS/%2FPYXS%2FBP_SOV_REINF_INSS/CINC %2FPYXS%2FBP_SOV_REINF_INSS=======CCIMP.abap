@@ -81,7 +81,7 @@ CLASS lcl_process DEFINITION FRIENDS lhc_SOV_REINF_INSS.
         br_nfsourcedocumentitem      TYPE i_br_nfitem-br_nfsourcedocumentitem,
         br_nftype                    TYPE i_br_nfdocument-br_nftype,
         br_nfdirection               TYPE i_br_nfdocument-br_nfdirection,
-        br_nfissuedate               TYPE i_br_nfdocument-br_nfissuedate,
+        br_nfpostingdate               TYPE i_br_nfdocument-br_nfpostingdate,
         br_nfmodel                   TYPE i_br_nfdocument-br_nfmodel,
         br_nfseries                  TYPE i_br_nfdocument-br_nfseries,
         br_nfsubseries               TYPE i_br_nfdocument-br_nfsubseries,
@@ -400,6 +400,10 @@ CLASS lcl_process IMPLEMENTATION.
   "*------------------------------------------------------------------------
   METHOD read_db.
 
+       TYPES: BEGIN OF ty_oreftab,
+         originalreferencedocument TYPE i_journalentry-originalreferencedocument,
+       END OF ty_oreftab.
+
     SELECT SINGLE *
       FROM /pyxs/sov_branch
       WHERE company_code = @sel-companycode
@@ -417,6 +421,9 @@ CLASS lcl_process IMPLEMENTATION.
           lr_anomes TYPE RANGE OF datum,
           r_docnum  TYPE RANGE OF i_br_nfdocument-br_notafiscal,
           ls_anomes LIKE LINE OF lr_anomes.
+
+       DATA lt_oreftab TYPE SORTED TABLE OF ty_oreftab
+                        WITH UNIQUE KEY originalreferencedocument.
 
     lv_date_f = |{ sel-anomes }01|.
 
@@ -441,7 +448,9 @@ CLASS lcl_process IMPLEMENTATION.
 
     LOOP AT mt_irf_types INTO DATA(ls_irf_type).
       CHECK ls_irf_type-imposto = 'INSS'.
-      APPEND VALUE #( sign = 'I' option = 'EQ' low = ls_irf_type-categoriairf ) TO lr_irf_types.
+      IF ls_irf_type-Usardatapagto.
+        APPEND VALUE #( sign = 'I' option = 'EQ' low = ls_irf_type-categoriairf ) TO lr_irf_types.
+      ENDIF.
     ENDLOOP.
 
     CHECK lr_irf_types IS NOT INITIAL.
@@ -477,7 +486,7 @@ CLASS lcl_process IMPLEMENTATION.
     SELECT nfi~br_notafiscal, nfi~br_notafiscalitem, nfi~br_nfsourcedocumenttype,
            nfi~br_nfsourcedocumentnumber,                              "#EC CI_NO_TRANSFORM
            nfi~br_nfsourcedocumentitem, nf~br_nftype, nf~br_nfdirection,
-           nf~br_nfissuedate, nf~br_nfmodel, nf~br_nfseries, nf~br_nfsubseries,
+           nf~br_nfpostingdate, nf~br_nfmodel, nf~br_nfseries, nf~br_nfsubseries,
            nf~br_nfnumber, nf~businessplace, nf~br_nfpartnerfunction,
            nf~br_nfpartner, nf~br_nfpartnertype, nf~br_nfiscanceled,
            nf~br_nfsnumber, nf~br_isnfe, nf~br_nfenumber, nf~br_nfhasserviceitem,
@@ -502,6 +511,80 @@ CLASS lcl_process IMPLEMENTATION.
         and nf~BR_NFIsCanceled NE 'X'
         and nf~br_nftype NE 'A1'
       INTO TABLE @gt_nfs.
+
+
+    CLEAR lr_irf_types.
+    LOOP AT mt_irf_types INTO ls_irf_type.
+      CHECK ls_irf_type-imposto = 'INSS'.
+      IF NOT ls_irf_type-Usardatapagto.
+        APPEND VALUE #( sign = 'I' option = 'EQ' low = ls_irf_type-categoriairf ) TO lr_irf_types.
+      ENDIF.
+    ENDLOOP.
+
+    IF lr_irf_types IS NOT INITIAL.
+
+        SELECT nfi~br_notafiscal, nfi~br_notafiscalitem, nfi~br_nfsourcedocumenttype,
+           nfi~br_nfsourcedocumentnumber,                              "#EC CI_NO_TRANSFORM
+           nfi~br_nfsourcedocumentitem, nf~br_nftype, nf~br_nfdirection,
+           nf~br_nfpostingdate, nf~br_nfmodel, nf~br_nfseries, nf~br_nfsubseries,
+           nf~br_nfnumber, nf~businessplace, nf~br_nfpartnerfunction,
+           nf~br_nfpartner, nf~br_nfpartnertype, nf~br_nfiscanceled,
+           nf~br_nfsnumber, nf~br_isnfe, nf~br_nfenumber, nf~br_nfhasserviceitem,
+           nf~br_nfissuedby, nf~br_nfsituationcode,
+           nft~br_taxtype, nft~br_nfitembaseamount, nft~br_nfitemtaxrate,
+           nft~br_nfitemtaxamount, nft~br_nfitemwhldgcollectioncode, nft~taxgroup,
+           nf~br_businessplacecnpj, nf~br_nfpartnercnpj, nf~br_nfpartnername1,
+           nfi~br_lc116servicecode, nf~br_nftotalamount,
+           nfi~BR_EFDREINFServiceCode,
+           nfi~material
+         FROM i_br_nfitem AS nfi
+         INNER JOIN i_br_nfdocument AS nf
+                 ON nf~br_notafiscal = nfi~br_notafiscal
+         INNER JOIN i_br_nftax AS nft
+                 ON nf~br_notafiscal = nft~br_notafiscal
+                AND nfi~br_notafiscalitem = nft~br_notafiscalitem
+             WHERE nf~br_nfpostingdate IN @lr_daterange
+               "AND nfi~br_nfsourcedocumentnumber  = @lt_data_it-originalreferencedocument
+               AND nf~businessplace               = @sel-plant
+               AND nf~br_notafiscal               IN @r_docnum
+               "AND nft~br_nfitemhaswithholdingtax = 'X'
+               "não pegar estornos e notas canceladas
+               and nf~BR_NFIsCanceled NE 'X'
+               and nf~br_nftype NE 'A1'
+         APPENDING TABLE @gt_nfs.
+
+           LOOP AT gt_nfs INTO DATA(ls_nfs_aux).
+             INSERT VALUE ty_oreftab(
+                      originalreferencedocument = ls_nfs_aux-br_nfsourcedocumentnumber )
+               INTO TABLE lt_oreftab.
+           ENDLOOP.
+
+          SELECT wit~companycode, wit~accountingdocument, wit~fiscalyear, wit~accountingdocumentitem,
+           wit~withholdingtaxtype, wit~withholdingtaxcode, wit~whldgtaxbaseamtincocodecrcy,
+           wit~whldgtaxamtintransaccrcy, joi~clearingdate, wit~clearingaccountingdocument,
+           wit~withholdingtaxpercent, jo~referencedocumenttype, jo~originalreferencedocument, joi~netduedate
+           FROM i_withholdingtaxitem AS wit
+           INNER JOIN i_journalentry AS jo
+           ON wit~companycode = jo~companycode
+           AND wit~accountingdocument = jo~accountingdocument
+           AND wit~fiscalyear = jo~fiscalyear
+           INNER JOIN i_journalentryitem AS joi
+           ON wit~companycode = joi~companycode
+           AND wit~accountingdocument = joi~accountingdocument
+           AND wit~fiscalyear = joi~fiscalyear
+           AND wit~accountingdocumentitem = joi~accountingdocumentitem
+           FOR ALL ENTRIES IN @lt_oreftab
+           WHERE wit~whldgtaxbaseamtincocodecrcy <> 0
+             AND jo~originalreferencedocument = @lt_oreftab-originalreferencedocument
+             "AND jo~postingdate IN @sel-creation
+             AND wit~companycode = @sel-companycode
+             AND joi~ledger      = '0L'
+             AND wit~withholdingtaxtype IN @lr_irf_types
+           APPENDING TABLE @gt_data.
+
+
+    ENDIF.
+
 
     SORT gt_data BY companycode accountingdocument fiscalyear accountingdocumentitem.
 
@@ -534,8 +617,16 @@ CLASS lcl_process IMPLEMENTATION.
 ***      CONTINUE.
 ***    ENDIF.
 
+  READ TABLE mt_irf_types
+    WITH KEY categoriairf = ls_data-withholdingtaxtype
+    INTO DATA(ls_irf_type).
+
     DATA(lv_root_id) =
-      |{ ls_data-clearingdate(6) }{ ls_nfs-br_nfpartner }{ ls_nfs-br_nfnumber }|.
+      |{ ls_nfs-br_nfpostingdate(6) }{ ls_nfs-br_nfpartner }{ ls_nfs-br_nfnumber }|.
+
+    IF ls_irf_type-Usardatapagto.
+      lv_root_id = |{ ls_data-clearingdate(6) }{ ls_nfs-br_nfpartner }{ ls_nfs-br_nfnumber }|.
+    ENDIF.
 
     READ TABLE gt_objects ASSIGNING FIELD-SYMBOL(<root>)
       WITH KEY knwReinfR2010-id_referencia = lv_root_id.
@@ -546,7 +637,10 @@ CLASS lcl_process IMPLEMENTATION.
       <root>-knwReinfR2010-cd_filial           = gs_branch_sov-sov_branch.
       <root>-knwReinfR2010-id_referencia       = lv_root_id.
       <root>-knwReinfR2010-dm_retificacao      = '1'.
-      <root>-knwReinfR2010-dt_apuracao         = format_date_yyyymmdd( ls_data-clearingdate ).
+      <root>-knwReinfR2010-dt_apuracao         = format_date_yyyymmdd( ls_nfs-br_nfpostingdate ).
+      IF ls_irf_type-Usardatapagto.
+        <root>-knwReinfR2010-dt_apuracao         = format_date_yyyymmdd( ls_data-clearingdate ).
+      ENDIF.
       <root>-knwReinfR2010-dm_inscricao_obra   = '1'.
       <root>-knwReinfR2010-nr_inscricao_obra   = ls_nfs-br_businessplacecnpj.
       <root>-knwReinfR2010-dm_obra             = '0'.
@@ -602,7 +696,10 @@ CLASS lcl_process IMPLEMENTATION.
         <nota>-nr_item_nota   = lv_nr_item_nota.
         <nota>-nr_serie       = ls_nfs-br_nfseries.
         <nota>-nr_documento   = ls_nfs-br_nfnumber.
-        <nota>-dt_emissao     = format_date_yyyymmdd( iv_date = ls_data-clearingdate ).
+        <nota>-dt_emissao     = format_date_yyyymmdd( iv_date = ls_nfs-br_nfpostingdate ).
+        IF ls_irf_type-Usardatapagto.
+          <root>-knwReinfR2010-dt_apuracao         = format_date_yyyymmdd( ls_data-clearingdate ).
+        ENDIF.
         <nota>-vl_bruto       = format_amount( iv_value = ls_nfs-br_nftotalamount ).
         <nota>-ds_observacao  = ''.
           "|Doc contábil { ls_data-accountingdocument }|.
