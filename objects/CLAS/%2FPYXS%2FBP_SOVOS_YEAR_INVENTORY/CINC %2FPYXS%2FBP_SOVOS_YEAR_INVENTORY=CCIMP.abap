@@ -679,7 +679,7 @@ CLASS lcl_process IMPLEMENTATION.
 *        r_json           =
       ).
 
-      json_out = /pyxs/sov_json_conversion=>convert_sovos( json_out ).
+      json_out = /pyxs/sov_json_conversion=>convert_inventory( json_out ).
       DATA: lr_cscn TYPE if_com_scenario_factory=>ty_query-cscn_id_range.
 
       " find CA by scenario
