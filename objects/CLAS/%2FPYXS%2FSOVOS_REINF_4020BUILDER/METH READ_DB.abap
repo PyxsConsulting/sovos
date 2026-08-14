@@ -22,6 +22,7 @@
       AND branch = @sel-branch
       INTO @gs_branch_sov.
 
+
     LOOP AT mt_irf_types INTO DATA(ls_irf_type).
       IF ls_irf_type-Usardatapagto = abap_true.
         APPEND VALUE #( sign = 'I' option = 'EQ' low = ls_irf_type-categoriairf ) TO lr_irf_types.

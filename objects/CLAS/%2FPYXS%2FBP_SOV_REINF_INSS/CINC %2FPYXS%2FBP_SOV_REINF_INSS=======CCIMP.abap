@@ -442,6 +442,7 @@ CLASS lcl_process IMPLEMENTATION.
 
     APPEND VALUE #( sign = 'I' option = 'BT' low = lv_date_f high = lv_date_t ) TO lr_daterange.
 
+
     SELECT * FROM /pyxs/sov_taxtype_irf INTO TABLE @mt_irf_types.
     SELECT * FROM /pyxs/sov_natren       INTO TABLE @mt_nature.
     SELECT * FROM /pyxs/sov_cdrei2    INTO TABLE @mt_cdreinf.
