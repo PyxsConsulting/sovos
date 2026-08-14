@@ -1279,6 +1279,7 @@ CLASS lcl_process IMPLEMENTATION.
           ls_objeto-knw0200-unidade            = ls_data-unitofmeasure_e.
           "<item>-knw0200-dm_tipo_item       = '09'.
           ls_objeto-knw0200-cd_ncm             = normalize( p_str = ls_data-ConsumptionTaxCtrlCode ).
+          ls_objeto-knw0200-cd_genero          = ls_objeto-knw0200-cd_ncm(2).
           ls_objeto-knw0200-dm_origem_produto  = ls_data-ProductOriginType.
           "ls_objeto-knw0200-nr_cest            =
           CASE ls_data-referenceproducttype.

@@ -359,10 +359,11 @@ CLASS lcl_process IMPLEMENTATION.
       " VL_LANCAMENTO final do cabeçalho (soma só dos créditos)
       ls_out-knw_sctb_i200-vl_lancamento = lv_vl_lancto.
 
+
       APPEND ls_out TO ls_out_obj-objetos.
+      APPEND ls_out_obj TO gt_out.
 
     ENDLOOP.
-    APPEND ls_out_obj TO gt_out.
 
     ENDMETHOD.
 

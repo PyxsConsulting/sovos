@@ -499,6 +499,7 @@ CLASS lcl_process IMPLEMENTATION.
     ENDIF.
 
     APPEND ls_out TO gs_out_obj-objetos.
+    APPEND gs_out_obj TO gt_out.
 
   ENDMETHOD.
 
@@ -507,7 +508,6 @@ CLASS lcl_process IMPLEMENTATION.
         DATA: lo_ret     TYPE REF TO data,
               lv_sucesso TYPE abap_boolean.
 
-      APPEND gs_out_obj TO gt_out.
 
         LOOP AT gt_out INTO DATA(ls_doc).
 
