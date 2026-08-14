@@ -21,7 +21,7 @@ authorization master ( instance )
   draft determine action Prepare
   {}
 
-  field ( readonly : update ) CategoriaIrf;
+  field ( readonly : update ) CategoriaIrf, Imposto;
 
   mapping for /pyxs/sov_taxtyp
     {
