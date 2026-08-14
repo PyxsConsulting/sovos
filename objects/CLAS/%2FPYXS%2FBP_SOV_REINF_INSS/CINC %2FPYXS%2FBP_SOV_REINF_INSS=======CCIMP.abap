@@ -448,7 +448,7 @@ CLASS lcl_process IMPLEMENTATION.
 
     LOOP AT mt_irf_types INTO DATA(ls_irf_type).
       CHECK ls_irf_type-imposto = 'INSS'.
-      IF ls_irf_type-Usardatapagto.
+      IF ls_irf_type-Usardatapagto = abap_true.
         APPEND VALUE #( sign = 'I' option = 'EQ' low = ls_irf_type-categoriairf ) TO lr_irf_types.
       ENDIF.
     ENDLOOP.
@@ -516,7 +516,7 @@ CLASS lcl_process IMPLEMENTATION.
     CLEAR lr_irf_types.
     LOOP AT mt_irf_types INTO ls_irf_type.
       CHECK ls_irf_type-imposto = 'INSS'.
-      IF NOT ls_irf_type-Usardatapagto.
+      IF ls_irf_type-Usardatapagto = abap_false.
         APPEND VALUE #( sign = 'I' option = 'EQ' low = ls_irf_type-categoriairf ) TO lr_irf_types.
       ENDIF.
     ENDLOOP.
@@ -624,7 +624,7 @@ CLASS lcl_process IMPLEMENTATION.
     DATA(lv_root_id) =
       |{ ls_nfs-br_nfpostingdate(6) }{ ls_nfs-br_nfpartner }{ ls_nfs-br_nfnumber }|.
 
-    IF ls_irf_type-Usardatapagto.
+    IF ls_irf_type-Usardatapagto = abap_true.
       lv_root_id = |{ ls_data-clearingdate(6) }{ ls_nfs-br_nfpartner }{ ls_nfs-br_nfnumber }|.
     ENDIF.
 
@@ -638,7 +638,7 @@ CLASS lcl_process IMPLEMENTATION.
       <root>-knwReinfR2010-id_referencia       = lv_root_id.
       <root>-knwReinfR2010-dm_retificacao      = '1'.
       <root>-knwReinfR2010-dt_apuracao         = format_date_yyyymmdd( ls_nfs-br_nfpostingdate ).
-      IF ls_irf_type-Usardatapagto.
+      IF ls_irf_type-Usardatapagto = abap_true.
         <root>-knwReinfR2010-dt_apuracao         = format_date_yyyymmdd( ls_data-clearingdate ).
       ENDIF.
       <root>-knwReinfR2010-dm_inscricao_obra   = '1'.
@@ -697,7 +697,7 @@ CLASS lcl_process IMPLEMENTATION.
         <nota>-nr_serie       = ls_nfs-br_nfseries.
         <nota>-nr_documento   = ls_nfs-br_nfnumber.
         <nota>-dt_emissao     = format_date_yyyymmdd( iv_date = ls_nfs-br_nfpostingdate ).
-        IF ls_irf_type-Usardatapagto.
+        IF ls_irf_type-Usardatapagto = abap_true.
           <root>-knwReinfR2010-dt_apuracao         = format_date_yyyymmdd( ls_data-clearingdate ).
         ENDIF.
         <nota>-vl_bruto       = format_amount( iv_value = ls_nfs-br_nftotalamount ).
