@@ -311,7 +311,8 @@ CLASS lcl_process IMPLEMENTATION.
 
         " ---- knwSctbI200 (cabeçalho) ----
         ls_out-knw_sctb_i200-nr_lancamento    = ls_data-itm-accountingdocument.
-        ls_out-knw_sctb_i200-dt_lancamento    = ls_data-itm-postingdate.
+        ls_out-knw_sctb_i200-dt_lancamento    = |{ ls_data-itm-postingdate+6 }{ ls_data-itm-postingdate+4(2) }{ ls_data-itm-postingdate(4) }|.
+        "ls_out-knw_sctb_i200-dt_lancamento    = ls_data-itm-postingdate.
 
         IF ls_data-itm-debitcreditcode = 'H'.
           lv_vl_lancto += abs( ls_data-itm-amountincompanycodecurrency ).

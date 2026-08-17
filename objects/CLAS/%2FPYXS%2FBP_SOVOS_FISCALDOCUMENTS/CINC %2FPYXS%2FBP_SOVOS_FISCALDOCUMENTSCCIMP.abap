@@ -328,8 +328,6 @@ CLASS lcl_process_srv DEFINITION.
         objetos TYPE STANDARD TABLE OF ty_objetos WITH NON-UNIQUE DEFAULT KEY,
       END OF ty_main.
 
-
-
 ENDCLASS.
 
 CLASS lcl_process_srv IMPLEMENTATION.
@@ -1154,6 +1152,7 @@ CLASS lcl_process DEFINITION FRIENDS lhc_sovos_fiscaldocuments.
     BEGIN OF ty_ref_header,
          br_reference TYPE i_br_nfitem-BR_NotaFiscal,
     END OF ty_ref_header,
+
     BEGIN OF ty_counter_ref,
          br_reference TYPE i_br_nfitem-BR_NotaFiscal,
          counter      TYPE i,
@@ -1171,7 +1170,12 @@ CLASS lcl_process DEFINITION FRIENDS lhc_sovos_fiscaldocuments.
            BEGIN OF ty_counter,
              br_notafiscal TYPE i_br_nfdocument-br_notafiscal,
              counter       TYPE i,
-           END OF ty_counter.
+           END OF ty_counter,
+
+           BEGIN OF ty_seen_ref,
+             nr_doc_refer TYPE string,   " match the actual type of br_nfenumber
+             nr_documento TYPE string,   " match the actual type of knwc100-nr_documento
+           END OF ty_seen_ref.
 
     CONSTANTS: gc_icms         TYPE c LENGTH 10 VALUE 'ICMS',
                gc_icms_st      TYPE c LENGTH 10 VALUE 'ST',
@@ -1246,7 +1250,8 @@ CLASS lcl_process DEFINITION FRIENDS lhc_sovos_fiscaldocuments.
                 gv_branch_cnpj     TYPE string,
                 gs_comapany_code   TYPE i_companycode,
                 lt_counters_ref    TYPE TABLE OF ty_counter_ref,
-                lt_counters        TYPE TABLE OF ty_counter.
+                lt_counters        TYPE TABLE OF ty_counter,
+                lt_seen_refs TYPE HASHED TABLE OF ty_seen_ref WITH UNIQUE KEY nr_doc_refer nr_documento.
 
     CLASS-METHODS: read_nf_db,
 
@@ -3017,11 +3022,25 @@ CLASS lcl_process IMPLEMENTATION.
           LOOP AT t_refnflist INTO DATA(ls_ref_item)
             WHERE br_reference = ls_header-br_reference.
 
-
             READ TABLE t_nf_ref INTO DATA(ls_nf_ref_item)
               WITH KEY doc-br_notafiscal    = ls_ref_item-br_reference
                        nf-br_notafiscalitem = ls_ref_item-br_referenceitem.
+
             IF sy-subrc <> 0. CONTINUE. ENDIF.
+
+            "--- Dedup check for C113 key (nr_doc_refer + nr_documento) ---
+            DATA(lv_nr_doc_refer) = ls_nf_ref_doc-doc-br_nfenumber.
+            DATA(lv_nr_documento) = ls_objeto-knwc100-nr_documento.
+
+            READ TABLE lt_seen_refs TRANSPORTING NO FIELDS
+              WITH KEY nr_doc_refer = lv_nr_doc_refer
+                       nr_documento = lv_nr_documento.
+            IF sy-subrc = 0.
+              CONTINUE. "already recorded, skip this iteration
+            ENDIF.
+
+            INSERT VALUE #( nr_doc_refer = lv_nr_doc_refer
+                             nr_documento = lv_nr_documento ) INTO TABLE lt_seen_refs.
 
             APPEND INITIAL LINE TO ls_objeto-notaFiscalInfComplementarList ASSIGNING FIELD-SYMBOL(<inf_comp>).
             "--- C110 ---
