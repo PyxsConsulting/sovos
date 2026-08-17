@@ -27,6 +27,7 @@ CLASS /pyxs/sovos_reinf_4020builder DEFINITION
       mt_tax           TYPE TABLE OF i_br_nftax,
       mt_nature        TYPE TABLE OF /pyxs/sov_natren,
       gs_branch_sov    TYPE /pyxs/sov_branch,
+      gs_branch_main TYPE i_addlcompanycodeinformation,
       sel              TYPE ty_sel,
       mt_ret           TYPE ty_reinf,
       mt_irf_types     TYPE TABLE OF /pyxs/sov_taxtype_irf.

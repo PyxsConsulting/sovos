@@ -22,6 +22,11 @@
       AND branch = @sel-branch
       INTO @gs_branch_sov.
 
+    SELECT single *
+      FROM i_addlcompanycodeinformation WITH PRIVILEGED ACCESS
+      WHERE companycode = @sel-company
+        AND companycodeparametertype = 'J_1BBR'
+        INTO @gs_branch_main.
 
     LOOP AT mt_irf_types INTO DATA(ls_irf_type).
       IF ls_irf_type-Usardatapagto = abap_true.

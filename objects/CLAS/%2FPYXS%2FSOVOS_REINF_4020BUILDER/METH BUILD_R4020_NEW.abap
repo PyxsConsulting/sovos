@@ -40,8 +40,10 @@ LOOP AT gt_data INTO DATA(ls_data).
 
   IF sy-subrc <> 0.
     APPEND INITIAL LINE TO gt_objects ASSIGNING <root>.
-    <root>-knwReinfR4020-cd_empresa         = gs_branch_sov-sov_company.
-    <root>-knwReinfR4020-cd_filial          = gs_branch_sov-sov_branch.
+    "<root>-knwReinfR4020-cd_empresa         = gs_branch_sov-sov_company.
+    "<root>-knwReinfR4020-cd_filial          = gs_branch_sov-sov_branch.
+    <root>-knwReinfR4020-cd_empresa         = gs_branch_main-CompanyCode.
+    <root>-knwReinfR4020-cd_filial           = gs_branch_main-CompanyCodeParameterValue.
     <root>-knwReinfR4020-id_referencia      = lv_root_id.
     <root>-knwReinfR4020-id_evento          = lv_root_id.
     <root>-knwReinfR4020-dm_retificacao     = '1'.
@@ -73,8 +75,10 @@ LOOP AT gt_data INTO DATA(ls_data).
       <root>-reinfR4020PgtoList
       ASSIGNING <pgto>.
 
-    <pgto>-cd_empresa    = gs_branch_sov-sov_company.
-    <pgto>-cd_filial     = gs_branch_sov-sov_branch.
+    "<pgto>-cd_empresa    = gs_branch_sov-sov_company.
+    "<pgto>-cd_filial     = gs_branch_sov-sov_branch.
+    <pgto>-cd_empresa          = gs_branch_main-CompanyCode.
+    <pgto>-cd_filial        = gs_branch_main-CompanyCodeParameterValue.
     <pgto>-id_referencia = lv_root_id.
     "<pgto>-id_referencia = lv_pgto_key.
     <pgto>-id_seq_pagto  = lv_seq_pagto.
@@ -109,8 +113,10 @@ LOOP AT gt_data INTO DATA(ls_data).
       <root>-knwReinfR4020InfoPgtoList
       ASSIGNING <info>.
 
-    <info>-cd_empresa       = gs_branch_sov-sov_company.
-    <info>-cd_filial        = gs_branch_sov-sov_branch.
+    "<info>-cd_empresa       = gs_branch_sov-sov_company.
+    "<info>-cd_filial        = gs_branch_sov-sov_branch.
+    <info>-cd_empresa          = gs_branch_main-CompanyCode.
+    <info>-cd_filial           = gs_branch_main-CompanyCodeParameterValue.
     <info>-id_referencia    = lv_root_id.
     "<info>-id_referencia    = lv_info_key.
     <info>-id_seq_pagto     = <pgto>-id_seq_pagto.
@@ -142,8 +148,10 @@ LOOP AT gt_data INTO DATA(ls_data).
       <root>-knwReinfR4020InfoPgtoRetList
       ASSIGNING <ret>.
 
-    <ret>-cd_empresa        = gs_branch_sov-sov_company.
-    <ret>-cd_filial         = gs_branch_sov-sov_branch.
+    "<ret>-cd_empresa        = gs_branch_sov-sov_company.
+    "<ret>-cd_filial         = gs_branch_sov-sov_branch.
+    <ret>-cd_empresa          = gs_branch_main-CompanyCode.
+    <ret>-cd_filial        = gs_branch_main-CompanyCodeParameterValue.
     <ret>-id_referencia     = lv_root_id.
     "<ret>-id_referencia     = lv_info_key.
     <ret>-id_seq_pagto      = <info>-id_seq_pagto.

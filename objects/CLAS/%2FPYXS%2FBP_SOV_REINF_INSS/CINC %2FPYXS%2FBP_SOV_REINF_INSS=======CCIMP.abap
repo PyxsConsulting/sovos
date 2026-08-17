@@ -184,19 +184,20 @@ CLASS lcl_process DEFINITION FRIENDS lhc_SOV_REINF_INSS.
       END OF ty_companycode.
 
     CLASS-DATA:
-      sel           TYPE ty_sel,
-      data_sys      TYPE d,
-      hora_sys      TYPE t,
-      gv_proc       TYPE string,
-      gs_company    TYPE ty_companycode,
-      gs_branch_sov TYPE /pyxs/sov_branch,
-      gt_data       TYPE ty_t_wit_data,
-      gt_objects    TYPE tt_r2010_objects,
-      gt_nfs        TYPE ty_t_nf_data,
-      mt_nature     TYPE TABLE OF /pyxs/sov_natren,
+      sel            TYPE ty_sel,
+      data_sys       TYPE d,
+      hora_sys       TYPE t,
+      gv_proc        TYPE string,
+      gs_company     TYPE ty_companycode,
+      gs_branch_sov  TYPE /pyxs/sov_branch,
+      gs_branch_main TYPE i_addlcompanycodeinformation,
+      gt_data        TYPE ty_t_wit_data,
+      gt_objects     TYPE tt_r2010_objects,
+      gt_nfs         TYPE ty_t_nf_data,
+      mt_nature      TYPE TABLE OF /pyxs/sov_natren,
       mt_cdreinf     TYPE TABLE OF /pyxs/sov_cdrei2,
-      mt_irf_types  TYPE TABLE OF /pyxs/sov_taxtype_irf,
-      gt_root       TYPE ty_t_root_r2010.        " replaces ls_root / lt_root
+      mt_irf_types   TYPE TABLE OF /pyxs/sov_taxtype_irf,
+      gt_root        TYPE ty_t_root_r2010.        " replaces ls_root / lt_root
 
   PRIVATE SECTION.
     CLASS-METHODS:
@@ -410,6 +411,12 @@ CLASS lcl_process IMPLEMENTATION.
         AND branch       = @sel-plant
       INTO @gs_branch_sov.
 
+    SELECT single *
+      FROM i_addlcompanycodeinformation WITH PRIVILEGED ACCESS
+      WHERE companycode = @sel-companycode
+        AND companycodeparametertype = 'J_1BBR'
+        INTO @gs_branch_main.
+
     DATA: lr_irf_types  TYPE RANGE OF i_withholdingtaxitem-withholdingtaxtype,
           lr_daterange  TYPE RANGE OF i_journalentryitem-clearingdate.
 
@@ -446,6 +453,7 @@ CLASS lcl_process IMPLEMENTATION.
     SELECT * FROM /pyxs/sov_taxtype_irf INTO TABLE @mt_irf_types.
     SELECT * FROM /pyxs/sov_natren       INTO TABLE @mt_nature.
     SELECT * FROM /pyxs/sov_cdrei2    INTO TABLE @mt_cdreinf.
+
 
     LOOP AT mt_irf_types INTO DATA(ls_irf_type).
       CHECK ls_irf_type-imposto = 'INSS'.
@@ -634,8 +642,10 @@ CLASS lcl_process IMPLEMENTATION.
 
     IF sy-subrc <> 0.
       APPEND INITIAL LINE TO gt_objects ASSIGNING <root>.
-      <root>-knwReinfR2010-cd_empresa          = gs_branch_sov-sov_company.
-      <root>-knwReinfR2010-cd_filial           = gs_branch_sov-sov_branch.
+      "<root>-knwReinfR2010-cd_empresa          = gs_branch_sov-sov_company.
+      "<root>-knwReinfR2010-cd_filial           = gs_branch_sov-sov_branch.
+      <root>-knwReinfR2010-cd_empresa          = gs_branch_main-CompanyCode.
+      <root>-knwReinfR2010-cd_filial           = gs_branch_main-CompanyCodeParameterValue.
       <root>-knwReinfR2010-id_referencia       = lv_root_id.
       <root>-knwReinfR2010-dm_retificacao      = '1'.
       <root>-knwReinfR2010-dt_apuracao         = format_date_yyyymmdd( ls_nfs-br_nfpostingdate ).
@@ -691,8 +701,10 @@ CLASS lcl_process IMPLEMENTATION.
           <root>-knwReinfR2010NotaList
           ASSIGNING <nota>.
 
-        <nota>-cd_empresa     = gs_branch_sov-sov_company.
-        <nota>-cd_filial      = gs_branch_sov-sov_branch.
+        "<nota>-cd_empresa     = gs_branch_sov-sov_company.
+        "<nota>-cd_filial      = gs_branch_sov-sov_branch.
+        <nota>-cd_empresa          = gs_branch_main-CompanyCode.
+        <nota>-cd_filial            = gs_branch_main-CompanyCodeParameterValue.
         <nota>-id_referencia  = lv_root_id.
         <nota>-nr_item_nota   = lv_nr_item_nota.
         <nota>-nr_serie       = ls_nfs-br_nfseries.
@@ -720,8 +732,10 @@ CLASS lcl_process IMPLEMENTATION.
           <root>-knwReinfR2010ServicoList
           ASSIGNING <serv>.
 
-        <serv>-cd_empresa        = gs_branch_sov-sov_company.
-        <serv>-cd_filial         = gs_branch_sov-sov_branch.
+        "<serv>-cd_empresa        = gs_branch_sov-sov_company.
+        "<serv>-cd_filial         = gs_branch_sov-sov_branch.
+        <serv>-cd_empresa             = gs_branch_main-CompanyCode.
+        <serv>-cd_filial           = gs_branch_main-CompanyCodeParameterValue.
         <serv>-id_referencia     = lv_root_id.
         <serv>-nr_item_nota      = lv_nr_item_nota.
         <serv>-nr_item_servico   = 1.
