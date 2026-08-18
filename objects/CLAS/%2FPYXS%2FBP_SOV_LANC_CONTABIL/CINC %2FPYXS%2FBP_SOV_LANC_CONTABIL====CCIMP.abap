@@ -467,15 +467,15 @@ CLASS lcl_process IMPLEMENTATION.
             <log>-returnreason = lv_ret-reason.
             <log>-response     = gv_proc.
       ELSE.
-        LOOP AT lo_ret->('MENSAGENS')->* ASSIGNING FIELD-SYMBOL(<lv_msg>).
-          APPEND INITIAL LINE TO /pyxs/bp_sov_lanc_contabil=>lt_log ASSIGNING <log>.
-            <log>-timedate     = time.
-            <log>-lancamento   = ls_doc-objetos[ 1 ]-knw_sctb_i200-nr_lancamento.
-            <log>-id           = ls_doc-objetos[ 1 ]-knw_sctb_i200-dm_lancamento.
-            <log>-returncode   = lv_ret-code.
-            <log>-returnreason = lv_ret-reason.
-            <log>-response     = <lv_msg>->*.
-        ENDLOOP.
+***        LOOP AT lo_ret->('MENSAGENS')->* ASSIGNING FIELD-SYMBOL(<lv_msg>).
+***          APPEND INITIAL LINE TO /pyxs/bp_sov_lanc_contabil=>lt_log ASSIGNING <log>.
+***            <log>-timedate     = time.
+***            <log>-lancamento   = ls_doc-objetos[ 1 ]-knw_sctb_i200-nr_lancamento.
+***            <log>-id           = ls_doc-objetos[ 1 ]-knw_sctb_i200-dm_lancamento.
+***            <log>-returncode   = lv_ret-code.
+***            <log>-returnreason = lv_ret-reason.
+***            <log>-response     = <lv_msg>->*.
+***        ENDLOOP.
       ENDIF.
 
     ENDLOOP.
