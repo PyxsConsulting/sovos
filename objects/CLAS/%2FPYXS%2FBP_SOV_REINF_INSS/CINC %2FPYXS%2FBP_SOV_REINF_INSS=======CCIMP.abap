@@ -633,10 +633,10 @@ CLASS lcl_process IMPLEMENTATION.
     INTO DATA(ls_irf_type).
 
     DATA(lv_root_id) =
-      |{ ls_nfs-br_nfpostingdate(6) }{ ls_nfs-br_nfpartner }{ ls_nfs-br_nfnumber }|.
+      |R2010{ ls_nfs-br_nfpostingdate(6) }{ ls_nfs-br_nfpartner }{ ls_nfs-br_nfnumber }|.
 
     IF ls_irf_type-Usardatapagto = abap_true.
-      lv_root_id = |{ ls_data-clearingdate(6) }{ ls_nfs-br_nfpartner }{ ls_nfs-br_nfnumber }|.
+      lv_root_id = |R2010{ ls_data-clearingdate(6) }{ ls_nfs-br_nfpartner }{ ls_nfs-br_nfnumber }|.
     ENDIF.
 
     READ TABLE gt_objects ASSIGNING FIELD-SYMBOL(<root>)

@@ -30,9 +30,9 @@ LOOP AT gt_data INTO DATA(ls_data).
   ENDIF.
 
   DATA(lv_root_id) =
-    |{ ls_nfs-br_nfpostingdate(6) }{ ls_nfs-br_nfpartner }|.
+    |R4020{ ls_nfs-br_nfpostingdate(6) }{ ls_nfs-br_nfpartner }|.
   IF ls_irf_type-Usardatapagto = abap_true.
-    lv_root_id = |{ ls_data-clearingdate(6) }{ ls_nfs-br_nfpartner }|.
+    lv_root_id = |R4020{ ls_data-clearingdate(6) }{ ls_nfs-br_nfpartner }|.
   ENDIF.
 
   READ TABLE gt_objects ASSIGNING FIELD-SYMBOL(<root>)
