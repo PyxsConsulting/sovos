@@ -1555,18 +1555,16 @@ CLASS lcl_process IMPLEMENTATION.
         <log>-returnreason = lv_ret-reason.
 
       ELSE.
-        TRY.
-        LOOP AT lo_ret->('MENSAGENS')->* ASSIGNING FIELD-SYMBOL(<lv_msg>).
-          APPEND INITIAL LINE TO /pyxs/bp_sovos_fiscaldocuments=>lt_log ASSIGNING <log>.
-          <log>-id = sy-tabix.
-          <log>-timedate = time.
-          "READ TABLE t_nfdocs INTO ls_nf WITH KEY doc-br_nfenumber = ls_doc-objetos[ 1 ]-knwc100-nr_documento.
-          <log>-br_notafiscal  = lv_docnum. "ls_nf-doc-br_notafiscal .
-          <log>-response = <lv_msg>->*.
-          <log>-returncode = lv_ret-code.
-          <log>-returnreason = lv_ret-reason.
-        ENDLOOP.
-        ENDTRY.
+***        LOOP AT lo_ret->('MENSAGENS')->* ASSIGNING FIELD-SYMBOL(<lv_msg>).
+***          APPEND INITIAL LINE TO /pyxs/bp_sovos_fiscaldocuments=>lt_log ASSIGNING <log>.
+***          <log>-id = sy-tabix.
+***          <log>-timedate = time.
+***          "READ TABLE t_nfdocs INTO ls_nf WITH KEY doc-br_nfenumber = ls_doc-objetos[ 1 ]-knwc100-nr_documento.
+***          <log>-br_notafiscal  = lv_docnum. "ls_nf-doc-br_notafiscal .
+***          <log>-response = <lv_msg>->*.
+***          <log>-returncode = lv_ret-code.
+***          <log>-returnreason = lv_ret-reason.
+***        ENDLOOP.
       ENDIF.
 
 
@@ -1717,18 +1715,16 @@ CLASS lcl_process IMPLEMENTATION.
         <log>-returnreason = lv_ret-reason.
 
       ELSE.
-        TRY.
-        LOOP AT lo_ret->('MENSAGENS')->* ASSIGNING <lv_msg>.
-          APPEND INITIAL LINE TO /pyxs/bp_sovos_fiscaldocuments=>lt_log ASSIGNING <log>.
-          <log>-id = sy-tabix.
-          <log>-timedate = time.
-          "READ TABLE t_nfdocs INTO ls_nf WITH KEY doc-br_nfenumber = ls_doc-objetos[ 1 ]-knwc100-nr_documento.
-          <log>-br_notafiscal = lv_docnum. "ls_nf-doc-br_notafiscal .
-          <log>-response = <lv_msg>->*.
-          <log>-returncode = lv_ret-code.
-          <log>-returnreason = lv_ret-reason.
-        ENDLOOP.
-        ENDTRY.
+***        LOOP AT lo_ret->('MENSAGENS')->* ASSIGNING FIELD-SYMBOL(<lv_msg>).
+***          APPEND INITIAL LINE TO /pyxs/bp_sovos_fiscaldocuments=>lt_log ASSIGNING <log>.
+***          <log>-id = sy-tabix.
+***          <log>-timedate = time.
+***          "READ TABLE t_nfdocs INTO ls_nf WITH KEY doc-br_nfenumber = ls_doc-objetos[ 1 ]-knwc100-nr_documento.
+***          <log>-br_notafiscal  = lv_docnum. "ls_nf-doc-br_notafiscal .
+***          <log>-response = <lv_msg>->*.
+***          <log>-returncode = lv_ret-code.
+***          <log>-returnreason = lv_ret-reason.
+***        ENDLOOP.
       ENDIF.
 
 
@@ -1877,18 +1873,16 @@ CLASS lcl_process IMPLEMENTATION.
         <log>-returnreason = lv_ret-reason.
 
       ELSE.
-        TRY.
-        LOOP AT lo_ret->('MENSAGENS')->* ASSIGNING <lv_msg>.
-          APPEND INITIAL LINE TO /pyxs/bp_sovos_fiscaldocuments=>lt_log ASSIGNING <log>.
-          <log>-id = sy-tabix.
-          <log>-timedate = time.
-          "READ TABLE t_nfdocs INTO ls_nf WITH KEY doc-br_nfenumber = ls_doc-objetos[ 1 ]-knwc100-nr_documento.
-          <log>-br_notafiscal = lv_docnum. "ls_nf-doc-br_notafiscal .
-          <log>-response = <lv_msg>->*.
-          <log>-returncode = lv_ret-code.
-          <log>-returnreason = lv_ret-reason.
-        ENDLOOP.
-        ENDTRY.
+***        LOOP AT lo_ret->('MENSAGENS')->* ASSIGNING <lv_msg>.
+***          APPEND INITIAL LINE TO /pyxs/bp_sovos_fiscaldocuments=>lt_log ASSIGNING <log>.
+***          <log>-id = sy-tabix.
+***          <log>-timedate = time.
+***          "READ TABLE t_nfdocs INTO ls_nf WITH KEY doc-br_nfenumber = ls_doc-objetos[ 1 ]-knwc100-nr_documento.
+***          <log>-br_notafiscal = lv_docnum. "ls_nf-doc-br_notafiscal .
+***          <log>-response = <lv_msg>->*.
+***          <log>-returncode = lv_ret-code.
+***          <log>-returnreason = lv_ret-reason.
+***        ENDLOOP.
       ENDIF.
     ENDLOOP.
   ENDMETHOD.
