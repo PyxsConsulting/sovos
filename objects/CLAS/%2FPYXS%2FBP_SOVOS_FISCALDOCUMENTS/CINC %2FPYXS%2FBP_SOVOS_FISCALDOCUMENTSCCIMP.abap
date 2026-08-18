@@ -2899,7 +2899,9 @@ CLASS lcl_process IMPLEMENTATION.
           <item>-knw0200-dt_inicial         = '1900-01-01T00:00:00-03:00'.
           "<item>-knw0200-dm_tipo_item       = '09'.
           <item>-knw0200-cd_ncm             = normalize( p_str = ls_nfitem-nf-ncmcode ).
-          <item>-knw0200-cd_genero            = <item>-knw0200-cd_ncm(2).
+            IF <item>-knw0200-cd_ncm IS NOT INITIAL.
+              <item>-knw0200-cd_genero = <item>-knw0200-cd_ncm(2).
+            ENDIF.
           <item>-knw0200-dm_origem_produto  = ls_nfitem-nf-br_materialorigin.
           <item>-knw0200-nr_cest            = ls_nfitem-nf-br_icmsstlegalclassfctn.
           CASE ls_nfitem-referenceproducttype.

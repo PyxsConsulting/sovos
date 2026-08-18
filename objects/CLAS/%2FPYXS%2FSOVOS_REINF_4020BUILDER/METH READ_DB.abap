@@ -16,17 +16,18 @@
     SELECT * FROM /pyxs/sov_taxtype_irf INTO TABLE @mt_irf_types.
     SELECT * FROM /pyxs/sov_natren INTO TABLE @mt_nature.
 
-    SELECT SINGLE *
-      FROM /pyxs/sov_branch
-    WHERE company_code = @sel-company
-      AND branch = @sel-branch
-      INTO @gs_branch_sov.
 
     SELECT single *
       FROM i_addlcompanycodeinformation WITH PRIVILEGED ACCESS
       WHERE companycode = @sel-company
         AND companycodeparametertype = 'J_1BBR'
         INTO @gs_branch_main.
+
+    SELECT SINGLE *
+      FROM /pyxs/sov_branch
+    WHERE company_code = @sel-company
+      AND branch = @gs_branch_main-CompanyCodeParameterValue
+      INTO @gs_branch_sov.
 
     LOOP AT mt_irf_types INTO DATA(ls_irf_type).
       IF ls_irf_type-Usardatapagto = abap_true.

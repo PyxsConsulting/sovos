@@ -405,17 +405,19 @@ CLASS lcl_process IMPLEMENTATION.
          originalreferencedocument TYPE i_journalentry-originalreferencedocument,
        END OF ty_oreftab.
 
-    SELECT SINGLE *
-      FROM /pyxs/sov_branch
-      WHERE company_code = @sel-companycode
-        AND branch       = @sel-plant
-      INTO @gs_branch_sov.
 
     SELECT single *
       FROM i_addlcompanycodeinformation WITH PRIVILEGED ACCESS
       WHERE companycode = @sel-companycode
         AND companycodeparametertype = 'J_1BBR'
         INTO @gs_branch_main.
+
+    SELECT SINGLE *
+      FROM /pyxs/sov_branch
+      WHERE company_code = @sel-companycode
+        AND branch       = @gs_branch_main-CompanyCodeParameterValue
+      INTO @gs_branch_sov.
+
 
     DATA: lr_irf_types  TYPE RANGE OF i_withholdingtaxitem-withholdingtaxtype,
           lr_daterange  TYPE RANGE OF i_journalentryitem-clearingdate.
@@ -642,10 +644,10 @@ CLASS lcl_process IMPLEMENTATION.
 
     IF sy-subrc <> 0.
       APPEND INITIAL LINE TO gt_objects ASSIGNING <root>.
-      "<root>-knwReinfR2010-cd_empresa          = gs_branch_sov-sov_company.
-      "<root>-knwReinfR2010-cd_filial           = gs_branch_sov-sov_branch.
-      <root>-knwReinfR2010-cd_empresa          = gs_branch_main-CompanyCode.
-      <root>-knwReinfR2010-cd_filial           = gs_branch_main-CompanyCodeParameterValue.
+      <root>-knwReinfR2010-cd_empresa          = gs_branch_sov-sov_company.
+      <root>-knwReinfR2010-cd_filial           = gs_branch_sov-sov_branch.
+      "<root>-knwReinfR2010-cd_empresa          = gs_branch_main-CompanyCode.
+      "<root>-knwReinfR2010-cd_filial           = gs_branch_main-CompanyCodeParameterValue.
       <root>-knwReinfR2010-id_referencia       = lv_root_id.
       <root>-knwReinfR2010-dm_retificacao      = '1'.
       <root>-knwReinfR2010-dt_apuracao         = format_date_yyyymmdd( ls_nfs-br_nfpostingdate ).
@@ -701,10 +703,10 @@ CLASS lcl_process IMPLEMENTATION.
           <root>-knwReinfR2010NotaList
           ASSIGNING <nota>.
 
-        "<nota>-cd_empresa     = gs_branch_sov-sov_company.
-        "<nota>-cd_filial      = gs_branch_sov-sov_branch.
-        <nota>-cd_empresa          = gs_branch_main-CompanyCode.
-        <nota>-cd_filial            = gs_branch_main-CompanyCodeParameterValue.
+        <nota>-cd_empresa     = gs_branch_sov-sov_company.
+        <nota>-cd_filial      = gs_branch_sov-sov_branch.
+        "<nota>-cd_empresa          = gs_branch_main-CompanyCode.
+        "<nota>-cd_filial            = gs_branch_main-CompanyCodeParameterValue.
         <nota>-id_referencia  = lv_root_id.
         <nota>-nr_item_nota   = lv_nr_item_nota.
         <nota>-nr_serie       = ls_nfs-br_nfseries.
@@ -732,10 +734,10 @@ CLASS lcl_process IMPLEMENTATION.
           <root>-knwReinfR2010ServicoList
           ASSIGNING <serv>.
 
-        "<serv>-cd_empresa        = gs_branch_sov-sov_company.
-        "<serv>-cd_filial         = gs_branch_sov-sov_branch.
-        <serv>-cd_empresa             = gs_branch_main-CompanyCode.
-        <serv>-cd_filial           = gs_branch_main-CompanyCodeParameterValue.
+        <serv>-cd_empresa        = gs_branch_sov-sov_company.
+        <serv>-cd_filial         = gs_branch_sov-sov_branch.
+        "<serv>-cd_empresa             = gs_branch_main-CompanyCode.
+        "<serv>-cd_filial           = gs_branch_main-CompanyCodeParameterValue.
         <serv>-id_referencia     = lv_root_id.
         <serv>-nr_item_nota      = lv_nr_item_nota.
         <serv>-nr_item_servico   = 1.
