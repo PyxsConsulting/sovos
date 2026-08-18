@@ -1555,7 +1555,7 @@ CLASS lcl_process IMPLEMENTATION.
         <log>-returnreason = lv_ret-reason.
 
       ELSE.
-
+        TRY.
         LOOP AT lo_ret->('MENSAGENS')->* ASSIGNING FIELD-SYMBOL(<lv_msg>).
           APPEND INITIAL LINE TO /pyxs/bp_sovos_fiscaldocuments=>lt_log ASSIGNING <log>.
           <log>-id = sy-tabix.
@@ -1566,6 +1566,7 @@ CLASS lcl_process IMPLEMENTATION.
           <log>-returncode = lv_ret-code.
           <log>-returnreason = lv_ret-reason.
         ENDLOOP.
+        ENDTRY.
       ENDIF.
 
 
@@ -1716,7 +1717,7 @@ CLASS lcl_process IMPLEMENTATION.
         <log>-returnreason = lv_ret-reason.
 
       ELSE.
-
+        TRY.
         LOOP AT lo_ret->('MENSAGENS')->* ASSIGNING <lv_msg>.
           APPEND INITIAL LINE TO /pyxs/bp_sovos_fiscaldocuments=>lt_log ASSIGNING <log>.
           <log>-id = sy-tabix.
@@ -1727,6 +1728,7 @@ CLASS lcl_process IMPLEMENTATION.
           <log>-returncode = lv_ret-code.
           <log>-returnreason = lv_ret-reason.
         ENDLOOP.
+        ENDTRY.
       ENDIF.
 
 
@@ -1875,7 +1877,7 @@ CLASS lcl_process IMPLEMENTATION.
         <log>-returnreason = lv_ret-reason.
 
       ELSE.
-
+        TRY.
         LOOP AT lo_ret->('MENSAGENS')->* ASSIGNING <lv_msg>.
           APPEND INITIAL LINE TO /pyxs/bp_sovos_fiscaldocuments=>lt_log ASSIGNING <log>.
           <log>-id = sy-tabix.
@@ -1886,6 +1888,7 @@ CLASS lcl_process IMPLEMENTATION.
           <log>-returncode = lv_ret-code.
           <log>-returnreason = lv_ret-reason.
         ENDLOOP.
+        ENDTRY.
       ENDIF.
     ENDLOOP.
   ENDMETHOD.
