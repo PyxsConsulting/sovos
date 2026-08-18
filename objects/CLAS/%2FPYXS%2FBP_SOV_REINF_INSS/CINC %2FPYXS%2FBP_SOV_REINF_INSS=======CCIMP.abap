@@ -514,7 +514,7 @@ CLASS lcl_process IMPLEMENTATION.
        AND nfi~br_notafiscalitem  = nft~br_notafiscalitem
       FOR ALL ENTRIES IN @gt_data
       WHERE nfi~br_nfsourcedocumentnumber = @gt_data-originalreferencedocument
-        AND nf~businessplace              = @sel-plant
+        "AND nf~businessplace              = @sel-plant
         AND nf~br_notafiscal             IN @r_docnum
         "não pegar estornos e notas canceladas
         and nf~BR_NFIsCanceled NE 'X'
@@ -554,7 +554,7 @@ CLASS lcl_process IMPLEMENTATION.
                 AND nfi~br_notafiscalitem = nft~br_notafiscalitem
              WHERE nf~br_nfpostingdate IN @lr_daterange
                "AND nfi~br_nfsourcedocumentnumber  = @lt_data_it-originalreferencedocument
-               AND nf~businessplace               = @sel-plant
+               "AND nf~businessplace               = @sel-plant
                AND nf~br_notafiscal               IN @r_docnum
                "AND nft~br_nfitemhaswithholdingtax = 'X'
                "não pegar estornos e notas canceladas

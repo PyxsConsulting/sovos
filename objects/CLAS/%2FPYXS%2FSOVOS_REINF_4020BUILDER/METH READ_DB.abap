@@ -76,7 +76,7 @@
                 AND nfi~br_notafiscalitem = nft~br_notafiscalitem
                 FOR ALL ENTRIES IN @gt_data
              WHERE nfi~br_nfsourcedocumentnumber  = @gt_data-originalreferencedocument
-               AND nf~businessplace               = @sel-branch
+               "AND nf~businessplace               = @sel-branch
                AND nf~br_nfpartner                IN @sel-partner
                AND nf~br_notafiscal               IN @sel-document
                "AND nft~br_nfitemhaswithholdingtax = 'X'
@@ -110,7 +110,7 @@
                 AND nfi~br_notafiscalitem = nft~br_notafiscalitem
              WHERE nf~br_nfpostingdate IN @sel-creation
                "AND nfi~br_nfsourcedocumentnumber  = @lt_data_it-originalreferencedocument
-               AND nf~businessplace               = @sel-branch
+               "AND nf~businessplace               = @sel-branch
                AND nf~br_nfpartner                IN @sel-partner
                AND nf~br_notafiscal               IN @sel-document
                "AND nft~br_nfitemhaswithholdingtax = 'X'

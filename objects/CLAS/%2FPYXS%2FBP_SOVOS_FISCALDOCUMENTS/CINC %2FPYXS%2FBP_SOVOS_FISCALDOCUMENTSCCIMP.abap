@@ -2509,6 +2509,7 @@ CLASS lcl_process IMPLEMENTATION.
           ls_objeto-knw0150destinatario-cod_filial      = p_nfdoc-doc-businessplace.
           ls_objeto-knw0150destinatario-nm_razao_social = ls_branch-nome_fantasia.
           ls_objeto-knw0150destinatario-nr_cnpj_cpf     = p_nfdoc-doc-br_businessplacecnpj. "( |{ ls_branch-cnpj_raiz }{ ls_branch-cnpj_filial }| ).
+          ls_objeto-knw0150destinatario-nr_inscr_est    = p_nfdoc-doc-br_nfpartnerstatetaxnumber. "ls_vendor-taxnumber3.
           ls_objeto-knw0150destinatario-cd_municipio    = ls_branch-taxjurisdiction+3.
           ls_objeto-knw0150destinatario-cd_pais         = get_ibge_country( ls_branch-countrycode ).
           ls_objeto-knw0150destinatario-dt_inicial      = '1900-01-01T00:00:00-03:00'.
@@ -2534,6 +2535,7 @@ CLASS lcl_process IMPLEMENTATION.
           ls_objeto-knw0150emitente-cod_filial  = p_nfdoc-doc-businessplace.
           ls_objeto-knw0150emitente-nm_razao_social = ls_branch-nome_fantasia.
           ls_objeto-knw0150emitente-nr_cnpj_cpf     = p_nfdoc-doc-br_businessplacecnpj. "build_cnpj( |{ ls_branch-cnpj_raiz }{ ls_branch-cnpj_filial }| ).
+          ls_objeto-knw0150emitente-nr_inscr_est    = p_nfdoc-doc-br_nfpartnerstatetaxnumber. "ls_vendor-taxnumber3.
           ls_objeto-knw0150emitente-cd_municipio    = ls_branch-taxjurisdiction+3.
           ls_objeto-knw0150emitente-cd_pais         = get_ibge_country( ls_branch-countrycode ).
           ls_objeto-knw0150emitente-ds_endereco     = ls_branch-endereco.
@@ -3073,6 +3075,7 @@ CLASS lcl_process IMPLEMENTATION.
             <c113>-knw0150-nm_razao_social     = ls_branch-nome_fantasia.
             <c113>-knw0150-nr_cnpj_cpf         = ls_nf_ref_doc-doc-br_businessplacecnpj.
             <c113>-knw0150-cd_municipio        = ls_branch-taxjurisdiction+3.
+            <c113>-knw0150-nr_inscr_est        = ls_nf_ref_doc-doc-br_nfpartnerstatetaxnumber."ls_customer-taxnumber3.
             <c113>-knw0150-cd_pais             = get_ibge_country( ls_branch-countrycode ).
             <c113>-knw0150-dt_inicial          = '1900-01-01T00:00:00-03:00'.
             <c113>-knw0150-cd_pessoa           = ls_branch-cod_estab.
@@ -3125,6 +3128,7 @@ CLASS lcl_process IMPLEMENTATION.
 
             <c113>-knw0150-nm_razao_social     = ls_nf_ref_doc-doc-br_nfpartnername1.
             <c113>-knw0150-nr_cnpj_cpf         = COND #( WHEN ls_nf_ref_doc-doc-br_nfpartnercnpj IS NOT INITIAL THEN ls_nf_ref_doc-doc-br_nfpartnercnpj ELSE ls_nf_ref_doc-doc-br_nfpartnercpf ).
+            <c113>-knw0150-nr_inscr_est        = ls_nf_ref_doc-doc-br_nfpartnerstatetaxnumber."ls_customer-taxnumber3.
             <c113>-knw0150-cd_municipio        = ls_nf_ref_doc-doc-br_nfpartnertaxjurisdiction+3.
             <c113>-knw0150-cd_pais             = get_ibge_country( ls_nf_ref_doc-doc-br_nfpartnercountrycode ).
             <c113>-knw0150-dt_inicial          = '1900-01-01T00:00:00-03:00'.
@@ -3750,7 +3754,7 @@ CLASS lcl_process IMPLEMENTATION.
 
       ls_objeto-knw0150-nr_cep          = p_nfdoc-doc-br_nfpartnerpostalcode.
       REPLACE ALL OCCURRENCES OF '-' IN ls_objeto-knw0150-nr_cep WITH ''.
-
+      ls_objeto-knw0150-nr_inscr_munic = p_nfdoc-doc-br_nfpartnerstatetaxnumber.
       ls_objeto-knw0150-cd_municipio    = p_nfdoc-doc-br_nfpartnertaxjurisdiction+3(7).
       ls_objeto-knw0150-cd_pais         = get_ibge_country( p_nfdoc-doc-br_nfpartnercountrycode ).
       ls_objeto-knw0150-nr_cnpj_cpf     = p_nfdoc-doc-br_nfpartnercnpj.
