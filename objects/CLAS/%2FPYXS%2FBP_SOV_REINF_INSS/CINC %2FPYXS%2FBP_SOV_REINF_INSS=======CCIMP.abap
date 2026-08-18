@@ -464,7 +464,7 @@ CLASS lcl_process IMPLEMENTATION.
       ENDIF.
     ENDLOOP.
 
-    CHECK lr_irf_types IS NOT INITIAL.
+    IF lr_irf_types IS NOT INITIAL.
 
     SELECT wit~companycode, wit~accountingdocument, wit~fiscalyear, wit~accountingdocumentitem,
            wit~withholdingtaxtype, wit~withholdingtaxcode, wit~whldgtaxbaseamtincocodecrcy,
@@ -487,8 +487,7 @@ CLASS lcl_process IMPLEMENTATION.
         AND wit~withholdingtaxtype IN @lr_irf_types
       INTO TABLE @gt_data.
 
-    CHECK gt_data IS NOT INITIAL.
-
+    IF gt_data IS NOT INITIAL.
 
     IF sel-document IS NOT INITIAL.
       APPEND VALUE #( sign = 'I' option = 'EQ' low = sel-document ) TO r_docnum.
@@ -522,6 +521,9 @@ CLASS lcl_process IMPLEMENTATION.
         and nf~BR_NFIsCanceled NE 'X'
         and nf~br_nftype NE 'A1'
       INTO TABLE @gt_nfs.
+
+    ENDIF.
+    ENDIF.
 
 
     CLEAR lr_irf_types.
@@ -570,6 +572,8 @@ CLASS lcl_process IMPLEMENTATION.
                INTO TABLE lt_oreftab.
            ENDLOOP.
 
+         IF lt_oreftab IS NOT INITIAL.
+
           SELECT wit~companycode, wit~accountingdocument, wit~fiscalyear, wit~accountingdocumentitem,
            wit~withholdingtaxtype, wit~withholdingtaxcode, wit~whldgtaxbaseamtincocodecrcy,
            wit~whldgtaxamtintransaccrcy, joi~clearingdate, wit~clearingaccountingdocument,
@@ -592,6 +596,7 @@ CLASS lcl_process IMPLEMENTATION.
              AND joi~ledger      = '0L'
              AND wit~withholdingtaxtype IN @lr_irf_types
            APPENDING TABLE @gt_data.
+         ENDIF.
 
 
     ENDIF.

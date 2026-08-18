@@ -156,9 +156,20 @@ CLASS lhc_SOV_LANC_CONTABIL IMPLEMENTATION.
 
     CHECK failed-/pyxs/sov_lanc_contabil IS INITIAL.
 
-    lcl_process=>read_db( ).
-    lcl_process=>build_objects( ).
-    lcl_process=>send_integration( ).
+    DATA(lv_day) = key-%param-postingstartdate.
+
+    WHILE lv_day <= key-%param-postingenddate.
+
+      lcl_process=>sel-postingstartdate = lv_day.
+      lcl_process=>sel-postingenddate   = lv_day.
+
+      lcl_process=>read_db( ).
+      lcl_process=>build_objects( ).
+      lcl_process=>send_integration( ).
+
+      lv_day = lv_day + 1.
+
+    ENDWHILE.
 
     APPEND INITIAL LINE TO reported-/pyxs/sov_lanc_contabil ASSIGNING FIELD-SYMBOL(<fs>).
     <fs>-%cid = key-%cid.
