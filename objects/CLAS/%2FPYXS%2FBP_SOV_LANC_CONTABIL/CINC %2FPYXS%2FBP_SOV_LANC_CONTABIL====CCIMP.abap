@@ -71,13 +71,16 @@ TYPES: BEGIN OF ty_knw0500,
          cd_plano_conta   TYPE string,
        END OF ty_knw0500.
 
-
 TYPES: BEGIN OF ty_data,
-        hdr TYPE i_journalentry,
-        itm TYPE i_journalentryitem,
-        cpn TYPE i_companycode,
-        glaccountname        TYPE i_glaccounttextincompanycode-glaccountname,
-      END OF ty_data.
+         accountingdocument           TYPE i_journalentryitem-accountingdocument,
+         postingdate                  TYPE i_journalentryitem-postingdate,
+         debitcreditcode              TYPE i_journalentryitem-debitcreditcode,
+         amountincompanycodecurrency  TYPE i_journalentryitem-amountincompanycodecurrency,
+         glrecordtype                 TYPE i_journalentryitem-glrecordtype,
+         ledgergllineitem             TYPE i_journalentryitem-ledgergllineitem,
+         glaccount                    TYPE i_journalentryitem-glaccount,
+         glaccountname                TYPE i_glaccounttextincompanycode-glaccountname,
+       END OF ty_data.
 
 TYPES: BEGIN OF ty_knw_sctb_i250_list,
          knw0500     TYPE ty_knw0500,
@@ -265,8 +268,14 @@ CLASS lcl_process IMPLEMENTATION.
     ENDIF.
 
 
-    SELECT hdr~*, itm~*, cpn~*,
-    i_glaccount~\_text[ language = 'P' ]-glaccountname
+    SELECT itm~accountingdocument,
+           itm~postingdate,
+           itm~debitcreditcode,
+           itm~amountincompanycodecurrency,
+           itm~glrecordtype,
+           itm~ledgergllineitem,
+           itm~glaccount,
+           i_glaccount~\_text[ language = 'P' ]-glaccountname AS glaccountname
       FROM i_journalentry WITH PRIVILEGED ACCESS AS hdr
       INNER JOIN i_journalentryitem WITH PRIVILEGED ACCESS AS itm
           ON hdr~companycode = itm~companycode
@@ -281,12 +290,8 @@ CLASS lcl_process IMPLEMENTATION.
         AND hdr~postingdate IN @lr_postingdates
         AND hdr~accountingdocument IN @lr_accountingdocument
         AND hdr~fiscalyear = @sel-fiscalyear
-        "AND hdr~accountingdocumenttype = @sel-
         AND hdr~accountingdocumentcategory NOT IN ('D','S','V','W','Z','M')
-        "AND itm~glaccount = @sel-
         AND itm~sourceledger IN @lr_ledger
-*        AND hdr~Branch = @sel-branch
-*        AND hdr~AccountingDocumentCategory IN @open
         INTO TABLE @t_data.
 
     SELECT SINGLE *
@@ -312,7 +317,7 @@ CLASS lcl_process IMPLEMENTATION.
     CLEAR: gt_out.
 
     " 1) monta lista de AccountingDocument únicos
-    lt_journalkeys = VALUE #( FOR line IN t_data ( line-itm-accountingdocument ) ).
+    lt_journalkeys = VALUE #( FOR line IN t_data ( line-accountingdocument ) ).
 
     SORT lt_journalkeys.
     DELETE ADJACENT DUPLICATES FROM lt_journalkeys.
@@ -321,18 +326,18 @@ CLASS lcl_process IMPLEMENTATION.
 
       CLEAR: ls_out, lv_vl_lancto, ls_out_obj.
 
-      LOOP AT t_data INTO DATA(ls_data) WHERE itm-accountingdocument = lv_key.
+      LOOP AT t_data INTO DATA(ls_data) WHERE accountingdocument = lv_key.
 
         " ---- knwSctbI200 (cabeçalho) ----
-        ls_out-knw_sctb_i200-nr_lancamento    = ls_data-itm-accountingdocument.
-        ls_out-knw_sctb_i200-dt_lancamento    = |{ ls_data-itm-postingdate(4) }-{ ls_data-itm-postingdate+4(2) }-{ ls_data-itm-postingdate+6 }T00:00:00-03:00|.
-        "ls_out-knw_sctb_i200-dt_lancamento    = ls_data-itm-postingdate.
+        ls_out-knw_sctb_i200-nr_lancamento    = ls_data-accountingdocument.
+        ls_out-knw_sctb_i200-dt_lancamento    = |{ ls_data-postingdate(4) }-{ ls_data-postingdate+4(2) }-{ ls_data-postingdate+6 }T00:00:00-03:00|.
+        "ls_out-knw_sctb_i200-dt_lancamento    = ls_data-postingdate.
 
-        IF ls_data-itm-debitcreditcode = 'H'.
-          lv_vl_lancto += abs( ls_data-itm-amountincompanycodecurrency ).
+        IF ls_data-debitcreditcode = 'H'.
+          lv_vl_lancto += abs( ls_data-amountincompanycodecurrency ).
         ENDIF.
 
-        IF ls_data-itm-glrecordtype = '5'.
+        IF ls_data-glrecordtype = '5'.
           ls_out-knw_sctb_i200-dm_lancamento = 'E'.
         ELSE.
           ls_out-knw_sctb_i200-dm_lancamento = 'N'.
@@ -351,15 +356,15 @@ CLASS lcl_process IMPLEMENTATION.
         <ls_i250_list>-knw0500-ds_plano_conta  = ls_data-glaccountname.
         <ls_i250_list>-knw0500-cod_empresa     = s_branch_sov-sov_company.
         <ls_i250_list>-knw0500-cod_filial      = s_branch_sov-sov_branch.
-        <ls_i250_list>-knw0500-cd_plano_conta  = ls_data-itm-glaccount.
+        <ls_i250_list>-knw0500-cd_plano_conta  = ls_data-glaccount.
 
         " knwSctbI250
-        <ls_i250_list>-knw_sctb_i250-nr_lancamento    = ls_data-itm-accountingdocument.
-        <ls_i250_list>-knw_sctb_i250-vl_lancamento    = abs( ls_data-itm-amountincompanycodecurrency ).
+        <ls_i250_list>-knw_sctb_i250-nr_lancamento    = ls_data-accountingdocument.
+        <ls_i250_list>-knw_sctb_i250-vl_lancamento    = abs( ls_data-amountincompanycodecurrency ).
         <ls_i250_list>-knw_sctb_i250-vl_lancamento_mf = 0.
-        <ls_i250_list>-knw_sctb_i250-ds_historico     = |Sequência: { ls_data-itm-ledgergllineitem }|.
+        <ls_i250_list>-knw_sctb_i250-ds_historico     = |Sequência: { ls_data-ledgergllineitem }|.
 
-        IF ls_data-itm-debitcreditcode = 'H'.
+        IF ls_data-debitcreditcode = 'H'.
           <ls_i250_list>-knw_sctb_i250-dm_debito_credito = 'C'.
         ELSE.
           <ls_i250_list>-knw_sctb_i250-dm_debito_credito = 'D'.
@@ -367,7 +372,7 @@ CLASS lcl_process IMPLEMENTATION.
 
         <ls_i250_list>-knw_sctb_i250-cod_empresa   = s_branch_sov-sov_company.
         <ls_i250_list>-knw_sctb_i250-cod_filial    = s_branch_sov-sov_branch.
-        <ls_i250_list>-knw_sctb_i250-cd_plano_conta = ls_data-itm-glaccount.
+        <ls_i250_list>-knw_sctb_i250-cd_plano_conta = ls_data-glaccount.
 
       ENDLOOP.
 
