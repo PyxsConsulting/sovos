@@ -267,7 +267,6 @@ CLASS lcl_process IMPLEMENTATION.
           low    = sel-ledger ) ).
     ENDIF.
 
-
     SELECT itm~accountingdocument,
            itm~postingdate,
            itm~debitcreditcode,
@@ -291,7 +290,7 @@ CLASS lcl_process IMPLEMENTATION.
         AND hdr~accountingdocument IN @lr_accountingdocument
         AND hdr~fiscalyear = @sel-fiscalyear
         AND hdr~accountingdocumentcategory NOT IN ('D','S','V','W','Z','M')
-        AND itm~sourceledger IN @lr_ledger
+        AND itm~ledger IN @lr_ledger
         INTO TABLE @t_data.
 
     SELECT SINGLE *
@@ -310,11 +309,12 @@ CLASS lcl_process IMPLEMENTATION.
     DATA:
           lt_journalkeys TYPE STANDARD TABLE OF i_journalentryitem-accountingdocument,
           lv_key         TYPE i_journalentryitem-accountingdocument,
-          lv_vl_lancto   TYPE p DECIMALS 2.
+          lv_vl_lancto   TYPE p DECIMALS 2,
+          lv_count       TYPE i.
 
     FIELD-SYMBOLS: <ls_i250_list> TYPE ty_knw_sctb_i250_list.
 
-    CLEAR: gt_out.
+    CLEAR: gt_out, ls_out_obj, lv_count.
 
     " 1) monta lista de AccountingDocument únicos
     lt_journalkeys = VALUE #( FOR line IN t_data ( line-accountingdocument ) ).
@@ -324,7 +324,7 @@ CLASS lcl_process IMPLEMENTATION.
 
     LOOP AT lt_journalkeys INTO lv_key.
 
-      CLEAR: ls_out, lv_vl_lancto, ls_out_obj.
+      CLEAR: ls_out, lv_vl_lancto.
 
       LOOP AT t_data INTO DATA(ls_data) WHERE accountingdocument = lv_key.
 
@@ -376,14 +376,24 @@ CLASS lcl_process IMPLEMENTATION.
 
       ENDLOOP.
 
-      " VL_LANCAMENTO final do cabeçalho (soma só dos créditos)
       ls_out-knw_sctb_i200-vl_lancamento = lv_vl_lancto.
 
-
       APPEND ls_out TO ls_out_obj-objetos.
-      APPEND ls_out_obj TO gt_out.
+
+      lv_count += 1.
+
+      " a cada 300 registros acumulados, fecha o "pacote" atual e inicia um novo
+      IF lv_count >= 300.
+        APPEND ls_out_obj TO gt_out.
+        CLEAR: ls_out_obj, lv_count.
+      ENDIF.
 
     ENDLOOP.
+
+    " flush do último pacote
+    IF ls_out_obj-objetos IS NOT INITIAL.
+      APPEND ls_out_obj TO gt_out.
+    ENDIF.
 
     ENDMETHOD.
 
