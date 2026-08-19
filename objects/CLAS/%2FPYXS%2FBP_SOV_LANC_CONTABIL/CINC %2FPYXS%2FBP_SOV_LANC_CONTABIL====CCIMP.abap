@@ -108,7 +108,8 @@ TYPES:
     CLASS-METHODS:
       read_db,
       build_objects,
-      send_integration.
+      send_integration,
+      cleanup.
 
 ENDCLASS.
 
@@ -159,6 +160,8 @@ CLASS lhc_SOV_LANC_CONTABIL IMPLEMENTATION.
     DATA(lv_day) = key-%param-postingstartdate.
 
     WHILE lv_day <= key-%param-postingenddate.
+
+      lcl_process=>cleanup( ).
 
       lcl_process=>sel-postingstartdate = lv_day.
       lcl_process=>sel-postingenddate   = lv_day.
@@ -306,7 +309,7 @@ CLASS lcl_process IMPLEMENTATION.
 
     FIELD-SYMBOLS: <ls_i250_list> TYPE ty_knw_sctb_i250_list.
 
-    CLEAR: gt_out, ls_out_obj.
+    CLEAR: gt_out.
 
     " 1) monta lista de AccountingDocument únicos
     lt_journalkeys = VALUE #( FOR line IN t_data ( line-itm-accountingdocument ) ).
@@ -316,7 +319,7 @@ CLASS lcl_process IMPLEMENTATION.
 
     LOOP AT lt_journalkeys INTO lv_key.
 
-      CLEAR: ls_out, lv_vl_lancto.
+      CLEAR: ls_out, lv_vl_lancto, ls_out_obj.
 
       LOOP AT t_data INTO DATA(ls_data) WHERE itm-accountingdocument = lv_key.
 
@@ -491,6 +494,13 @@ CLASS lcl_process IMPLEMENTATION.
 
     ENDLOOP.
 
+    ENDMETHOD.
+        METHOD cleanup.
+      CLEAR: s_branch_sov,
+             gt_out,
+             businessplace,
+             t_data,
+             gv_proc.
     ENDMETHOD.
 
 ENDCLASS.
