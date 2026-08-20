@@ -82,6 +82,7 @@ CLASS lcl_process DEFINITION FRIENDS lhc_SOV_REINF_INSS.
         br_nftype                    TYPE i_br_nfdocument-br_nftype,
         br_nfdirection               TYPE i_br_nfdocument-br_nfdirection,
         br_nfpostingdate               TYPE i_br_nfdocument-br_nfpostingdate,
+        br_nfissuedate               TYPE i_br_nfdocument-BR_NFIssueDate,
         br_nfmodel                   TYPE i_br_nfdocument-br_nfmodel,
         br_nfseries                  TYPE i_br_nfdocument-br_nfseries,
         br_nfsubseries               TYPE i_br_nfdocument-br_nfsubseries,
@@ -496,7 +497,7 @@ CLASS lcl_process IMPLEMENTATION.
     SELECT nfi~br_notafiscal, nfi~br_notafiscalitem, nfi~br_nfsourcedocumenttype,
            nfi~br_nfsourcedocumentnumber,                              "#EC CI_NO_TRANSFORM
            nfi~br_nfsourcedocumentitem, nf~br_nftype, nf~br_nfdirection,
-           nf~br_nfpostingdate, nf~br_nfmodel, nf~br_nfseries, nf~br_nfsubseries,
+           nf~br_nfpostingdate, nf~br_nfissuedate, nf~br_nfmodel, nf~br_nfseries, nf~br_nfsubseries,
            nf~br_nfnumber, nf~businessplace, nf~br_nfpartnerfunction,
            nf~br_nfpartner, nf~br_nfpartnertype, nf~br_nfiscanceled,
            nf~br_nfsnumber, nf~br_isnfe, nf~br_nfenumber, nf~br_nfhasserviceitem,
@@ -539,7 +540,7 @@ CLASS lcl_process IMPLEMENTATION.
         SELECT nfi~br_notafiscal, nfi~br_notafiscalitem, nfi~br_nfsourcedocumenttype,
            nfi~br_nfsourcedocumentnumber,                              "#EC CI_NO_TRANSFORM
            nfi~br_nfsourcedocumentitem, nf~br_nftype, nf~br_nfdirection,
-           nf~br_nfpostingdate, nf~br_nfmodel, nf~br_nfseries, nf~br_nfsubseries,
+           nf~br_nfpostingdate, nf~br_nfissuedate, nf~br_nfmodel, nf~br_nfseries, nf~br_nfsubseries,
            nf~br_nfnumber, nf~businessplace, nf~br_nfpartnerfunction,
            nf~br_nfpartner, nf~br_nfpartnertype, nf~br_nfiscanceled,
            nf~br_nfsnumber, nf~br_isnfe, nf~br_nfenumber, nf~br_nfhasserviceitem,
@@ -638,7 +639,7 @@ CLASS lcl_process IMPLEMENTATION.
     INTO DATA(ls_irf_type).
 
     DATA(lv_root_id) =
-      |R2010{ ls_nfs-br_nfpostingdate(6) }{ ls_nfs-br_nfpartner }{ ls_nfs-br_nfnumber }|.
+      |R2010{ ls_nfs-br_nfissuedate(6) }{ ls_nfs-br_nfpartner }{ ls_nfs-br_nfnumber }|.
 
     IF ls_irf_type-Usardatapagto = abap_true.
       lv_root_id = |R2010{ ls_data-clearingdate(6) }{ ls_nfs-br_nfpartner }{ ls_nfs-br_nfnumber }|.
@@ -655,7 +656,7 @@ CLASS lcl_process IMPLEMENTATION.
       "<root>-knwReinfR2010-cd_filial           = gs_branch_main-CompanyCodeParameterValue.
       <root>-knwReinfR2010-id_referencia       = lv_root_id.
       <root>-knwReinfR2010-dm_retificacao      = '1'.
-      <root>-knwReinfR2010-dt_apuracao         = format_date_yyyymmdd( ls_nfs-br_nfpostingdate ).
+      <root>-knwReinfR2010-dt_apuracao         = format_date_yyyymmdd( ls_nfs-br_nfissuedate ).
       IF ls_irf_type-Usardatapagto = abap_true.
         <root>-knwReinfR2010-dt_apuracao         = format_date_yyyymmdd( ls_data-clearingdate ).
       ENDIF.
@@ -716,7 +717,7 @@ CLASS lcl_process IMPLEMENTATION.
         <nota>-nr_item_nota   = lv_nr_item_nota.
         <nota>-nr_serie       = ls_nfs-br_nfseries.
         <nota>-nr_documento   = ls_nfs-br_nfnumber.
-        <nota>-dt_emissao     = format_date_yyyymmdd( iv_date = ls_nfs-br_nfpostingdate ).
+        <nota>-dt_emissao     = format_date_yyyymmdd( iv_date = ls_nfs-br_nfissuedate ).
         IF ls_irf_type-Usardatapagto = abap_true.
           <root>-knwReinfR2010-dt_apuracao         = format_date_yyyymmdd( ls_data-clearingdate ).
         ENDIF.
