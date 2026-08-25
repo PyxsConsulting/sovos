@@ -464,6 +464,23 @@ CLASS lcl_process IMPLEMENTATION.
       ls_out-knw0500-cd_plan_cta_tot = i_main-parentnode.
     ENDIF.
 
+    DATA(lv_account) = CONV ty_char10( i_main-hierarchynode ).
+    SHIFT lv_account LEFT DELETING LEADING '0'.
+
+    LOOP AT gt_account_type INTO DATA(ls_account_type).
+      CLEAR lv_str.
+      DATA(lv_prefix) = CONV ty_char10( ls_account_type-accprefix ).
+      SHIFT lv_prefix LEFT DELETING LEADING '0'.
+      lv_str = strlen( lv_prefix ).
+      IF lv_account(lv_str) = lv_prefix.
+        ls_out-knw0500-dm_natureza = ls_account_type-codigoacc.
+        EXIT.
+      ENDIF.
+    ENDLOOP.
+    IF ls_out-knw0500-dm_natureza IS INITIAL.
+      ls_out-knw0500-dm_natureza = '09'.
+    ENDIF.
+
     APPEND ls_out TO gs_out_obj-objetos.
     APPEND gs_out_obj TO gt_out.
 
@@ -504,26 +521,7 @@ CLASS lcl_process IMPLEMENTATION.
       ENDIF.
     ENDLOOP.
     IF ls_out-knw0500-dm_natureza IS INITIAL.
-        CASE lv_account(1).
-          WHEN '1'.
-            ls_out-knw0500-dm_natureza = '1'.
-          WHEN '2'.
-            ls_out-knw0500-dm_natureza = '2'.
-          WHEN '3'.
-            ls_out-knw0500-dm_natureza = '3'.
-          WHEN '4'.
-            ls_out-knw0500-dm_natureza = '4'.
-          WHEN '5'.
-            ls_out-knw0500-dm_natureza = '5'.
-          WHEN '6'.
-            ls_out-knw0500-dm_natureza = '6'.
-          WHEN '7'.
-            ls_out-knw0500-dm_natureza = '7'.
-          WHEN '8'.
-            ls_out-knw0500-dm_natureza = '8'.
-          WHEN OTHERS.
-            ls_out-knw0500-dm_natureza = '9'.
-        ENDCASE.
+      ls_out-knw0500-dm_natureza = '09'.
     ENDIF.
 
     APPEND ls_out TO gs_out_obj-objetos.
