@@ -69,6 +69,7 @@ TYPES: BEGIN OF ty_knw0500,
          cod_empresa      TYPE string,
          cod_filial       TYPE string,
          cd_plano_conta   TYPE string,
+         cd_plan_cta_tot  TYPE string,
          dm_natureza      TYPE string,
        END OF ty_knw0500,
 
@@ -422,7 +423,7 @@ CLASS lcl_process IMPLEMENTATION.
 *        add_tree_node( i_main ).
         add_children_nodes( i_main ).
       WHEN 'N'. "tree node
-*        add_tree_node( i_main ).
+        add_tree_node( i_main ).
         add_children_nodes( i_main ).
       WHEN 'L'. "GL account
         add_final_node( i_main ).
@@ -432,12 +433,40 @@ CLASS lcl_process IMPLEMENTATION.
   METHOD add_children_nodes.
 
     LOOP AT t_data INTO DATA(ls_main) WHERE parentnode = i_main-hierarchynode.
+      CLEAR: gs_out_obj.
       process_node( ls_main ).
     ENDLOOP.
 
   ENDMETHOD.
 
   METHOD add_tree_node.
+
+    TYPES ty_char10 TYPE c LENGTH 10.
+    DATA:
+          ls_out TYPE ty_object.
+
+    DATA: lv_str TYPE i.
+
+    DATA: lv_timestamp TYPE string.
+
+    lv_timestamp = sy-datum(4) && '-' && sy-datum+4(2) && '-' && sy-datum+6(2) && 'T12:00:00+03:00'.
+
+    ls_out-knw0500-cod_empresa = s_branch_sov-sov_company.
+    ls_out-knw0500-cod_filial = s_branch_sov-sov_branch.
+    ls_out-knw0500-dt_inicial = '1900-01-01T12:00:00+03:00'.
+    ls_out-knw0500-dt_importacao = lv_timestamp.
+    ls_out-knw0500-cd_plano_conta = i_main-hierarchynode.
+    ls_out-knw0500-ds_plano_conta = i_main-hierarchynodetext.
+    ls_out-knw0500-dm_nivel = i_main-hierarchynodelevel - 1.
+    ls_out-knw0500-dm_tipo_conta = 'S'.
+
+    IF ls_out-knw0500-dm_nivel > 1.
+      ls_out-knw0500-cd_plan_cta_tot = i_main-parentnode.
+    ENDIF.
+
+    APPEND ls_out TO gs_out_obj-objetos.
+    APPEND gs_out_obj TO gt_out.
+
   ENDMETHOD.
 
   METHOD add_final_node.
@@ -459,8 +488,7 @@ CLASS lcl_process IMPLEMENTATION.
     ls_out-knw0500-ds_plano_conta = i_main-glaccountlongname.
     ls_out-knw0500-dm_nivel = i_main-hierarchynodelevel - 1.
     ls_out-knw0500-dm_tipo_conta = 'A'.
-
-
+    ls_out-knw0500-cd_plan_cta_tot = i_main-parentnode.
 
     DATA(lv_account) = CONV ty_char10( i_main-glaccount ).
     SHIFT lv_account LEFT DELETING LEADING '0'.
