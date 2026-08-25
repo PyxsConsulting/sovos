@@ -630,15 +630,15 @@ CLASS lcl_process IMPLEMENTATION.
                 <log>-returnreason = lv_ret-reason.
                 <log>-response     = gv_proc.
           ELSE.
-            LOOP AT lo_ret->('MENSAGENS')->* ASSIGNING FIELD-SYMBOL(<lv_msg>).
-              APPEND INITIAL LINE TO /pyxs/bp_sov_plano_contas=>lt_log ASSIGNING <log>.
-                <log>-timedate     = time.
-                <log>-chartofacc   = ls_doc-objetos[ 1 ]-knw0500-cd_plano_conta.
-                <log>-id           = ls_doc-objetos[ 1 ]-knw0500-dm_nivel.
-                <log>-returncode   = lv_ret-code.
-                <log>-returnreason = lv_ret-reason.
-                <log>-response     = <lv_msg>->*.
-            ENDLOOP.
+***            LOOP AT lo_ret->('MENSAGENS')->* ASSIGNING FIELD-SYMBOL(<lv_msg>).
+***              APPEND INITIAL LINE TO /pyxs/bp_sov_plano_contas=>lt_log ASSIGNING <log>.
+***                <log>-timedate     = time.
+***                <log>-chartofacc   = ls_doc-objetos[ 1 ]-knw0500-cd_plano_conta.
+***                <log>-id           = ls_doc-objetos[ 1 ]-knw0500-dm_nivel.
+***                <log>-returncode   = lv_ret-code.
+***                <log>-returnreason = lv_ret-reason.
+***                <log>-response     = <lv_msg>->*.
+***            ENDLOOP.
           ENDIF.
 
         ENDLOOP.
