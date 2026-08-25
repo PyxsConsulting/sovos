@@ -415,6 +415,12 @@ CLASS lcl_process IMPLEMENTATION.
 
     process_node( ls_main ).
 
+    "flush final, caso não tenha finalizado na batelada anterior
+    IF gs_out_obj-objetos IS NOT INITIAL.
+      APPEND gs_out_obj TO gt_out.
+      CLEAR gs_out_obj.
+    ENDIF.
+
     ENDMETHOD.
 
   METHOD process_node.
@@ -433,7 +439,7 @@ CLASS lcl_process IMPLEMENTATION.
   METHOD add_children_nodes.
 
     LOOP AT t_data INTO DATA(ls_main) WHERE parentnode = i_main-hierarchynode.
-      CLEAR: gs_out_obj.
+      "CLEAR: gs_out_obj.
       process_node( ls_main ).
     ENDLOOP.
 
@@ -482,7 +488,14 @@ CLASS lcl_process IMPLEMENTATION.
     ENDIF.
 
     APPEND ls_out TO gs_out_obj-objetos.
-    APPEND gs_out_obj TO gt_out.
+
+    IF lines( gs_out_obj-objetos ) >= 200.
+      APPEND gs_out_obj TO gt_out.
+      CLEAR gs_out_obj.
+    ENDIF.
+
+    "APPEND ls_out TO gs_out_obj-objetos.
+    "APPEND gs_out_obj TO gt_out.
 
   ENDMETHOD.
 
