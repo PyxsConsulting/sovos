@@ -392,23 +392,23 @@ CLASS lcl_process IMPLEMENTATION.
 
     METHOD  build_objects.
 
-    LOOP AT t_data INTO DATA(ls_root).
-
-      CHECK ls_root-chartofaccounts IS NOT INITIAL.
-      APPEND INITIAL LINE TO gt_main2 ASSIGNING FIELD-SYMBOL(<grp>).
-      <grp>-companhia-codigocia = s_branch_sov-sov_company.
-      <grp>-companhia-descricao = s_branch_sov-sov_branch.
-      <grp>-codigo = ls_root-chartofaccounts.
-      <grp>-descricao = ls_root-chartofaccountsname.
-      gv_grupo = <grp>-codigo.
-      <grp>-dataefetividadede = gv_date_start.
-      <grp>-dataefetividadeate = '2199-12-31T00:00:00'.
-      gv_chartofaccounts = ls_root-chartofaccounts.
-      EXIT.
-    ENDLOOP.
+***    LOOP AT t_data INTO DATA(ls_root).
+***
+***      CHECK ls_root-chartofaccounts IS NOT INITIAL.
+***      APPEND INITIAL LINE TO gt_main2 ASSIGNING FIELD-SYMBOL(<grp>).
+***      <grp>-companhia-codigocia = s_branch_sov-sov_company.
+***      <grp>-companhia-descricao = s_branch_sov-sov_branch.
+***      <grp>-codigo = ls_root-chartofaccounts.
+***      <grp>-descricao = ls_root-chartofaccountsname.
+***      gv_grupo = <grp>-codigo.
+***      <grp>-dataefetividadede = gv_date_start.
+***      <grp>-dataefetividadeate = '2199-12-31T00:00:00'.
+***      gv_chartofaccounts = ls_root-chartofaccounts.
+***      EXIT.
+***    ENDLOOP.
 
     IF sel-ignorefirstnode = abap_true.
-      DELETE t_data WHERE nodetype = 'R'.
+      "DELETE t_data WHERE nodetype = 'R'.
       READ TABLE t_data INTO DATA(ls_main) INDEX 1.
       CHECK sy-subrc IS INITIAL.
     ENDIF.
