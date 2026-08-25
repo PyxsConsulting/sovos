@@ -538,7 +538,14 @@ CLASS lcl_process IMPLEMENTATION.
     ENDIF.
 
     APPEND ls_out TO gs_out_obj-objetos.
-    APPEND gs_out_obj TO gt_out.
+
+    IF lines( gs_out_obj-objetos ) >= 200.
+      APPEND gs_out_obj TO gt_out.
+      CLEAR gs_out_obj.
+    ENDIF.
+
+    "APPEND ls_out TO gs_out_obj-objetos.
+    "APPEND gs_out_obj TO gt_out.
 
   ENDMETHOD.
 
