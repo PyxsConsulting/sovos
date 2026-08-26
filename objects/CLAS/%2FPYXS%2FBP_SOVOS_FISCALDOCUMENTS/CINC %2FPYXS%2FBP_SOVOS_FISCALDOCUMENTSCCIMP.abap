@@ -3815,6 +3815,9 @@ CLASS lcl_process IMPLEMENTATION.
 
       ls_objeto-knwa100-dm_pgto         = '9'.   " Outros
       ls_objeto-knwa100-dm_cancelamento = '00'.
+      IF p_nfdoc-doc-BR_NFIsCanceled = 'X'.
+        ls_objeto-knwa100-dm_cancelamento = '02'.
+      ENDIF.
 
       " Serviço / Prestação
       ls_objeto-knwa100-cd_fiscal_prest        = '901'.   " fixo inicial
