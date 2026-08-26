@@ -2715,20 +2715,27 @@ CLASS lcl_process IMPLEMENTATION.
                 "<item>-knwc170-vl_fcp_op     = ls_tax_itm-br_nfitemtaxamount.
                 <item>-knwc170-vl_icms_fcp_dest = ls_tax_itm-br_nfitemtaxamount.
               ELSEIF ls_tax_type-br_icmspartilhasubdivisioncode = '001'.
-                <item>-knwc170-vl_icms_dest    = ls_tax_itm-br_nfitemtaxamount.
-                <item>-knwc170-aliq_icms_dest  = ls_tax_itm-br_nfitemtaxrate.
-                IF ls_tax_itm-br_nfitembaseamount > 0.
-                  <item>-knwc170-vl_bc_icms_uf_dest = ls_tax_itm-br_nfitembaseamount.
-                ELSEIF ls_tax_itm-br_nfitemotherbaseamount > 0.
-                  <item>-knwc170-vl_bc_icms_uf_dest = ls_tax_itm-br_nfitemotherbaseamount.
+
+                IF p_nfdoc-doc-BR_NFDocumentType = '6'.
+                  <item>-knwc170-vl_icms_rem = ls_tax_itm-br_nfitemtaxamount.
                 ELSE.
-                  <item>-knwc170-vl_bc_icms_uf_dest = ls_tax_itm-br_nfitemexcludedbaseamount.
+                  <item>-knwc170-vl_icms_dest    = ls_tax_itm-br_nfitemtaxamount.
+                  <item>-knwc170-aliq_icms_dest  = ls_tax_itm-br_nfitemtaxrate.
+                  IF ls_tax_itm-br_nfitembaseamount > 0.
+                    <item>-knwc170-vl_bc_icms_uf_dest = ls_tax_itm-br_nfitembaseamount.
+                  ELSEIF ls_tax_itm-br_nfitemotherbaseamount > 0.
+                    <item>-knwc170-vl_bc_icms_uf_dest = ls_tax_itm-br_nfitemotherbaseamount.
+                  ELSE.
+                    <item>-knwc170-vl_bc_icms_uf_dest = ls_tax_itm-br_nfitemexcludedbaseamount.
+                  ENDIF.
                 ENDIF.
+
               ELSEIF ls_tax_type-br_icmspartilhasubdivisioncode = '002'.
                 <item>-knwc170-vl_icms_rem      = ls_tax_itm-br_nfitemtaxamount.
               ELSEIF ls_tax_type-br_icmspartilhasubdivisioncode = '003'.
                 <item>-knwc170-vl_icms_fcp_dest = ls_tax_itm-br_nfitemtaxamount.
               ENDIF.
+
 
             WHEN  'ICST'.
               IF ls_tax_type-br_icmspartilhasubdivisioncode IS INITIAL.
