@@ -2370,7 +2370,8 @@ CLASS lcl_process IMPLEMENTATION.
       gv_proc = 'Nenhum documento processado'.
     ENDIF.
     popu(  ).
-    SORT t_nfdocs BY doc-br_nfdirection.
+
+    SORT t_nfdocs BY doc-br_nfdirection ASCENDING doc-br_notafiscal DESCENDING.
 
     CLEAR: lt_counters.
 
@@ -2903,6 +2904,7 @@ CLASS lcl_process IMPLEMENTATION.
           <item>-knw0200-dt_inicial         = '1900-01-01T00:00:00-03:00'.
           "<item>-knw0200-dm_tipo_item       = '09'.
           <item>-knw0200-cd_ncm             = normalize( p_str = ls_nfitem-nf-ncmcode ).
+          <item>-knw0200-cd_ncm             = <item>-knw0200-cd_ncm+0(8).
             IF <item>-knw0200-cd_ncm IS NOT INITIAL.
               <item>-knw0200-cd_genero = <item>-knw0200-cd_ncm(2).
             ENDIF.
@@ -3232,10 +3234,18 @@ CLASS lcl_process IMPLEMENTATION.
       APPEND ls_objeto TO ls_main-objetos.
       ls_main-docnum = p_nfdoc-doc-br_notafiscal.
       APPEND VALUE ty_nfs( nota = p_nfdoc-doc-br_nfenumber serie = p_nfdoc-doc-br_nfseries br_notafiscal = p_nfdoc-doc-br_notafiscal ) TO t_nfs.
-      IF lv_es IS INITIAL.
-        APPEND ls_main TO t_out.
-      ELSE.
-        APPEND ls_main TO t_out_e.
+
+      DATA(lv_integrate) = abap_true.
+      IF ls_objeto-knwc100-dm_emitente = '1' AND ls_objeto-knwc100-dm_entrada_saida = 'E' AND p_nfdoc-doc-BR_NFIsCanceled = 'X'.
+        lv_integrate = abap_false.
+      ENDIF.
+
+      IF lv_integrate = abap_true.
+          IF lv_es IS INITIAL.
+            APPEND ls_main TO t_out.
+          ELSE.
+            APPEND ls_main TO t_out_e.
+          ENDIF.
       ENDIF.
 
 *
