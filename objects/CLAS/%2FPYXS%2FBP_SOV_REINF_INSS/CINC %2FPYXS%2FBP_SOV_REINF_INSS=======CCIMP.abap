@@ -986,38 +986,38 @@ ENDMETHOD.
         IF sy-subrc <> 0.
         ENDIF.
     ENDTRY.
-   """   GET TIME STAMP FIELD time.
+      GET TIME STAMP FIELD time.
 
-    """IF lo_ret IS INITIAL.
-      """APPEND INITIAL LINE TO /pyxs/bp_reinflog=>lt_log ASSIGNING <log>.
-      """<log>-time = time.
-      """READ TABLE ls_root-knwReinfR2010NotaList INTO DATA(ls_nf) INDEX 1.
+    "IF lo_ret IS INITIAL.
+      "APPEND INITIAL LINE TO /pyxs/bp_reinflog=>lt_log ASSIGNING <log>.
+      "<log>-time = time.
+      "READ TABLE ls_root-knwReinfR2010NotaList INTO DATA(ls_nf) INDEX 1.
 
-      """<log>-ano_mes   = sel-anomes.
-      """<log>-evento    = '4000'.
-      """<log>-partner   = ls_nf-id_referencia+6.
-      """<log>-resultado = COND #( WHEN lv_ret IS INITIAL THEN '999' ELSE lv_ret-code ).
-      """<log>-retorno   = COND #( WHEN gv_proc IS NOT INITIAL THEN gv_proc
-      """                          WHEN lv_ret IS NOT INITIAL THEN lv_ret-reason
-      """                          ELSE 'Erro no serviço' ).
+      "<log>-ano_mes   = sel-anomes.
+      "<log>-evento    = '4000'.
+      "<log>-partner   = ls_nf-id_referencia+6.
+      "<log>-resultado = COND #( WHEN lv_ret IS INITIAL THEN '999' ELSE lv_ret-code ).
+      "<log>-retorno   = COND #( WHEN gv_proc IS NOT INITIAL THEN gv_proc
+       "                         WHEN lv_ret IS NOT INITIAL THEN lv_ret-reason
+        "                       ELSE 'Erro no serviço' ).
 
-    """ELSE.
+    "ELSE.
 
-      """LOOP AT lo_ret->('MENSAGENS')->* ASSIGNING FIELD-SYMBOL(<lv_msg>).
-        """APPEND INITIAL LINE TO /pyxs/bp_reinflog=>lt_log ASSIGNING <log>.
-        """<log>-id        = sy-tabix.
-        """<log>-time      = time.
-        """READ TABLE ls_root-knwReinfR2010NotaList INTO ls_nf INDEX 1.
+      "LOOP AT lo_ret->('MENSAGENS')->* ASSIGNING FIELD-SYMBOL(<lv_msg>).
+        "APPEND INITIAL LINE TO /pyxs/bp_reinflog=>lt_log ASSIGNING <log>.
+         "<log>-id        = sy-tabix.
+         "<log>-time      = time.
+         "READ TABLE ls_root-knwReinfR2010NotaList INTO ls_nf INDEX 1.
 
-        """<log>-ano_mes   = sel-anomes.
-        """<log>-evento    = '4000'.
-        """<log>-partner   = ls_nf-id_referencia+6.
-        """<log>-resultado = lv_ret-code.
-        """<log>-retorno   = COND #( WHEN gv_proc IS NOT INITIAL THEN gv_proc
-           """                       WHEN lv_ret IS NOT INITIAL THEN lv_ret-reason
-        """                          ELSE 'Erro no serviço' ).
-      """ENDLOOP.
-    """ENDIF.
+        "<log>-ano_mes   = sel-anomes.
+        "<log>-evento    = '4000'.
+        "<log>-partner   = ls_nf-id_referencia+6.
+        "<log>-resultado = lv_ret-code.
+        "<log>-retorno   = COND #( WHEN gv_proc IS NOT INITIAL THEN gv_proc
+        "                         WHEN lv_ret IS NOT INITIAL THEN lv_ret-reason
+        "                         ELSE 'Erro no serviço' ).
+      "ENDLOOP.
+    "ENDIF.
 
 
   ENDLOOP.
