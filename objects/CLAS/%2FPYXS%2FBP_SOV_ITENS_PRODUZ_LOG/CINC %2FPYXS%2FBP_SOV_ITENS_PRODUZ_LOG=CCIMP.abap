@@ -1341,15 +1341,15 @@ ENDMETHOD.
         <log>-returncode   = lv_ret-code.
         <log>-returnreason = lv_ret-reason.
       ELSE.
-        LOOP AT lo_ret->('MENSAGENS')->* ASSIGNING FIELD-SYMBOL(<lv_msg>).
-          APPEND INITIAL LINE TO /pyxs/bp_SOV_ITENS_PRODUZ_LOG=>lt_log ASSIGNING <log>.
-          <log>-id           = sy-tabix.
-          <log>-timedate     = time.
-          <log>-anomes       = sel-anomes.
-          <log>-response     = <lv_msg>->*.
-          <log>-returncode   = lv_ret-code.
-          <log>-returnreason = lv_ret-reason.
-        ENDLOOP.
+***        LOOP AT lo_ret->('MENSAGENS')->* ASSIGNING FIELD-SYMBOL(<lv_msg>).
+***          APPEND INITIAL LINE TO /pyxs/bp_SOV_ITENS_PRODUZ_LOG=>lt_log ASSIGNING <log>.
+***          <log>-id           = sy-tabix.
+***          <log>-timedate     = time.
+***          <log>-anomes       = sel-anomes.
+***          <log>-response     = <lv_msg>->*.
+***          <log>-returncode   = lv_ret-code.
+***          <log>-returnreason = lv_ret-reason.
+***        ENDLOOP.
       ENDIF.
 
     ENDLOOP.

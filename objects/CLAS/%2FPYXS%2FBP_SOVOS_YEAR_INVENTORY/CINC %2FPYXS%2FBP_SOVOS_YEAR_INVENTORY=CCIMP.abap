@@ -797,16 +797,16 @@ CLASS lcl_process IMPLEMENTATION.
 
       ELSE.
 
-        LOOP AT lo_ret->('MENSAGENS')->* ASSIGNING FIELD-SYMBOL(<lv_msg>).
-          APPEND INITIAL LINE TO /pyxs/bp_sovos_year_inventory=>lt_log ASSIGNING <log>.
-          <log>-id = sy-tabix.
-          <log>-timedate = time.
-          "READ TABLE t_nfdocs INTO ls_nf WITH KEY doc-br_nfenumber = ls_doc-objetos[ 1 ]-knwc100-nr_documento.
-          <log>-material = ls_doc-objetos[ 1 ]-knwh010-cd_produto_serv.
-          <log>-response = <lv_msg>->*.
-          <log>-returncode = lv_ret-code.
-          <log>-returnreason = lv_ret-reason.
-        ENDLOOP.
+***        LOOP AT lo_ret->('MENSAGENS')->* ASSIGNING FIELD-SYMBOL(<lv_msg>).
+***          APPEND INITIAL LINE TO /pyxs/bp_sovos_year_inventory=>lt_log ASSIGNING <log>.
+***          <log>-id = sy-tabix.
+***          <log>-timedate = time.
+***          "READ TABLE t_nfdocs INTO ls_nf WITH KEY doc-br_nfenumber = ls_doc-objetos[ 1 ]-knwc100-nr_documento.
+***          <log>-material = ls_doc-objetos[ 1 ]-knwh010-cd_produto_serv.
+***          <log>-response = <lv_msg>->*.
+***          <log>-returncode = lv_ret-code.
+***          <log>-returnreason = lv_ret-reason.
+***        ENDLOOP.
       ENDIF.
 
 
