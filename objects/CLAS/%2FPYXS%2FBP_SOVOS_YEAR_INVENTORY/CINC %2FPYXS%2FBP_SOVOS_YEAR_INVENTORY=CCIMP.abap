@@ -1310,6 +1310,14 @@ CLASS lcl_process IMPLEMENTATION.
       "<item>-knw0200-dm_tipo_item       = '09'.
       ls_objeto-knw0200-cd_ncm             = normalize( p_str = ls_data-consumptiontaxctrlcode ).
       ls_objeto-knw0200-cd_genero          = ls_objeto-knw0200-cd_ncm(2).
+
+      IF ls_objeto-knw0200-cd_ncm IS NOT INITIAL.
+        IF strlen( ls_objeto-knw0200-cd_ncm ) > 8.
+          ls_objeto-knw0200-cd_ncm = ls_objeto-knw0200-cd_ncm+0(8).
+        ENDIF.
+        ls_objeto-knw0200-cd_genero = ls_objeto-knw0200-cd_ncm(2).
+      ENDIF.
+
       ls_objeto-knw0200-dm_origem_produto  = ls_data-productorigintype.
       "ls_objeto-knw0200-nr_cest            =
       CASE ls_data-referenceproducttype.
