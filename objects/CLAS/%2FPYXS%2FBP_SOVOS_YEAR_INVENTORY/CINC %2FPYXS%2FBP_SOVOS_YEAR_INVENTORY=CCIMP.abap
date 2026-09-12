@@ -415,6 +415,7 @@ CLASS lhc_sovos_year_inventory IMPLEMENTATION.
     lcl_process=>sel-businessplace = keys[ 1 ]-%param-branch.
     lcl_process=>sel-fiscalperiod = keys[ 1 ]-%param-anomes+4.
     lcl_process=>sel-fiscalyear = keys[ 1 ]-%param-anomes(4).
+    lcl_process=>sel-product = VALUE #( ( sign = 'I' option = 'EQ' low = keys[ 1 ]-%param-Material ) ).
 
     "lcl_process=>sel-branch = keys[ 1 ]-%param-branch.
 
@@ -1228,7 +1229,8 @@ CLASS lcl_process IMPLEMENTATION.
     DATA: ls_out    TYPE ty_main,
           ls_objeto TYPE ty_objetos,
           lv_now    TYPE string,
-          lv_dt_ini TYPE string.
+          lv_dt_ini TYPE string,
+          lv_count  TYPE i VALUE 0.
 
     DATA(lv_date) = cl_abap_context_info=>get_system_date( ).
     DATA(lv_time) = cl_abap_context_info=>get_system_time( ).
@@ -1257,7 +1259,8 @@ CLASS lcl_process IMPLEMENTATION.
     lv_dt_ini = |{ lv_last_day DATE = ISO }T03:00:00.000Z|.
 
     LOOP AT gt_sel2 INTO DATA(ls_data).
-      CLEAR: ls_out, ls_objeto.
+      CLEAR: ls_objeto.
+      "CLEAR: ls_out, ls_objeto.
 
 
       " ─── KNWH010 ───
@@ -1275,8 +1278,13 @@ CLASS lcl_process IMPLEMENTATION.
       ls_objeto-knwh010-vl_unitario     = ls_data-movingaverageprice. "standardprice.
       ls_objeto-knwh010-dt_inventario   = lv_dt_ini.
       ls_objeto-knwh010-dm_sit_estoque  = 0.
-      IF ls_data-customer IS NOT INITIAL OR ls_data-supplier IS NOT INITIAL.
+      IF ls_data-customer IS NOT INITIAL.
         ls_objeto-knwh010-dm_sit_estoque  = 1.
+        ls_objeto-knwh010-cd_pessoa_propr = ls_data-customer.
+      ENDIF.
+      IF ls_data-supplier IS NOT INITIAL.
+        ls_objeto-knwh010-dm_sit_estoque  = 1.
+        ls_objeto-knwh010-cd_pessoa_propr = ls_data-supplier.
       ENDIF.
       "ls_objeto-knwh010-vl_total_ir     = ls_data-amountincompanycodecurrency. " ls_data-productvaluationbasic-standardprice.
       ls_objeto-knwh010-vl_total_ir     = lv_total.
@@ -1365,9 +1373,24 @@ CLASS lcl_process IMPLEMENTATION.
       ENDIF.
 
       APPEND ls_objeto TO ls_out-objetos.
-      APPEND ls_out TO t_out.
+      lv_count = lv_count + 1.
+
+      IF lv_count >= 100.
+        APPEND ls_out TO t_out.
+        CLEAR ls_out.
+        lv_count = 0.
+      ENDIF.
 
     ENDLOOP.
+
+    IF lv_count > 0.
+      APPEND ls_out TO t_out.
+    ENDIF.
+
+      "APPEND ls_objeto TO ls_out-objetos.
+      "APPEND ls_out TO t_out.
+
+    "ENDLOOP.
 
     "APPEND ls_out TO t_out.
 *
