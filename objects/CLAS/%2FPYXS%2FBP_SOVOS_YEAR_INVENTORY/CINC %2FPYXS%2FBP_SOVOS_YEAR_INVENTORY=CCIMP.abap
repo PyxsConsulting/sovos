@@ -415,8 +415,9 @@ CLASS lhc_sovos_year_inventory IMPLEMENTATION.
     lcl_process=>sel-businessplace = keys[ 1 ]-%param-branch.
     lcl_process=>sel-fiscalperiod = keys[ 1 ]-%param-anomes+4.
     lcl_process=>sel-fiscalyear = keys[ 1 ]-%param-anomes(4).
-    lcl_process=>sel-product = VALUE #( ( sign = 'I' option = 'EQ' low = keys[ 1 ]-%param-Material ) ).
-
+    IF keys[ 1 ]-%param-Material IS NOT INITIAL.
+      lcl_process=>sel-product = VALUE #( ( sign = 'I' option = 'EQ' low = keys[ 1 ]-%param-Material ) ).
+    ENDIF.
     "lcl_process=>sel-branch = keys[ 1 ]-%param-branch.
 
 
