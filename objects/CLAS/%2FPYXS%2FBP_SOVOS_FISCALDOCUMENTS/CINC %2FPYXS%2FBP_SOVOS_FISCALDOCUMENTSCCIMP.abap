@@ -2533,7 +2533,7 @@ CLASS lcl_process IMPLEMENTATION.
           ls_objeto-knw0150emitente-cod_filial  = p_nfdoc-doc-businessplace.
           ls_objeto-knw0150emitente-nm_razao_social = ls_branch-nome_fantasia.
           ls_objeto-knw0150emitente-nr_cnpj_cpf     = p_nfdoc-doc-br_businessplacecnpj. "build_cnpj( |{ ls_branch-cnpj_raiz }{ ls_branch-cnpj_filial }| ).
-          ls_objeto-knw0150emitente-nr_inscr_est    = p_nfdoc-doc-br_nfpartnerstatetaxnumber. "ls_vendor-taxnumber3.
+          ls_objeto-knw0150emitente-nr_inscr_est    = p_nfdoc-doc-br_nfpartnerstatetaxnumber. "ls_vendor-taxnumber3. "br_nfissuerstatetaxnumber
           ls_objeto-knw0150emitente-cd_municipio    = ls_branch-taxjurisdiction+3.
           ls_objeto-knw0150emitente-cd_pais         = get_ibge_country( ls_branch-countrycode ).
           ls_objeto-knw0150emitente-ds_endereco     = ls_branch-endereco.
@@ -2550,7 +2550,7 @@ CLASS lcl_process IMPLEMENTATION.
           ls_objeto-knw0150destinatario-cd_pessoa       = p_nfdoc-doc-br_nfpartner.
           ls_objeto-knw0150destinatario-nm_razao_social = p_nfdoc-doc-br_nfpartnername1.
           ls_objeto-knw0150destinatario-nr_cnpj_cpf     = COND #( WHEN p_nfdoc-doc-br_nfpartnercnpj IS NOT INITIAL THEN p_nfdoc-doc-br_nfpartnercnpj ELSE p_nfdoc-doc-br_nfpartnercpf ).
-          ls_objeto-knw0150destinatario-nr_inscr_est    = p_nfdoc-doc-br_nfpartnerstatetaxnumber."ls_customer-taxnumber3.
+          ls_objeto-knw0150destinatario-nr_inscr_est    = p_nfdoc-doc-br_nfpartnerstatetaxnumber."ls_customer-taxnumber3. "br_nfreceiverstatetaxnumber
           ls_objeto-knw0150destinatario-ds_endereco     = p_nfdoc-doc-br_nfpartnerstreetname. "ls_customer-bpaddrstreetname.
           ls_objeto-knw0150destinatario-dt_inicial      = '1900-01-01T00:00:00-03:00'.
 

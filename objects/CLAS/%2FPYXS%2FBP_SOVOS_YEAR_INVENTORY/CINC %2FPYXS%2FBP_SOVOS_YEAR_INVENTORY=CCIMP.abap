@@ -1279,14 +1279,14 @@ CLASS lcl_process IMPLEMENTATION.
       ls_objeto-knwh010-vl_unitario     = ls_data-movingaverageprice. "standardprice.
       ls_objeto-knwh010-dt_inventario   = lv_dt_ini.
       ls_objeto-knwh010-dm_sit_estoque  = 0.
-      IF ls_data-customer IS NOT INITIAL.
-        ls_objeto-knwh010-dm_sit_estoque  = 1.
-        ls_objeto-knwh010-cd_pessoa_propr = ls_data-customer.
-      ENDIF.
-      IF ls_data-supplier IS NOT INITIAL.
-        ls_objeto-knwh010-dm_sit_estoque  = 1.
-        ls_objeto-knwh010-cd_pessoa_propr = ls_data-supplier.
-      ENDIF.
+***      IF ls_data-customer IS NOT INITIAL.
+***        ls_objeto-knwh010-dm_sit_estoque  = 1.
+***        ls_objeto-knwh010-cd_pessoa_propr = ls_data-customer.
+***      ENDIF.
+***      IF ls_data-supplier IS NOT INITIAL.
+***        ls_objeto-knwh010-dm_sit_estoque  = 1.
+***        ls_objeto-knwh010-cd_pessoa_propr = ls_data-supplier.
+***      ENDIF.
       "ls_objeto-knwh010-vl_total_ir     = ls_data-amountincompanycodecurrency. " ls_data-productvaluationbasic-standardprice.
       ls_objeto-knwh010-vl_total_ir     = lv_total.
 
