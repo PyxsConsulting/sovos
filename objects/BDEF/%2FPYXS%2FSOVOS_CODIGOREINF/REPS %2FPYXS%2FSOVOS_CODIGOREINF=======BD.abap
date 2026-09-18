@@ -20,7 +20,7 @@ authorization master ( instance )
   {
   }
 
-  field ( readonly : update ) material;
+  field ( readonly : update ) material, codreinf;
   mapping for /pyxs/sov_cdrei2
     {
       material = material;
