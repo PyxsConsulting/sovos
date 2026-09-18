@@ -332,6 +332,13 @@ CLASS lcl_process DEFINITION FRIENDS lhc_sovos_year_inventory.
          unitofmeasurename           TYPE i_unitofmeasuretext-unitofmeasurename,
          referenceproducttype        TYPE i_producttype-referenceproducttype,
          iscoproduct                 TYPE i_productplantbasic-IsCoProduct,
+         organizationbpname1         TYPE i_supplier-organizationbpname1,
+         taxnumber1                  TYPE i_supplier-taxnumber1,
+         taxnumber2                  TYPE i_supplier-taxnumber2,
+         taxnumber3                  TYPE i_supplier-taxnumber3,
+         taxjurisdiction             TYPE i_supplier-taxjurisdiction,
+         country                     TYPE i_supplier-country,
+         bpaddrstreetname            TYPE i_supplier-bpaddrstreetname,
        END OF ty_grouped.
 
     CLASS-DATA: sel          TYPE ty_sel,
@@ -1290,6 +1297,18 @@ CLASS lcl_process IMPLEMENTATION.
       "ls_objeto-knwh010-vl_total_ir     = ls_data-amountincompanycodecurrency. " ls_data-productvaluationbasic-standardprice.
       ls_objeto-knwh010-vl_total_ir     = lv_total.
 
+      IF ls_objeto-knwh010-dm_sit_estoque  = 1.
+        ls_objeto-knw0150-cod_empresa    = ls_objeto-knwh010-cod_empresa.
+        ls_objeto-knw0150-cod_filial     = ls_objeto-knwh010-cod_filial.
+        ls_objeto-knw0150-nm_razao_social = ls_data-organizationbpname1.
+        ls_objeto-knw0150-nr_cnpj_cpf     = COND #( WHEN ls_data-taxnumber1 IS NOT INITIAL THEN ls_data-taxnumber1 ELSE ls_data-taxnumber2 ).
+        ls_objeto-knw0150-nr_inscr_est    = ls_data-taxnumber3.
+        ls_objeto-knw0150-cd_municipio    = ls_data-taxjurisdiction+3.
+        ls_objeto-knw0150-cd_pais         = get_ibge_country( ls_data-country ).
+        ls_objeto-knw0150-cd_pessoa       = ls_data-supplier.
+        ls_objeto-knw0150-dt_inicial      = '1900-01-01T00:00:00-03:00'.
+        ls_objeto-knw0150-ds_endereco     = ls_data-bpaddrstreetname.
+      ENDIF.
 
 
       "NUMERO DA CONTA 20260619
@@ -1646,7 +1665,14 @@ CLASS lcl_process IMPLEMENTATION.
          max( product~\_baseunitofmeasure-unitofmeasure_e ) as unitofmeasure_e,
          max( product~\_baseunitofmeasure\_text[ language = 'P' ]-unitofmeasurename ) as unitofmeasurename,
          max( product~\_producttype-referenceproducttype ) as referenceproducttype,
-         max( productplantbasic~iscoproduct ) as iscoproduct
+         max( productplantbasic~iscoproduct ) as iscoproduct,
+     max( supplier~organizationbpname1 ) as organizationbpname1,
+     max( supplier~taxnumber1 )          as taxnumber1,
+     max( supplier~taxnumber2 )          as taxnumber2,
+     max( supplier~taxnumber3 )          as taxnumber3,
+     max( supplier~taxjurisdiction )     as taxjurisdiction,
+     max( supplier~country )             as country,
+     max( supplier~bpaddrstreetname )    as bpaddrstreetname
           from I_MaterialStockTimeSeries(
   p_startdate = @lv_date_f,
   p_enddate = @lv_date_t,
