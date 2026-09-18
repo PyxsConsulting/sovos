@@ -3090,7 +3090,9 @@ CLASS lcl_process IMPLEMENTATION.
             <c113>-knw0150-dt_inicial          = '1900-01-01T00:00:00-03:00'.
             <c113>-knw0150-cd_pessoa           = ls_branch-cod_estab.
             <c113>-knw0150-ds_endereco         = ls_branch-endereco.
-
+            IF <c113>-knw0150-cd_pais <> '01058'.
+              <c113>-knw0150-cd_municipio = '9999999'.
+            ENDIF.
             <c113>-knwc113-dm_entrada_saida    = ls_objeto-knwc100-dm_entrada_saida.
             <c113>-knwc113-dm_emitente         = ls_objeto-knwc100-dm_emitente.
             <c113>-knwc113-serie_subserie      = ls_objeto-knwc100-serie_subserie.
