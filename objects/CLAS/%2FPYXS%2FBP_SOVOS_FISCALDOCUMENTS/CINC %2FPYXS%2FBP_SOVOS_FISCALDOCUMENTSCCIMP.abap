@@ -3148,6 +3148,10 @@ CLASS lcl_process IMPLEMENTATION.
             <c113>-knw0150-ds_endereco         = ls_nf_ref_doc-doc-br_nfpartnerstreetname.
             <c113>-knw0150-nr_inscr_est        = ls_nf_ref_doc-doc-br_nfpartnerstatetaxnumber.
 
+            IF <c113>-knw0150-cd_pais <> '01058'.
+              <c113>-knw0150-cd_municipio = '9999999'.
+            ENDIF.
+
 
 
 ***            <c113>-knwc113-dm_entrada_saida    = <inf_comp>-knwc110-dm_entrada_saida.
