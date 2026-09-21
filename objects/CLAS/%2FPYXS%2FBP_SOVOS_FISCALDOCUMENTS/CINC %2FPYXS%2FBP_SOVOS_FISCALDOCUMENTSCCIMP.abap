@@ -1411,6 +1411,20 @@ CLASS lcl_process IMPLEMENTATION.
     DATA: lo_ret     TYPE REF TO data,
           lv_sucesso TYPE abap_boolean.
 
+    DATA: ol_badi TYPE REF TO /PYXS/SOVOS_FISCALDOCS_DEF.
+
+    GET BADI ol_badi.
+    CALL BADI ol_badi->before_process
+          EXPORTING
+            iv_company       = sel-company
+            iv_branch        = sel-branch
+            iv_document      = sel-document
+            iv_creation      = sel-creation
+            iv_posting       = sel-posting
+            iv_nftype        = sel-nftype
+          CHANGING
+            t_out            = t_out.
+
     LOOP AT t_out INTO DATA(ls_doc).
 
       DATA(lv_docnum) = ls_doc-docnum.
