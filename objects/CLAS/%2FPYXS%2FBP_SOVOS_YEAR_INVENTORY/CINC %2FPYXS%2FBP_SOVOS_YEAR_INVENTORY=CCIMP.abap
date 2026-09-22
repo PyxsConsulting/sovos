@@ -1666,13 +1666,55 @@ CLASS lcl_process IMPLEMENTATION.
          max( product~\_baseunitofmeasure\_text[ language = 'P' ]-unitofmeasurename ) as unitofmeasurename,
          max( product~\_producttype-referenceproducttype ) as referenceproducttype,
          max( productplantbasic~iscoproduct ) as iscoproduct,
-     max( supplier~organizationbpname1 ) as organizationbpname1,
-     max( supplier~taxnumber1 )          as taxnumber1,
-     max( supplier~taxnumber2 )          as taxnumber2,
-     max( supplier~taxnumber3 )          as taxnumber3,
-     max( supplier~taxjurisdiction )     as taxjurisdiction,
-     max( supplier~country )             as country,
-     max( supplier~bpaddrstreetname )    as bpaddrstreetname
+            max( case
+                   when supplier~organizationbpname1 is null
+                     or supplier~organizationbpname1 = ' '
+                     then customer~organizationbpname1
+                   else supplier~organizationbpname1
+                 end ) as organizationbpname1,
+
+            max( case
+                   when supplier~taxnumber1 is null
+                     or supplier~taxnumber1 = ' '
+                     then customer~taxnumber1
+                   else supplier~taxnumber1
+                 end ) as taxnumber1,
+
+            max( case
+                   when supplier~taxnumber2 is null
+                     or supplier~taxnumber2 = ' '
+                     then customer~taxnumber2
+                   else supplier~taxnumber2
+                 end ) as taxnumber2,
+
+            max( case
+                   when supplier~taxnumber3 is null
+                     or supplier~taxnumber3 = ' '
+                     then customer~taxnumber3
+                   else supplier~taxnumber3
+                 end ) as taxnumber3,
+
+            max( case
+                   when supplier~taxjurisdiction is null
+                     or supplier~taxjurisdiction = ' '
+                     then customer~taxjurisdiction
+                   else supplier~taxjurisdiction
+                 end ) as taxjurisdiction,
+
+            max( case
+                   when supplier~country is null
+                     or supplier~country = ' '
+                     then customer~country
+                   else supplier~country
+                 end ) as country,
+
+            max( case
+                   when supplier~bpaddrstreetname is null
+                     or supplier~bpaddrstreetname = ' '
+                     then customer~bpaddrstreetname
+                   else supplier~bpaddrstreetname
+                 end ) as bpaddrstreetname
+
           from I_MaterialStockTimeSeries(
   p_startdate = @lv_date_f,
   p_enddate = @lv_date_t,
@@ -1707,6 +1749,8 @@ CLASS lcl_process IMPLEMENTATION.
       ON  val~valuationarea = plant~valuationarea
     LEFT JOIN i_supplier AS supplier
       ON stock~supplier = supplier~supplier
+    LEFT JOIN i_customer AS customer
+      ON stock~customer = customer~customer
     WHERE val~companycode  = @sel-companycode
         AND stock~material     IN @sel-product
         AND plant~businessplace = @sel-businessplace
