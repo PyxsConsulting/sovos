@@ -1,5 +1,16 @@
 [
  {
+  "table":"DDTYPES",
+  "data":
+  [
+   {
+    "TYPENAME":"/PYXS/CL_TMP_CHECK_IRF",
+    "STATE":"A",
+    "TYPEKIND":"CLAS"
+   }
+  ]
+ },
+ {
   "table":"SEOCLASS",
   "data":
   [
@@ -8,6 +19,50 @@
     "CLSTYPE":0,
     "UUID":"+hY+e3q1H9Gt1t2RBpC4qQ==",
     "REMOTE":""
+   }
+  ]
+ },
+ {
+  "table":"SEOCLASSDF",
+  "data":
+  [
+   {
+    "CLSNAME":"/PYXS/CL_TMP_CHECK_IRF",
+    "VERSION":1,
+    "CATEGORY":0,
+    "EXPOSURE":2,
+    "STATE":1,
+    "RELEASE":0,
+    "AUTHOR":"",
+    "CREATEDON":"2026-09-22",
+    "CHANGEDBY":"",
+    "CHANGEDON":"0000-00-00",
+    "CHGDANYBY":"",
+    "CHGDANYON":"0000-00-00",
+    "CLSEMBED":"",
+    "CLSABSTRCT":"",
+    "CLSFINAL":"X",
+    "CLSCCINCL":"X",
+    "CLSDEFATT":"",
+    "CLSDEFMTD":"",
+    "REFCLSNAME":"",
+    "FIXPT":"X",
+    "VARCL":"",
+    "UNICODE":"5",
+    "RSTAT":"",
+    "CLSBCIMPL":"",
+    "R3RELEASE":"920",
+    "CLSBCTRANS":"",
+    "CLSBCCAT":0,
+    "CLSBCNODEL":"",
+    "CLSADDON":"",
+    "MSG_ID":"",
+    "CLSPROXY":"",
+    "CLSSHAREDMEMORY":"",
+    "WITH_UNIT_TESTS":"X",
+    "DURATION_TYPE":"0",
+    "RISK_LEVEL":"0",
+    "WITHIN_PACKAGE":""
    }
   ]
  },
@@ -70,6 +125,7 @@
   [
    {
     "NAME":"/PYXS/CL_TMP_CHECK_IRF========CCAU",
+    "VARCL":"X",
     "DBAPL":"S",
     "DBNA":"D$",
     "SUBC":"I",
@@ -80,6 +136,7 @@
    },
    {
     "NAME":"/PYXS/CL_TMP_CHECK_IRF========CCDEF",
+    "VARCL":"X",
     "DBAPL":"S",
     "DBNA":"D$",
     "SUBC":"I",
@@ -90,6 +147,7 @@
    },
    {
     "NAME":"/PYXS/CL_TMP_CHECK_IRF========CCIMP",
+    "VARCL":"X",
     "DBAPL":"S",
     "DBNA":"D$",
     "SUBC":"I",
@@ -100,6 +158,7 @@
    },
    {
     "NAME":"/PYXS/CL_TMP_CHECK_IRF========CCMAC",
+    "VARCL":"X",
     "DBAPL":"S",
     "DBNA":"D$",
     "SUBC":"I",
@@ -110,6 +169,7 @@
    },
    {
     "NAME":"/PYXS/CL_TMP_CHECK_IRF========CI",
+    "VARCL":"X",
     "DBAPL":"S",
     "DBNA":"D$",
     "SUBC":"I",
@@ -120,6 +180,7 @@
    },
    {
     "NAME":"/PYXS/CL_TMP_CHECK_IRF========CO",
+    "VARCL":"X",
     "DBAPL":"S",
     "DBNA":"D$",
     "SUBC":"I",
@@ -131,6 +192,7 @@
    {
     "NAME":"/PYXS/CL_TMP_CHECK_IRF========CP",
     "EDTX":"X",
+    "VARCL":"X",
     "DBAPL":"S",
     "DBNA":"D$",
     "SUBC":"K",
@@ -151,6 +213,7 @@
    },
    {
     "NAME":"/PYXS/CL_TMP_CHECK_IRF========CU",
+    "VARCL":"X",
     "DBAPL":"S",
     "DBNA":"D$",
     "SUBC":"I",

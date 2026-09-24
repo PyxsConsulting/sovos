@@ -1,6 +1,6 @@
-class /PYXS/CL_TMP_CHECK_IRF definition
-  public
-  final
-  create public .
+CLASS /pyxs/cl_tmp_check_irf DEFINITION
+  PUBLIC
+  FINAL
+  CREATE PUBLIC .
 
-public section.
+  PUBLIC SECTION.
