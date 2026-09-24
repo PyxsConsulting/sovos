@@ -832,195 +832,94 @@ ENDMETHOD.
   "*------------------------------------------------------------------------
   "* send_integration – POST each payload to Sovos
   "*------------------------------------------------------------------------
-  METHOD send_integration.
+    METHOD send_integration.
 
-  TYPES: BEGIN OF ty_payload,
-         objetos TYPE tt_r2010_objects,
-       END OF ty_payload.
+    DATA: lo_ret     TYPE REF TO data,
+          lv_sucesso TYPE abap_boolean,
+          ls_status  TYPE if_web_http_response=>http_status,
+          lv_utf8    TYPE xstring,
+          lv_gzip    TYPE xstring,
+          lv_base64  TYPE string,
+          lv_id      TYPE i,
+          lr_cscn    TYPE if_com_scenario_factory=>ty_query-cscn_id_range.
 
-  DATA ls_payload TYPE ty_payload.
+    LOOP AT gt_objects INTO DATA(ls_root).
 
-        DATA: gv_proc          TYPE string.
-        DATA: lo_ret           TYPE REF TO data,
-              lv_sucesso       TYPE abap_boolean,
-              objects          TYPE tt_r2010_objects,
-              lv_utf8_xstring  TYPE xstring,
-              lv_gzip_xstring  TYPE xstring,
-              lv_base64        TYPE string,
-              ls_root          TYPE ty_root_r2010.
+      CLEAR: gv_proc, lo_ret, lv_sucesso, ls_status.
 
-  LOOP AT gt_objects INTO ls_root.
-  APPEND ls_root TO objects.
-  ls_payload-objetos = objects.
-    DATA(json_out) = /ui2/cl_json=>serialize(
-      EXPORTING
-        data             = ls_root
-        compress         = abap_true
-*        name             =
-         pretty_name      = 'L'
-*        type_descr       =
-         assoc_arrays     = abap_false
-*        ts_as_iso8601    =
-*        expand_includes  =
-         assoc_arrays_opt = abap_false
-*        numc_as_string   =
-*        name_mappings    =
-*        conversion_exits =
-*        format_output    =
-*        hex_as_base64    =
-*      RECEIVING
-*        r_json           =
-    ).
+      DATA(json_out) = /ui2/cl_json=>serialize( data        = ls_root
+                                                compress    = abap_true
+                                                pretty_name = 'L' ).
+      json_out = /pyxs/sov_json_conversion=>convert_reinf2010( json_out ).
 
-    json_out = /pyxs/sov_json_conversion=>convert_reinf2010( json_out ).
+      lv_utf8 = cl_abap_conv_codepage=>create_out( codepage = 'UTF-8' )->convert( json_out ).
+      cl_abap_gzip=>compress_binary_with_header( EXPORTING raw_in = lv_utf8 IMPORTING gzip_out = lv_gzip ).
+      lv_base64 = cl_web_http_utility=>encode_x_base64( lv_gzip ).
+      json_out = |\{"nr_licenca": "00000","dados": "{ lv_base64 }"\}|.
 
-    lv_utf8_xstring = cl_abap_conv_codepage=>create_out( codepage = 'UTF-8' )->convert( source = json_out ).
-    cl_abap_gzip=>compress_binary_with_header(
-      EXPORTING
-        raw_in = lv_utf8_xstring
-      IMPORTING
-        gzip_out = lv_gzip_xstring ).
-    lv_base64 = cl_web_http_utility=>encode_x_base64( lv_gzip_xstring ).
-    CONCATENATE '{"nr_licenca": "00000","dados": "' lv_base64 '"}'
-    INTO json_out. "o valor nr_licenca deve ser setado na integração
+      lr_cscn = VALUE #( ( sign = 'I' option = 'EQ' low = '/PYXS/SOVOS' ) ).
+      cl_com_arrangement_factory=>create_instance( )->query_ca(
+        EXPORTING is_query           = VALUE #( cscn_id_range = lr_cscn )
+        IMPORTING et_com_arrangement = DATA(lt_ca) ).
 
-    DATA: lr_cscn TYPE if_com_scenario_factory=>ty_query-cscn_id_range.
+      IF lt_ca IS INITIAL.
+        ls_status-code = 999.
+        gv_proc = 'Cenário de comunicação não encontrado'.
+      ELSE.
+        TRY.
+            DATA(lo_dest) = cl_http_destination_provider=>create_by_comm_arrangement(
+                              comm_scenario  = '/PYXS/SOVOS'
+                              service_id     = '/PYXS/SOV_REINF2_REST'
+                              comm_system_id = lt_ca[ 1 ]->get_comm_system_id( ) ).
+            DATA(lo_client) = cl_web_http_client_manager=>create_by_http_destination( lo_dest ).
+            DATA(lo_req) = lo_client->get_http_request( ).
+            lo_req->set_text( json_out ).
+            lo_req->set_uri_path( 'R2010' ).
 
-    " find CA by scenario
-    "lr_cscn = VALUE #( ( sign = 'I' option = 'EQ' low = '/PYXS/SOVOS_REINF' ) ).
-    lr_cscn = VALUE #( ( sign = 'I' option = 'EQ' low = '/PYXS/SOVOS' ) ).
-    DATA(lo_factory) = cl_com_arrangement_factory=>create_instance( ).
-    lo_factory->query_ca(
-      EXPORTING
-        is_query           = VALUE #( cscn_id_range = lr_cscn )
-      IMPORTING
-        et_com_arrangement = DATA(lt_ca) ).
+            DATA(lo_resp) = lo_client->execute( if_web_http_client=>post ).
+            ls_status = lo_resp->get_status( ).
+            gv_proc   = lo_resp->get_text( ).
 
-    IF lt_ca IS INITIAL.
-      APPEND INITIAL LINE TO /pyxs/bp_reinflog=>lt_log ASSIGNING FIELD-SYMBOL(<log>).
-      GET TIME STAMP FIELD DATA(time).
-      <log>-ano_mes = sel-anomes.
-      <log>-time = time.
-      <log>-evento = '4000'.
-      <log>-partner = ''.
-      <log>-resultado = '999'.
-      <log>-retorno = 'Cenário de comunicação não encontrado'.
-      EXIT.
-    ENDIF.
-
-    " take the first one
-    READ TABLE lt_ca INTO DATA(lo_ca) INDEX 1.
-
-    " get destination based to Communication Arrangement
-    TRY.
-        DATA(lo_dest) = cl_http_destination_provider=>create_by_comm_arrangement(
-            "comm_scenario  = '/PYXS/SOVOS_REINF'
-            "service_id     = '/PYXS/SOVOS_REINF_REST'
-              comm_scenario  = '/PYXS/SOVOS'
-              service_id     = '/PYXS/SOV_REINF2_REST'
-            comm_system_id = lo_ca->get_comm_system_id( ) ).
-
-        DATA(lo_http_client) = cl_web_http_client_manager=>create_by_http_destination( lo_dest ).
-
-        " execute the request
-        DATA(lo_request) = lo_http_client->get_http_request( ).
-        lo_request->set_text(
-          EXPORTING
-            i_text   = json_out
-*            i_offset = 0
-*            i_length = -1
-*          RECEIVING
-*            r_value  =
-        ).
-
-        lo_request->set_uri_path(
-          EXPORTING
-            i_uri_path = 'R2010'
-*              multivalue = 0
-*            RECEIVING
-*              r_value    =
-        ).
-
-        DATA(lo_response) = lo_http_client->execute( if_web_http_client=>post ).
-        DATA(lv_ret) = lo_response->get_status( ).
-        IF lv_ret-code = '200'.
-          DATA(lv_msg) = lo_response->get_text( ).
-          IF lv_msg IS INITIAL.
-            gv_proc = 'Successfully processed'(002).
-          ELSE.
-            gv_proc = lv_msg.
-            /ui2/cl_json=>deserialize(
-               EXPORTING
-                 json             = gv_proc
-*                  jsonx            =
-*                  jsonx_cp         = `UTF-8`
-*                  pretty_name      =
-*                  assoc_arrays     =
-*                  assoc_arrays_opt =
-*                  name_mappings    =
-*                  conversion_exits =
-*                  hex_as_base64    =
-*                  gen_optimize     =
-              CHANGING
-                data             = lo_ret
-            ).
-            lv_sucesso = lo_ret->('SUCESSO')->*.
-            IF lv_sucesso = abap_true.
-              gv_proc = 'Successfully processed'(002).
-            ELSE.
-              lv_ret-code = 400.
+            IF ls_status-code = 200.
+              IF gv_proc IS INITIAL.
+                gv_proc = 'Successfully processed'(002).
+              ELSE.
+                /ui2/cl_json=>deserialize( EXPORTING json = gv_proc CHANGING data = lo_ret ).
+                ASSIGN lo_ret->('SUCESSO') TO FIELD-SYMBOL(<suc_ref>).
+                IF sy-subrc = 0 AND <suc_ref> IS BOUND.
+                  ASSIGN <suc_ref>->* TO FIELD-SYMBOL(<suc>).
+                  lv_sucesso = <suc>.
+                ENDIF.
+                IF lv_sucesso = abap_true.
+                  gv_proc = 'Successfully processed'(002).
+                ELSE.
+                  ls_status-code = 400.   " mantém gv_proc = resposta da Sovos
+                ENDIF.
+              ENDIF.
             ENDIF.
-          ENDIF.
-        ELSE.
-          gv_proc = lo_response->get_text( ). "|{ 'Error'(003) }: { lv_ret-reason }|.
-        ENDIF.
 
-      CATCH cx_web_message_error.
+          CATCH cx_http_dest_provider_error cx_web_http_client_error cx_web_message_error INTO DATA(lx).
+            ls_status-code = 999.
+            gv_proc = lx->get_text( ).
+        ENDTRY.
+      ENDIF.
 
+      " ---- LOG no buffer DESTE BO ----
+      GET TIME STAMP FIELD DATA(lv_time).
+      lv_id += 1.
+      APPEND VALUE #(
+        id        = lv_id
+        time      = lv_time
+        ano_mes   = sel-anomes
+        evento    = '4000'
+        partner   = ls_root-knwreinfr2010-id_referencia+11
+        resultado = ls_status-code
+        retorno   = COND #( WHEN gv_proc IS NOT INITIAL THEN gv_proc
+                            WHEN ls_status-reason IS NOT INITIAL THEN ls_status-reason
+                            ELSE 'Erro no serviço' ) )
+        TO /pyxs/bp_sov_reinf_inss=>lt_log.
 
-      CATCH cx_http_dest_provider_error.
-        IF sy-subrc <> 0.
-        ENDIF.
-
-      CATCH cx_web_http_client_error.
-        IF sy-subrc <> 0.
-        ENDIF.
-    ENDTRY.
-      GET TIME STAMP FIELD time.
-
-    "IF lo_ret IS INITIAL.
-      "APPEND INITIAL LINE TO /pyxs/bp_reinflog=>lt_log ASSIGNING <log>.
-      "<log>-time = time.
-      "READ TABLE ls_root-knwReinfR2010NotaList INTO DATA(ls_nf) INDEX 1.
-
-      "<log>-ano_mes   = sel-anomes.
-      "<log>-evento    = '4000'.
-      "<log>-partner   = ls_nf-id_referencia+6.
-      "<log>-resultado = COND #( WHEN lv_ret IS INITIAL THEN '999' ELSE lv_ret-code ).
-      "<log>-retorno   = COND #( WHEN gv_proc IS NOT INITIAL THEN gv_proc
-       "                         WHEN lv_ret IS NOT INITIAL THEN lv_ret-reason
-        "                       ELSE 'Erro no serviço' ).
-
-    "ELSE.
-
-      "LOOP AT lo_ret->('MENSAGENS')->* ASSIGNING FIELD-SYMBOL(<lv_msg>).
-        "APPEND INITIAL LINE TO /pyxs/bp_reinflog=>lt_log ASSIGNING <log>.
-         "<log>-id        = sy-tabix.
-         "<log>-time      = time.
-         "READ TABLE ls_root-knwReinfR2010NotaList INTO ls_nf INDEX 1.
-
-        "<log>-ano_mes   = sel-anomes.
-        "<log>-evento    = '4000'.
-        "<log>-partner   = ls_nf-id_referencia+6.
-        "<log>-resultado = lv_ret-code.
-        "<log>-retorno   = COND #( WHEN gv_proc IS NOT INITIAL THEN gv_proc
-        "                         WHEN lv_ret IS NOT INITIAL THEN lv_ret-reason
-        "                         ELSE 'Erro no serviço' ).
-      "ENDLOOP.
-    "ENDIF.
-
-
-  ENDLOOP.
+    ENDLOOP.
   ENDMETHOD.
 
   "*------------------------------------------------------------------------

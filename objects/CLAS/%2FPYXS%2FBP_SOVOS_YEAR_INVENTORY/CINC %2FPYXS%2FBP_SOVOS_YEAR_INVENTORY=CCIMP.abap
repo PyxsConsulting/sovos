@@ -1303,6 +1303,7 @@ CLASS lcl_process IMPLEMENTATION.
         ls_objeto-knw0150-nm_razao_social = ls_data-organizationbpname1.
         ls_objeto-knw0150-nr_cnpj_cpf     = COND #( WHEN ls_data-taxnumber1 IS NOT INITIAL THEN ls_data-taxnumber1 ELSE ls_data-taxnumber2 ).
         ls_objeto-knw0150-nr_inscr_est    = ls_data-taxnumber3.
+        SHIFT ls_objeto-knw0150-nr_inscr_est     LEFT DELETING LEADING '0'.
         ls_objeto-knw0150-cd_municipio    = ls_data-taxjurisdiction+3.
         ls_objeto-knw0150-cd_pais         = get_ibge_country( ls_data-country ).
         ls_objeto-knw0150-cd_pessoa       = ls_data-supplier.
