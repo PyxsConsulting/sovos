@@ -1158,6 +1158,23 @@ CLASS lcl_process DEFINITION FRIENDS lhc_sovos_fiscaldocuments.
          counter      TYPE i,
     END OF ty_counter_ref.
 
+TYPES: BEGIN OF ty_text_id,
+         br_notafiscal         TYPE i_br_nftexts-br_notafiscal,
+         br_nftaxpartnertextid TYPE i_br_nftexts-br_nftaxpartnertextid,
+       END OF ty_text_id.
+
+TYPES: BEGIN OF ty_text,
+         br_notafiscal         TYPE i_br_nftexts-br_notafiscal,
+         br_nftaxpartnertextid TYPE i_br_nftexts-br_nftaxpartnertextid,
+         br_nftext             TYPE i_br_nftexts-br_nftext,
+       END OF ty_text.
+
+TYPES: BEGIN OF ty_observ,
+         br_notafiscal TYPE i_br_nftexts-br_notafiscal,
+         observacao    TYPE string,
+       END OF ty_observ.
+
+
 
   PRIVATE SECTION.
     TYPES: BEGIN OF ty_nfs,
@@ -1251,7 +1268,10 @@ CLASS lcl_process DEFINITION FRIENDS lhc_sovos_fiscaldocuments.
                 gs_comapany_code   TYPE i_companycode,
                 lt_counters_ref    TYPE TABLE OF ty_counter_ref,
                 lt_counters        TYPE TABLE OF ty_counter,
-                lt_seen_refs TYPE HASHED TABLE OF ty_seen_ref WITH UNIQUE KEY nr_doc_refer nr_documento.
+                lt_seen_refs TYPE HASHED TABLE OF ty_seen_ref WITH UNIQUE KEY nr_doc_refer nr_documento,
+                lt_text_ids TYPE TABLE OF ty_text_id,
+                lt_texts    TYPE TABLE OF ty_text,
+                t_observ    TYPE TABLE OF ty_observ.
 
     CLASS-METHODS: read_nf_db,
 
@@ -2584,6 +2604,22 @@ CLASS lcl_process IMPLEMENTATION.
 
       ENDCASE.
 
+        READ TABLE t_observ ASSIGNING FIELD-SYMBOL(<obs>) WITH KEY br_notafiscal = p_nfdoc-doc-br_notafiscal.
+        IF sy-subrc <> 0.
+            APPEND INITIAL LINE TO ls_objeto-notaFiscalInfComplementarList ASSIGNING FIELD-SYMBOL(<info_com>).
+            "--- C110 ---
+            <info_com>-knwc110-dm_entrada_saida   = ls_objeto-knwc100-dm_entrada_saida.
+            <info_com>-knwc110-dm_emitente        = ls_objeto-knwc100-dm_emitente.
+            <info_com>-knwc110-serie_subserie     = ls_objeto-knwc100-serie_subserie.
+            <info_com>-knwc110-nr_documento       = ls_objeto-knwc100-nr_documento.
+            <info_com>-knwc110-dt_emissao_doc     = ls_objeto-knwc100-dt_emissao_doc.
+            <info_com>-knwc110-cod_empresa        = ls_objeto-knwc100-cod_empresa.
+            <info_com>-knwc110-cod_filial         = ls_objeto-knwc100-cod_filial.
+            <info_com>-knwc110-cd_pessoa_rem_dest = ls_objeto-knwc100-cd_pessoa_remet_dest.
+            "<info_com>-knwc110-nr_item            = ls_ref_item-nr_item.
+            <info_com>-knwc110-cd_ref_0450        = '000020'.
+            <info_com>-knwc110-ds_complementar    = <obs>-observacao.
+         ENDIF.
 *
 *      "--------------------------------------------------
 *      " Itens da nota – C170 + cadastros
@@ -3538,7 +3574,54 @@ CLASS lcl_process IMPLEMENTATION.
       AND   nf~BR_NotaFiscalItem = @t_nfitem-nf-BR_ReferenceNFItem
       INTO TABLE @t_nf_ref.
 
+
+    SELECT DISTINCT
+       txt~BR_NotaFiscal,
+       txt~BR_NFTaxPartnerTextID
+          FROM I_BR_NFTexts AS txt
+          FOR ALL ENTRIES IN @t_nfdocs
+          WHERE txt~BR_NotaFiscal = @t_nfdocs-doc-BR_NotaFiscal
+          INTO TABLE @lt_text_ids.
+
+      IF lt_text_ids IS NOT INITIAL.
+
+        SELECT
+            txt~BR_NotaFiscal,
+            txt~BR_NFTaxPartnerTextID,
+            txt~BR_NFText
+            FROM I_BR_NFTexts AS txt
+            FOR ALL ENTRIES IN @lt_text_ids
+            WHERE txt~BR_NotaFiscal         = @lt_text_ids-BR_NotaFiscal
+              AND txt~BR_NFTaxPartnerTextID = @lt_text_ids-BR_NFTaxPartnerTextID
+            INTO TABLE @lt_texts.
+
+        SORT lt_texts BY br_notafiscal br_nftaxpartnertextid.
+
+        LOOP AT lt_texts INTO DATA(ls_text).
+
+          READ TABLE t_observ
+            ASSIGNING FIELD-SYMBOL(<fs_observ>)
+            WITH KEY br_notafiscal = ls_text-br_notafiscal.
+
+          IF sy-subrc <> 0.
+            APPEND INITIAL LINE TO t_observ ASSIGNING <fs_observ>.
+            <fs_observ>-br_notafiscal = ls_text-br_notafiscal.
+            <fs_observ>-observacao    = ls_text-br_nftext.
+          ELSE.
+            <fs_observ>-observacao =
+              |{ <fs_observ>-observacao } { ls_text-br_nftext }|.
+
+          ENDIF.
+
+        ENDLOOP.
+
+        ENDIF.
+
+
+
   ENDMETHOD.
+
+
   METHOD normalize.
     normalized = p_str.
     TRANSLATE: normalized USING '. ',
