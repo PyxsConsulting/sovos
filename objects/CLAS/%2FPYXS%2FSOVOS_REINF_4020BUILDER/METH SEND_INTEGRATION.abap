@@ -155,6 +155,18 @@
     ENDTRY.
     GET TIME STAMP FIELD time.
 
+    IF /pyxs/bp_reinflog=>lt_log IS INITIAL.
+      APPEND INITIAL LINE TO /pyxs/bp_reinflog=>lt_log ASSIGNING <log>.
+      GET TIME STAMP FIELD time.
+      <log>-ano_mes = me->sel-creation[ 1 ]-low.
+      <log>-time = time.
+      <log>-evento = '4020'.
+      <log>-partner = ''.
+      <log>-resultado = '200'.
+      <log>-retorno = 'Sucesso'.
+      EXIT.
+    ENDIF.
+
 ***    IF lo_ret IS INITIAL.
 ***      APPEND INITIAL LINE TO /pyxs/bp_reinflog=>lt_log ASSIGNING <log>.
 ***      <log>-time = time.
@@ -183,6 +195,7 @@
 ***        <log>-retorno = lv_ret-reason.
 ***      ENDLOOP.
 ***    ENDIF.
+
   ENDLOOP.
 
   ENDMETHOD.

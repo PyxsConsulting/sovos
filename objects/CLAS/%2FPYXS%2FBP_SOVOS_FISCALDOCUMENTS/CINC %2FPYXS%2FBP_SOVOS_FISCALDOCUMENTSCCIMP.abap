@@ -2498,7 +2498,7 @@ CLASS lcl_process IMPLEMENTATION.
           ls_objeto-knw0150emitente-nm_razao_social = p_nfdoc-doc-br_nfpartnername1.
           ls_objeto-knw0150emitente-nr_cnpj_cpf     = COND #( WHEN p_nfdoc-doc-br_nfpartnercnpj IS NOT INITIAL THEN p_nfdoc-doc-br_nfpartnercnpj ELSE p_nfdoc-doc-br_nfpartnercpf ).
           ls_objeto-knw0150emitente-nr_inscr_est    = p_nfdoc-doc-br_nfpartnerstatetaxnumber. "ls_vendor-taxnumber3.
-          SHIFT ls_objeto-knw0150emitente-nr_inscr_est LEFT DELETING LEADING '0'.
+          "SHIFT ls_objeto-knw0150emitente-nr_inscr_est LEFT DELETING LEADING '0'.
           ls_objeto-knw0150emitente-cd_municipio    = p_nfdoc-doc-br_nfpartnertaxjurisdiction+3. "ls_vendor-taxjurisdiction+3.
           ls_objeto-knw0150emitente-cd_pais         = get_ibge_country( p_nfdoc-doc-br_nfpartnercountrycode )."get_ibge_country( ls_vendor-country ).
           ls_objeto-knw0150emitente-cd_pessoa       = p_nfdoc-doc-br_nfpartner.
@@ -2523,7 +2523,7 @@ CLASS lcl_process IMPLEMENTATION.
           ls_objeto-knw0150destinatario-nm_razao_social = ls_branch-nome_fantasia.
           ls_objeto-knw0150destinatario-nr_cnpj_cpf     = p_nfdoc-doc-br_businessplacecnpj. "( |{ ls_branch-cnpj_raiz }{ ls_branch-cnpj_filial }| ).
           ls_objeto-knw0150destinatario-nr_inscr_est    = p_nfdoc-doc-br_nfpartnerstatetaxnumber. "ls_vendor-taxnumber3.
-          SHIFT ls_objeto-knw0150destinatario-nr_inscr_est LEFT DELETING LEADING '0'.
+          "SHIFT ls_objeto-knw0150destinatario-nr_inscr_est LEFT DELETING LEADING '0'.
           ls_objeto-knw0150destinatario-cd_municipio    = ls_branch-taxjurisdiction+3.
           ls_objeto-knw0150destinatario-cd_pais         = get_ibge_country( ls_branch-countrycode ).
           ls_objeto-knw0150destinatario-dt_inicial      = '1900-01-01T00:00:00-03:00'.
@@ -2550,7 +2550,7 @@ CLASS lcl_process IMPLEMENTATION.
           ls_objeto-knw0150emitente-nm_razao_social = ls_branch-nome_fantasia.
           ls_objeto-knw0150emitente-nr_cnpj_cpf     = p_nfdoc-doc-br_businessplacecnpj. "build_cnpj( |{ ls_branch-cnpj_raiz }{ ls_branch-cnpj_filial }| ).
           ls_objeto-knw0150emitente-nr_inscr_est    = p_nfdoc-doc-br_nfpartnerstatetaxnumber. "ls_vendor-taxnumber3. "br_nfissuerstatetaxnumber
-          SHIFT ls_objeto-knw0150emitente-nr_inscr_est LEFT DELETING LEADING '0'.
+          "SHIFT ls_objeto-knw0150emitente-nr_inscr_est LEFT DELETING LEADING '0'.
           ls_objeto-knw0150emitente-cd_municipio    = ls_branch-taxjurisdiction+3.
           ls_objeto-knw0150emitente-cd_pais         = get_ibge_country( ls_branch-countrycode ).
           ls_objeto-knw0150emitente-ds_endereco     = ls_branch-endereco.
@@ -2568,7 +2568,7 @@ CLASS lcl_process IMPLEMENTATION.
           ls_objeto-knw0150destinatario-nm_razao_social = p_nfdoc-doc-br_nfpartnername1.
           ls_objeto-knw0150destinatario-nr_cnpj_cpf     = COND #( WHEN p_nfdoc-doc-br_nfpartnercnpj IS NOT INITIAL THEN p_nfdoc-doc-br_nfpartnercnpj ELSE p_nfdoc-doc-br_nfpartnercpf ).
           ls_objeto-knw0150destinatario-nr_inscr_est    = p_nfdoc-doc-br_nfpartnerstatetaxnumber."ls_customer-taxnumber3. "br_nfreceiverstatetaxnumber
-          SHIFT ls_objeto-knw0150destinatario-nr_inscr_est LEFT DELETING LEADING '0'.
+          "SHIFT ls_objeto-knw0150destinatario-nr_inscr_est LEFT DELETING LEADING '0'.
           ls_objeto-knw0150destinatario-ds_endereco     = p_nfdoc-doc-br_nfpartnerstreetname. "ls_customer-bpaddrstreetname.
           ls_objeto-knw0150destinatario-dt_inicial      = '1900-01-01T00:00:00-03:00'.
 
@@ -3104,7 +3104,7 @@ CLASS lcl_process IMPLEMENTATION.
             <c113>-knw0150-nr_cnpj_cpf         = ls_nf_ref_doc-doc-br_businessplacecnpj.
             <c113>-knw0150-cd_municipio        = ls_branch-taxjurisdiction+3.
             <c113>-knw0150-nr_inscr_est        = ls_nf_ref_doc-doc-br_nfpartnerstatetaxnumber."ls_customer-taxnumber3.
-            SHIFT <c113>-knw0150-nr_inscr_est  LEFT DELETING LEADING '0'.
+            "SHIFT <c113>-knw0150-nr_inscr_est  LEFT DELETING LEADING '0'.
             <c113>-knw0150-cd_pais             = get_ibge_country( ls_branch-countrycode ).
             <c113>-knw0150-dt_inicial          = '1900-01-01T00:00:00-03:00'.
             <c113>-knw0150-cd_pessoa           = ls_branch-cod_estab.
@@ -3165,7 +3165,7 @@ CLASS lcl_process IMPLEMENTATION.
               <c113>-knw0150-nr_cnpj_cpf = ls_nf_ref_doc-doc-br_nfpartnercpf.
             ENDIF.
             <c113>-knw0150-nr_inscr_est        = ls_nf_ref_doc-doc-br_nfpartnerstatetaxnumber."ls_customer-taxnumber3.
-            SHIFT <c113>-knw0150-nr_inscr_est  LEFT DELETING LEADING '0'.
+            "SHIFT <c113>-knw0150-nr_inscr_est  LEFT DELETING LEADING '0'.
             <c113>-knw0150-cd_municipio        = ls_nf_ref_doc-doc-br_nfpartnertaxjurisdiction+3.
             <c113>-knw0150-cd_pais             = get_ibge_country( ls_nf_ref_doc-doc-br_nfpartnercountrycode ).
             <c113>-knw0150-dt_inicial          = '1900-01-01T00:00:00-03:00'.
@@ -3803,7 +3803,7 @@ CLASS lcl_process IMPLEMENTATION.
       ls_objeto-knw0150-nr_cep          = p_nfdoc-doc-br_nfpartnerpostalcode.
       REPLACE ALL OCCURRENCES OF '-' IN ls_objeto-knw0150-nr_cep WITH ''.
       ls_objeto-knw0150-nr_inscr_munic = p_nfdoc-doc-br_nfpartnermunicipaltaxnumber.
-      SHIFT ls_objeto-knw0150-nr_inscr_munic  LEFT DELETING LEADING '0'.
+      "SHIFT ls_objeto-knw0150-nr_inscr_munic  LEFT DELETING LEADING '0'.
       ls_objeto-knw0150-cd_municipio    = p_nfdoc-doc-br_nfpartnertaxjurisdiction+3(7).
       ls_objeto-knw0150-cd_pais         = get_ibge_country( p_nfdoc-doc-br_nfpartnercountrycode ).
       ls_objeto-knw0150-nr_cnpj_cpf     = p_nfdoc-doc-br_nfpartnercnpj.
