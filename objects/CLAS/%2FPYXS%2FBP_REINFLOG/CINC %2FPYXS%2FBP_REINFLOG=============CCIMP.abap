@@ -149,7 +149,11 @@ CLASS lhc_reinflog IMPLEMENTATION.
 
     TRY.
 
-    ls_reinf = /pyxs/bp_reinflog=>lt_log[ 1 ].
+    IF /pyxs/bp_reinflog=>lt_log IS NOT INITIAL.
+
+      ls_reinf = /pyxs/bp_reinflog=>lt_log[ 1 ].
+
+    ENDIF.
 
   CATCH cx_sy_itab_line_not_found.
 
