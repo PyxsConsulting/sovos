@@ -1604,6 +1604,18 @@ CLASS lcl_process IMPLEMENTATION.
 
     ENDLOOP.
 
+    GET BADI ol_badi.
+    CALL BADI ol_badi->before_process
+          EXPORTING
+            iv_company       = sel-company
+            iv_branch        = sel-branch
+            iv_document      = sel-document
+            iv_creation      = sel-creation
+            iv_posting       = sel-posting
+            iv_nftype        = sel-nftype
+          CHANGING
+            t_out            = t_out_e.
+
     LOOP AT t_out_e INTO ls_doc.
 *      CLEAR lt_doc[].
 *      APPEND ls_doc TO lt_doc.
@@ -1763,6 +1775,19 @@ CLASS lcl_process IMPLEMENTATION.
 
 
     ENDLOOP.
+
+    GET BADI ol_badi.
+    CALL BADI ol_badi->before_process
+          EXPORTING
+            iv_company       = sel-company
+            iv_branch        = sel-branch
+            iv_document      = sel-document
+            iv_creation      = sel-creation
+            iv_posting       = sel-posting
+            iv_nftype        = sel-nftype
+          CHANGING
+            t_out_srv            = t_out_srv.
+
     LOOP AT t_out_srv INTO DATA(ls_doc_srv).
 *      CLEAR lt_doc[].
 *      APPEND ls_doc TO lt_doc.

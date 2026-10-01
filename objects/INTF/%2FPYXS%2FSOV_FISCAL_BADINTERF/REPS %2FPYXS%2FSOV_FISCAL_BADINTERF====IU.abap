@@ -5,13 +5,14 @@ INTERFACE /pyxs/sov_fiscal_badinterf
 
   TYPES:
 
-    ty_t_out TYPE TABLE OF /pyxs/sovos_types=>ty_main,
-    company  TYPE i_br_businessplace-companycode,
-    branch   TYPE i_br_businessplace-branch,
-    creation TYPE RANGE OF i_br_nfdocument-creationdate,
-    posting  TYPE RANGE OF i_br_nfdocument-br_nfpostingdate,
-    document TYPE RANGE OF i_br_nfdocument-br_notafiscal,
-    nftype   TYPE RANGE OF i_br_nfdocument-br_nftype.
+    ty_t_out     TYPE TABLE OF /pyxs/sovos_types=>ty_main,
+    ty_t_out_srv TYPE TABLE OF /pyxs/sovos_types=>ty_main_srv,
+    company      TYPE i_br_businessplace-companycode,
+    branch       TYPE i_br_businessplace-branch,
+    creation     TYPE RANGE OF i_br_nfdocument-creationdate,
+    posting      TYPE RANGE OF i_br_nfdocument-br_nfpostingdate,
+    document     TYPE RANGE OF i_br_nfdocument-br_notafiscal,
+    nftype       TYPE RANGE OF i_br_nfdocument-br_nftype.
 
   METHODS before_process
     IMPORTING
@@ -24,6 +25,7 @@ INTERFACE /pyxs/sov_fiscal_badinterf
       iv_nftype        TYPE nftype    OPTIONAL
 
     CHANGING
-      t_out TYPE ty_t_out.
+      t_out     TYPE ty_t_out     OPTIONAL
+      t_out_srv TYPE ty_t_out_srv OPTIONAL.
 
 ENDINTERFACE.
