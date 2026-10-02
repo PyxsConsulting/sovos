@@ -1650,116 +1650,131 @@ CLASS lcl_process IMPLEMENTATION.
 ***      group by stock~material
 ***      INTO TABLE @gt_sel2.
 
-    select    stock~material,
-              stock~supplier,
-              stock~customer,
-         sum( stock~MatlWrhsStkQtyInMatlBaseUnit ) as val,
-         "sum( stock~\_InvtryPrcByPeriodEndDate( p_calendardate = '20260430' )-MaterialPriceUnitQty ) as amountincompanycodecurrency,
-         "sum( inv~amountincompanycodecurrency ) as amountincompanycodecurrency,
-         0 as amountincompanycodecurrency,
-         max( productvaluationbasic~movingaverageprice ) as movingaverageprice,
-         max( stock~materialbaseunit ) as un,
-         max( product~product ) as product,
-         max( productdescription~productdescription ) as productdescription,
-         max( productplantbasic~consumptiontaxctrlcode ) as consumptiontaxctrlcode,
-         max( productvaluationbasic~productorigintype ) as productorigintype,
-         max( product~\_baseunitofmeasure-unitofmeasure_e ) as unitofmeasure_e,
-         max( product~\_baseunitofmeasure\_text[ language = 'P' ]-unitofmeasurename ) as unitofmeasurename,
-         max( product~\_producttype-referenceproducttype ) as referenceproducttype,
-         max( productplantbasic~iscoproduct ) as iscoproduct,
-            max( case
-                   when supplier~organizationbpname1 is null
-                     or supplier~organizationbpname1 = ' '
-                     then customer~organizationbpname1
-                   else supplier~organizationbpname1
-                 end ) as organizationbpname1,
 
-            max( case
-                   when supplier~taxnumber1 is null
-                     or supplier~taxnumber1 = ' '
-                     then customer~taxnumber1
-                   else supplier~taxnumber1
-                 end ) as taxnumber1,
+    SELECT stock~material,
+           stock~supplier,
+           stock~customer,
 
-            max( case
-                   when supplier~taxnumber2 is null
-                     or supplier~taxnumber2 = ' '
-                     then customer~taxnumber2
-                   else supplier~taxnumber2
-                 end ) as taxnumber2,
+           SUM( stock~matlwrhsstkqtyinmatlbaseunit ) AS val,
 
-            max( case
-                   when supplier~taxnumber3 is null
-                     or supplier~taxnumber3 = ' '
-                     then customer~taxnumber3
-                   else supplier~taxnumber3
-                 end ) as taxnumber3,
+           SUM( round( CAST( division( CAST( CASE WHEN productvaluationbasic~inventoryvaluationprocedure = 'S'
+                                                  THEN productvaluationbasic~standardprice
+                                                  ELSE productvaluationbasic~movingaverageprice
+                                                  END AS DEC( 23, 2 ) ),
 
-            max( case
-                   when supplier~taxjurisdiction is null
-                     or supplier~taxjurisdiction = ' '
-                     then customer~taxjurisdiction
-                   else supplier~taxjurisdiction
-                 end ) as taxjurisdiction,
+                                                  CASE WHEN productvaluationbasic~priceunitqty = 0
+                                                  THEN CAST( 1 AS DEC( 5, 0 ) )
+                                                  ELSE CAST( productvaluationbasic~priceunitqty AS DEC( 5, 0 ) )
+                                                  END, 5 ) AS DEC( 16, 7 ) )
 
-            max( case
-                   when supplier~country is null
-                     or supplier~country = ' '
-                     then customer~country
-                   else supplier~country
-                 end ) as country,
+                                                  * CAST( stock~matlwrhsstkqtyinmatlbaseunit AS DEC( 21, 3 ) ), 2 ) ) AS stockvalue,
 
-            max( case
-                   when supplier~bpaddrstreetname is null
-                     or supplier~bpaddrstreetname = ' '
-                     then customer~bpaddrstreetname
-                   else supplier~bpaddrstreetname
-                 end ) as bpaddrstreetname
+           MAX( stock~\_companycode-currency ) AS currency,
 
-          from I_MaterialStockTimeSeries(
-  p_startdate = @lv_date_f,
-  p_enddate = @lv_date_t,
-  p_periodtype = 'M' ) as stock
-    INNER JOIN i_plant AS plant0
-      ON  stock~plant = plant0~plant
-      and plant0~businessplace = @sel-businessplace
-    INNER JOIN i_valuationarea AS val
-      ON  val~valuationarea = plant0~valuationarea
-***    INNER JOIN I_InventoryAmtByFsclPerd(
-***           p_fiscalperiod = @lv_month,
-***           p_fiscalyear   = @lv_year
-***     ) AS inv
-***      ON inv~Ledger = '0L'
-***      and inv~CompanyCode = @sel-companycode
-***      and inv~CostEstimate = stock~CostEstimate
-    INNER JOIN i_product AS product
-      ON   stock~material = product~product
-    INNER JOIN i_productdescription AS productdescription
-      ON  stock~material = productdescription~product
-      AND productdescription~language = 'P'
-    INNER JOIN i_unitofmeasuretext AS unitofmeasuretext
-      ON  stock~materialbaseunit         = unitofmeasuretext~unitofmeasure
-      AND unitofmeasuretext~language  = 'P'
-    INNER JOIN i_productplantbasic AS productplantbasic
-      ON  stock~material       = productplantbasic~product
-      AND val~valuationarea  = productplantbasic~plant
-    INNER JOIN i_productvaluationbasic AS productvaluationbasic
-      ON  stock~material      = productvaluationbasic~product AND
-          val~valuationarea = productvaluationbasic~valuationarea
-    INNER JOIN i_plant AS plant
-      ON  val~valuationarea = plant~valuationarea
-    LEFT JOIN i_supplier AS supplier
-      ON stock~supplier = supplier~supplier
-    LEFT JOIN i_customer AS customer
-      ON stock~customer = customer~customer
-    WHERE val~companycode  = @sel-companycode
-        AND stock~material     IN @sel-product
-        AND plant~businessplace = @sel-businessplace
-        AND productvaluationbasic~valuationtype = ''
-      group by stock~material,
-              stock~supplier,
-              stock~customer
-      INTO TABLE @gt_sel2.
+           0 AS amountincompanycodecurrency,
+           MAX( productvaluationbasic~movingaverageprice ) AS movingaverageprice,
+           MAX( stock~materialbaseunit ) AS un,
+           MAX( product~product ) AS product,
+           MAX( productdescription~productdescription ) AS productdescription,
+           MAX( productplantbasic~consumptiontaxctrlcode ) AS consumptiontaxctrlcode,
+           MAX( productvaluationbasic~productorigintype ) AS productorigintype,
+           MAX( product~\_baseunitofmeasure-unitofmeasure_e ) AS unitofmeasure_e,
+           MAX( product~\_baseunitofmeasure\_text[ language = 'P' ]-unitofmeasurename ) AS unitofmeasurename,
+           MAX( product~\_producttype-referenceproducttype ) AS referenceproducttype,
+           MAX( productplantbasic~iscoproduct ) AS iscoproduct,
+
+           MAX( CASE
+                  WHEN supplier~organizationbpname1 IS NULL
+                    OR supplier~organizationbpname1 = ' '
+                    THEN customer~organizationbpname1
+                  ELSE supplier~organizationbpname1
+                END ) AS organizationbpname1,
+
+           MAX( CASE
+                  WHEN supplier~taxnumber1 IS NULL
+                    OR supplier~taxnumber1 = ' '
+                    THEN customer~taxnumber1
+                  ELSE supplier~taxnumber1
+                END ) AS taxnumber1,
+
+           MAX( CASE
+                  WHEN supplier~taxnumber2 IS NULL
+                    OR supplier~taxnumber2 = ' '
+                    THEN customer~taxnumber2
+                  ELSE supplier~taxnumber2
+                END ) AS taxnumber2,
+
+           MAX( CASE
+                  WHEN supplier~taxnumber3 IS NULL
+                    OR supplier~taxnumber3 = ' '
+                    THEN customer~taxnumber3
+                  ELSE supplier~taxnumber3
+                END ) AS taxnumber3,
+
+           MAX( CASE
+                  WHEN supplier~taxjurisdiction IS NULL
+                    OR supplier~taxjurisdiction = ' '
+                    THEN customer~taxjurisdiction
+                  ELSE supplier~taxjurisdiction
+                END ) AS taxjurisdiction,
+
+           MAX( CASE
+                  WHEN supplier~country IS NULL
+                    OR supplier~country = ' '
+                    THEN customer~country
+                  ELSE supplier~country
+                END ) AS country,
+
+           MAX( CASE
+                  WHEN supplier~bpaddrstreetname IS NULL
+                    OR supplier~bpaddrstreetname = ' '
+                    THEN customer~bpaddrstreetname
+                  ELSE supplier~bpaddrstreetname
+                END ) AS bpaddrstreetname
+
+      FROM i_materialstocktimeseries( p_startdate  = @lv_date_t,
+                                      p_enddate    = @lv_date_t,
+                                      p_periodtype = 'D' ) AS stock
+
+        INNER JOIN i_plant AS plant0
+          ON  plant0~plant         = stock~plant
+          AND plant0~businessplace = @sel-businessplace
+
+        INNER JOIN i_valuationarea AS val
+          ON val~valuationarea = plant0~valuationarea
+
+        INNER JOIN i_product AS product
+          ON product~product = stock~material
+
+        LEFT OUTER JOIN i_productdescription AS productdescription
+          ON  productdescription~product  = stock~material
+          AND productdescription~language = 'P'
+
+        INNER JOIN i_productplantbasic AS productplantbasic
+          ON  productplantbasic~product = stock~material
+          AND productplantbasic~plant   = stock~plant
+
+        INNER JOIN i_productvaluationbasic AS productvaluationbasic
+          ON  productvaluationbasic~product       = stock~material
+          AND productvaluationbasic~valuationarea = val~valuationarea
+          AND productvaluationbasic~valuationtype = ''
+
+        LEFT OUTER JOIN i_supplier AS supplier
+          ON supplier~supplier = stock~supplier
+
+        LEFT OUTER JOIN i_customer AS customer
+          ON customer~customer = stock~customer
+
+      WHERE val~companycode           = @sel-companycode
+        AND stock~material           IN @sel-product
+        AND stock~inventorystocktype BETWEEN '01' AND '10'
+        AND stock~materialbaseunit   <> ''
+
+      GROUP BY stock~material,
+               stock~supplier,
+               stock~customer
+
+      INTO CORRESPONDING FIELDS OF TABLE @gt_sel2.
 
     SELECT SINGLE companycode, companycodename, chartofaccounts
       FROM i_companycode
