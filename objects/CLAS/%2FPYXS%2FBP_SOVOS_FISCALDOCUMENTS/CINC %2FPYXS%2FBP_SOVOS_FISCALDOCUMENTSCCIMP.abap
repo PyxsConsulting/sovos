@@ -2633,7 +2633,7 @@ CLASS lcl_process IMPLEMENTATION.
       ENDCASE.
 
         READ TABLE t_observ ASSIGNING FIELD-SYMBOL(<obs>) WITH KEY br_notafiscal = p_nfdoc-doc-br_notafiscal.
-        IF sy-subrc <> 0.
+        IF sy-subrc = 0.
             APPEND INITIAL LINE TO ls_objeto-notaFiscalInfComplementarList ASSIGNING FIELD-SYMBOL(<info_com>).
             "--- C110 ---
             <info_com>-knwc110-dm_entrada_saida   = ls_objeto-knwc100-dm_entrada_saida.
