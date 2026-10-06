@@ -2644,7 +2644,7 @@ CLASS lcl_process IMPLEMENTATION.
             <info_com>-knwc110-cod_empresa        = ls_objeto-knwc100-cod_empresa.
             <info_com>-knwc110-cod_filial         = ls_objeto-knwc100-cod_filial.
             <info_com>-knwc110-cd_pessoa_rem_dest = ls_objeto-knwc100-cd_pessoa_remet_dest.
-            "<info_com>-knwc110-nr_item            = ls_ref_item-nr_item.
+            <info_com>-knwc110-nr_item            = '1'.
             <info_com>-knwc110-cd_ref_0450        = '000020'.
             <info_com>-knwc110-ds_complementar    = <obs>-observacao.
          ENDIF.
