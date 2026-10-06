@@ -2482,6 +2482,9 @@ CLASS lcl_process IMPLEMENTATION.
       "                                                           THEN p_nfdoc-doc-br_nfsituationcode
       "                                                           "ELSE '00' ).
       ls_objeto-knwc100-cd_sit_documento     = p_nfdoc-doc-br_nfsituationcode.
+      IF ls_objeto-knwc100-cd_sit_documento IS INITIAL.
+        ls_objeto-knwc100-cd_sit_documento = '00'.
+      ENDIF.
       ls_objeto-knwc100-cod_filial         = p_nfdoc-doc-businessplace.
       ls_objeto-knwc100-cd_pessoa_remet_dest         = p_nfdoc-doc-br_nfpartner.
       ls_objeto-knwc100-dm_modal_frete = p_nfdoc-doc-freightpayer.
