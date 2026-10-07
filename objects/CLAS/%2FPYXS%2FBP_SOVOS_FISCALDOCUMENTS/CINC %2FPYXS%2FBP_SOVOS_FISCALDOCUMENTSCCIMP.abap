@@ -2657,7 +2657,12 @@ CLASS lcl_process IMPLEMENTATION.
           ls_objeto-knw0150destinatario-cod_filial      = p_nfdoc-doc-businessplace.
           ls_objeto-knw0150destinatario-cd_pessoa       = p_nfdoc-doc-br_nfpartner.
           ls_objeto-knw0150destinatario-nm_razao_social = p_nfdoc-doc-br_nfpartnername1.
-          ls_objeto-knw0150destinatario-nr_cnpj_cpf     = COND #( WHEN p_nfdoc-doc-br_nfpartnercnpj IS NOT INITIAL THEN p_nfdoc-doc-br_nfpartnercnpj ELSE p_nfdoc-doc-br_nfpartnercpf ).
+          "ls_objeto-knw0150destinatario-nr_cnpj_cpf     = COND #( WHEN p_nfdoc-doc-br_nfpartnercnpj IS NOT INITIAL THEN p_nfdoc-doc-br_nfpartnercnpj ELSE p_nfdoc-doc-br_nfpartnercpf ).
+          IF p_nfdoc-doc-br_nfpartnercnpj CA '123456789'.
+              ls_objeto-knw0150destinatario-nr_cnpj_cpf = p_nfdoc-doc-br_nfpartnercnpj.
+            ELSEIF p_nfdoc-doc-br_nfpartnercpf CA '123456789'.
+              ls_objeto-knw0150destinatario-nr_cnpj_cpf = p_nfdoc-doc-br_nfpartnercpf.
+            ENDIF.
           ls_objeto-knw0150destinatario-nr_inscr_est    = p_nfdoc-doc-br_nfpartnerstatetaxnumber."ls_customer-taxnumber3. "br_nfreceiverstatetaxnumber
           "SHIFT ls_objeto-knw0150destinatario-nr_inscr_est LEFT DELETING LEADING '0'.
           ls_objeto-knw0150destinatario-ds_endereco     = p_nfdoc-doc-br_nfpartnerstreetname. "ls_customer-bpaddrstreetname.
