@@ -29,6 +29,10 @@ LOOP AT gt_data INTO DATA(ls_data).
     CONTINUE.
   ENDIF.
 
+  IF ls_data-clearingdate IS INITIAL.
+    CONTINUE.
+  ENDIF.
+
   DATA(lv_root_id) =
     |R4020{ ls_nfs-br_nfpostingdate(6) }{ ls_nfs-br_nfpartner }|.
   IF ls_irf_type-Usardatapagto = abap_true.

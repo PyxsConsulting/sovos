@@ -17,6 +17,8 @@
 
 
   LOOP AT gt_objects INTO ls_root.
+  DATA(lv_idx) = sy-tabix.
+  CLEAR: lo_ret, lv_sucesso, gv_proc.
   APPEND ls_root TO objects.
   ls_payload-objetos = objects.
     DATA(json_out) = /ui2/cl_json=>serialize(
@@ -68,7 +70,7 @@
       GET TIME STAMP FIELD DATA(time).
       <log>-ano_mes = me->sel-creation[ 1 ]-low.
       <log>-time = time.
-      <log>-evento = '4000'.
+      <log>-evento = '4020'.
       <log>-partner = ''.
       <log>-resultado = '999'.
       <log>-retorno = 'Cenário de comunicação não encontrado'.
@@ -155,46 +157,36 @@
     ENDTRY.
     GET TIME STAMP FIELD time.
 
-    IF /pyxs/bp_reinflog=>lt_log IS INITIAL.
-      APPEND INITIAL LINE TO /pyxs/bp_reinflog=>lt_log ASSIGNING <log>.
-      GET TIME STAMP FIELD time.
-      <log>-ano_mes = me->sel-creation[ 1 ]-low.
-      <log>-time = time.
-      <log>-evento = '4020'.
-      <log>-partner = ''.
-      <log>-resultado = '200'.
-      <log>-retorno = 'Sucesso'.
-      EXIT.
-    ENDIF.
+    " id_referencia = R4020 + AAAAMM + parceiro
+    DATA(ls_nf) = ls_root-knwReinfR4020.
 
-***    IF lo_ret IS INITIAL.
-***      APPEND INITIAL LINE TO /pyxs/bp_reinflog=>lt_log ASSIGNING <log>.
-***      <log>-time = time.
-***      READ TABLE ls_root-knwReinfR4020 INTO DATA(ls_nf) INDEX 1.
-***
-***      <log>-ano_mes = me->sel-creation[ 1 ]-low.
-***      <log>-evento = '4000'.
-***      <log>-partner = ls_nf-id_referencia+6.
-***      <log>-resultado = COND #( WHEN lv_ret IS INITIAL THEN '999' ELSE lv_ret-code ).
-***      <log>-retorno = COND #( WHEN gv_proc IS NOT INITIAL THEN gv_proc
-***                              WHEN lv_ret IS NOT INITIAL THEN lv_ret-reason
-***                              ELSE 'Erro no serviço' ).
-***
-***    ELSE.
-***"
-***      LOOP AT lo_ret->('MENSAGENS')->* ASSIGNING FIELD-SYMBOL(<lv_msg>).
-***        APPEND INITIAL LINE TO /pyxs/bp_reinflog=>lt_log ASSIGNING <log>.
-***        <log>-id = sy-tabix.
-***        <log>-time = time.
-***        READ TABLE ls_root-knwReinfR4020 INTO ls_nf INDEX 1.
-***
-***        <log>-ano_mes = me->sel-creation[ 1 ]-low.
-***        <log>-evento = '4000'.
-***        <log>-partner = ls_nf-id_referencia+6.
-***        <log>-resultado = lv_ret-code.
-***        <log>-retorno = lv_ret-reason.
-***      ENDLOOP.
-***    ENDIF.
+    IF lo_ret IS INITIAL.
+      APPEND INITIAL LINE TO /pyxs/bp_reinflog=>lt_log ASSIGNING <log>.
+      <log>-id = lv_idx.
+      <log>-time = time.
+      <log>-ano_mes = ls_nf-id_referencia+5(6).
+      <log>-evento = '4020'.
+      <log>-partner = ls_nf-id_referencia+11.
+      <log>-resultado = COND #( WHEN lv_ret IS INITIAL THEN '999' ELSE lv_ret-code ).
+      <log>-retorno = COND #( WHEN gv_proc IS NOT INITIAL THEN gv_proc
+                              WHEN lv_ret IS NOT INITIAL THEN lv_ret-reason
+                              ELSE 'Erro no serviço' ).
+
+    ELSE.
+      APPEND INITIAL LINE TO /pyxs/bp_reinflog=>lt_log ASSIGNING <log>.
+      <log>-id = lv_idx.
+      <log>-time = time.
+      <log>-ano_mes = ls_nf-id_referencia+5(6).
+      <log>-evento = '4020'.
+      <log>-partner = ls_nf-id_referencia+11.
+      <log>-resultado = lv_ret-code.
+      IF lv_ret-code = 200.
+        <log>-retorno = lv_base64.
+      ELSE.
+        <log>-retorno = gv_proc.
+      ENDIF.
+    ENDIF.
+    CLEAR lv_ret.
 
   ENDLOOP.
 
