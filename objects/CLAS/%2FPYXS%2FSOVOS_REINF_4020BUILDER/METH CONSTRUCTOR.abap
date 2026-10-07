@@ -16,6 +16,4 @@
     build_r4020_new(  ).
     send_integration(  ).
 
-    MODIFY /pyxs/sov_reinf FROM TABLE @/pyxs/bp_reinflog=>lt_log.
-
   ENDMETHOD.

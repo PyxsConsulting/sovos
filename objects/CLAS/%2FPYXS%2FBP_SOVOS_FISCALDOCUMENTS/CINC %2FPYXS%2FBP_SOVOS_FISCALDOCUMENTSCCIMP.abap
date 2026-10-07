@@ -2582,7 +2582,12 @@ CLASS lcl_process IMPLEMENTATION.
           ls_objeto-knw0150emitente-cod_empresa     = p_nfdoc-doc-companycode.
           ls_objeto-knw0150emitente-cod_filial      = p_nfdoc-doc-businessplace.
           ls_objeto-knw0150emitente-nm_razao_social = p_nfdoc-doc-br_nfpartnername1.
-          ls_objeto-knw0150emitente-nr_cnpj_cpf     = COND #( WHEN p_nfdoc-doc-br_nfpartnercnpj IS NOT INITIAL THEN p_nfdoc-doc-br_nfpartnercnpj ELSE p_nfdoc-doc-br_nfpartnercpf ).
+          "ls_objeto-knw0150emitente-nr_cnpj_cpf     = COND #( WHEN p_nfdoc-doc-br_nfpartnercnpj IS NOT INITIAL THEN p_nfdoc-doc-br_nfpartnercnpj ELSE p_nfdoc-doc-br_nfpartnercpf ).
+          IF p_nfdoc-doc-br_nfpartnercnpj CA '123456789'.
+              ls_objeto-knw0150emitente-nr_cnpj_cpf = p_nfdoc-doc-br_nfpartnercnpj.
+            ELSEIF p_nfdoc-doc-br_nfpartnercpf CA '123456789'.
+              ls_objeto-knw0150emitente-nr_cnpj_cpf = p_nfdoc-doc-br_nfpartnercpf.
+            ENDIF.
           ls_objeto-knw0150emitente-nr_inscr_est    = p_nfdoc-doc-br_nfpartnerstatetaxnumber. "ls_vendor-taxnumber3.
           "SHIFT ls_objeto-knw0150emitente-nr_inscr_est LEFT DELETING LEADING '0'.
           ls_objeto-knw0150emitente-cd_municipio    = p_nfdoc-doc-br_nfpartnertaxjurisdiction+3. "ls_vendor-taxjurisdiction+3.
