@@ -167,6 +167,7 @@ CLASS lhc_reinflog IMPLEMENTATION.
     LOOP AT /pyxs/bp_reinflog=>lt_log INTO DATA(ls_reinf).
       APPEND INITIAL LINE TO result ASSIGNING FIELD-SYMBOL(<res>).
       <res>-%cid = key-%cid.
+      <res>-%param-time = ls_reinf-time.
       <res>-%param-anomes = ls_reinf-ano_mes.
       <res>-%param-evento = ls_reinf-evento.
       <res>-%param-id = ls_reinf-id.
