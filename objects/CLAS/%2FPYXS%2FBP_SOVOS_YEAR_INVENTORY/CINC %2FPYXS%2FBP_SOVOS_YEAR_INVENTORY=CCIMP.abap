@@ -321,6 +321,8 @@ CLASS lcl_process DEFINITION FRIENDS lhc_sovos_year_inventory.
          supplier                    TYPE I_MaterialStockTimeSeries-supplier,
          customer                    TYPE I_MaterialStockTimeSeries-customer,
          valuationquantity           TYPE I_MaterialStockTimeSeries-MatlWrhsStkQtyInMatlBaseUnit,
+         stockvalue                  TYPE i_inventoryamtbyfsclperd-amountincompanycodecurrency,
+         currency                    TYPE i_companycode-currency,
          amountincompanycodecurrency TYPE i_inventoryamtbyfsclperd-amountincompanycodecurrency,
          movingaverageprice          TYPE i_productvaluationbasic-movingaverageprice,
          unitofmeasure               TYPE I_MaterialStockTimeSeries-materialbaseunit,
@@ -1780,7 +1782,7 @@ CLASS lcl_process IMPLEMENTATION.
                stock~supplier,
                stock~customer
 
-      INTO CORRESPONDING FIELDS OF TABLE @gt_sel2.
+      INTO TABLE @gt_sel2.
 
     SELECT SINGLE companycode, companycodename, chartofaccounts
       FROM i_companycode
