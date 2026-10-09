@@ -12,7 +12,7 @@ CLASS /pyxs/sovos_types DEFINITION
         nr_documento           TYPE string,
         dt_emissao_doc         TYPE string,
         dt_entrada             TYPE string,
-        vl_total_mercad        TYPE p LENGTH 15 DECIMALS 2,
+        vl_total_mercad        TYPE string,
         vl_desconto            TYPE string,
         vl_frete               TYPE string,
         vl_seguro              TYPE string,
@@ -51,7 +51,7 @@ CLASS /pyxs/sovos_types DEFINITION
         dm_finalidade          TYPE string,
         dm_destinatario        TYPE string,
         chave_registro         TYPE string,
-        vl_servico1            TYPE string,
+        vl_servico             TYPE string,
       END OF ty_knwc100,
 
       BEGIN OF ty_knwc111,

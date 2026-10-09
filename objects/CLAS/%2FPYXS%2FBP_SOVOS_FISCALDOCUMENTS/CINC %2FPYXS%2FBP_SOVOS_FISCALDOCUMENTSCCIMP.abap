@@ -763,7 +763,7 @@ CLASS lcl_process DEFINITION FRIENDS lhc_sovos_fiscaldocuments.
         nr_documento           TYPE string,
         dt_emissao_doc         TYPE string,
         dt_entrada             TYPE string,
-        vl_total_mercad        TYPE p LENGTH 15 DECIMALS 2,
+        vl_total_mercad        TYPE string,
         vl_desconto            TYPE string,
         vl_frete               TYPE string,
         vl_seguro              TYPE string,
@@ -802,7 +802,7 @@ CLASS lcl_process DEFINITION FRIENDS lhc_sovos_fiscaldocuments.
         dm_finalidade          TYPE string,
         dm_destinatario        TYPE string,
         chave_registro         TYPE string,
-        vl_servico1            TYPE string,
+        vl_servico             TYPE string,
       END OF ty_knwc100,
 
       BEGIN OF ty_knwc111,
@@ -2461,7 +2461,8 @@ CLASS lcl_process IMPLEMENTATION.
           "ls_importacao TYPE /pyxs/cl_fiscal_documents=>ty_importacoes,
           ls_objeto  TYPE ty_objetos,
           ls_main    TYPE ty_main,
-          lv_es      TYPE abap_bool.
+          lv_es      TYPE abap_bool,
+          lv_vl_total_mercad TYPE p LENGTH 15 DECIMALS 2.
     DELETE t_nfdocs WHERE doc-br_nfdocumenttype = '5'.
     IF t_nfdocs[] IS INITIAL.
       gv_proc = 'Nenhum documento processado'.
@@ -2528,7 +2529,7 @@ CLASS lcl_process IMPLEMENTATION.
       ls_objeto-knwc100-dm_modal_frete = p_nfdoc-doc-freightpayer.
 
 
-      ls_objeto-knwc100-vl_total_mercad    = p_nfdoc-doc-br_nftotalamount.
+      lv_vl_total_mercad                   = p_nfdoc-doc-br_nftotalamount.
       ls_objeto-knwc100-vl_tot_n_fiscal    = p_nfdoc-doc-br_nftotalamount.
       ls_objeto-knwc100-vl_desconto    = p_nfdoc-doc-br_nfdiscountamount.
 
@@ -2541,7 +2542,7 @@ CLASS lcl_process IMPLEMENTATION.
       ls_objeto-knwc100-vl_sub_empr = '0.0'.
       ls_objeto-knwc100-dm_finalidade = '1'.
       ls_objeto-knwc100-dm_destinatario = '1'.
-      ls_objeto-knwc100-vl_servico1 = '0.0'.
+      ls_objeto-knwc100-vl_servico = '0.0'.
       ls_objeto-knwc100-vl_abat_n_trib = '0.0'.
 
       "Joao completar, deixa todos os iguais ao c100 preenchidos
@@ -2882,7 +2883,7 @@ CLASS lcl_process IMPLEMENTATION.
                 ENDIF.
                 <item>-knwc170-aliq_icms_sub = ls_tax_itm-br_nfitemtaxrate.
                 <item>-knwc170-vl_contabil += ls_tax_itm-br_nfitemtaxamount.
-                ls_objeto-knwc100-vl_total_mercad -= ls_tax_itm-br_nfitemtaxamount.
+                lv_vl_total_mercad -= ls_tax_itm-br_nfitemtaxamount.
               ELSEIF ls_tax_type-br_icmspartilhasubdivisioncode = '004'.
                 <item>-knwc170-vl_fcp_st = ls_tax_itm-br_nfitemtaxamount.
                 <item>-knwc170-vl_icms_substit  += ls_tax_itm-br_nfitemtaxamount.
@@ -2979,7 +2980,7 @@ CLASS lcl_process IMPLEMENTATION.
 
                 <item>-knwc170-vl_contabil += ls_tax_itm-br_nfitemtaxamount.
                 <item>-knwc170-dm_apur_ipi = '0'.
-                ls_objeto-knwc100-vl_total_mercad -= ls_tax_itm-br_nfitemtaxamount.
+                lv_vl_total_mercad -= ls_tax_itm-br_nfitemtaxamount.
               ENDIF.
 *              IF ls_tax_itm-br_nfitemotherbaseamount IS NOT INITIAL.
 *                ls_objeto-knwc100-vl_abat_n_trib += ls_tax_itm-br_nfitemtaxamount.
@@ -3313,6 +3314,8 @@ CLASS lcl_process IMPLEMENTATION.
         ENDLOOP. "t_ref_headers
 
       ENDLOOP.
+
+      ls_objeto-knwc100-vl_total_mercad = lv_vl_total_mercad.
 
       "--------------------------------------------------
       " C120 – Totais de impostos por nota (sumarização dos itens)
@@ -4089,7 +4092,7 @@ CLASS lcl_process IMPLEMENTATION.
       "ls_objeto-knwc100-vl_sub_empr = '0.0'.
       "ls_objeto-knwc100-dm_finalidade = '1'.
       "ls_objeto-knwc100-dm_destinatario = '1'.
-      "ls_objeto-knwc100-vl_servico1 = '0.0'.
+      "ls_objeto-knwc100-vl_servico = '0.0'.
       "ls_objeto-knwc100-vl_abat_n_trib = '0.0'.
 
 

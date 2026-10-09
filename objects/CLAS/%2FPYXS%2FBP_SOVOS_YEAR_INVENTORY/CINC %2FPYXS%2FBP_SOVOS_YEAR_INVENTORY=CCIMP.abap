@@ -180,20 +180,20 @@ CLASS lcl_process DEFINITION FRIENDS lhc_sovos_year_inventory.
 
 
       BEGIN OF ty_knwh010,
-        cod_empresa     TYPE p LENGTH 15 DECIMALS 2,
-        cod_filial      TYPE p LENGTH 15 DECIMALS 2,
+        cod_empresa     TYPE string,
+        cod_filial      TYPE string,
         id_usuario_imp  TYPE string,
         cd_plano_conta  TYPE string,
         ds_complementar TYPE string,
         cd_produto_serv TYPE string,
         unidade         TYPE string,
-        vl_total        TYPE p LENGTH 15 DECIMALS 2,
-        qtde            TYPE p LENGTH 15 DECIMALS 2,
+        vl_total        TYPE string,
+        qtde            TYPE string,
         dm_sit_estoque  TYPE string,
         cd_pessoa_propr TYPE string,
-        vl_total_ir     TYPE p LENGTH 15 DECIMALS 2,
+        vl_total_ir     TYPE string,
         dt_inventario   TYPE string,
-        vl_unitario     TYPE p LENGTH 15 DECIMALS 2,
+        vl_unitario     TYPE string,
       END OF ty_knwh010,
 
       BEGIN OF ty_knwk200,
@@ -1227,7 +1227,7 @@ CLASS lcl_process IMPLEMENTATION.
     IF iv_with_time IS INITIAL.
       rv_date = |{ iv_date+6(2) }{ iv_date+4(2) }{ iv_date(4) }|.
     ELSE.
-      rv_date = |{ iv_date+6(2) }{ iv_date+4(2) }{ iv_date(4) }T12:00:00+03:00|.
+      rv_date = |{ iv_date+6(2) }{ iv_date+4(2) }{ iv_date(4) }T00:00:00-03:00|.
     ENDIF.
 
   ENDMETHOD.
@@ -1273,7 +1273,13 @@ CLASS lcl_process IMPLEMENTATION.
 
       " ─── KNWH010 ───
 
-      data(lv_total) = ls_data-movingaverageprice * ls_data-valuationquantity.
+      DATA: lv_qtde        TYPE p LENGTH 15 DECIMALS 2,
+            lv_vl_unitario TYPE p LENGTH 15 DECIMALS 2,
+            lv_vl_total    TYPE p LENGTH 15 DECIMALS 2.
+
+      lv_qtde        = ls_data-valuationquantity.
+      lv_vl_unitario = ls_data-movingaverageprice.
+      lv_vl_total    = lv_vl_unitario * lv_qtde.
 
       ls_objeto-knwh010-cod_empresa     = CONV i( s_branch_sov-sov_company ).
       ls_objeto-knwh010-cod_filial      = CONV i( s_branch_sov-sov_branch ).
@@ -1281,23 +1287,23 @@ CLASS lcl_process IMPLEMENTATION.
       ls_objeto-knwh010-cd_produto_serv = ls_data-product.
       ls_objeto-knwh010-unidade         = ls_data-unitofmeasure_e.
       "ls_objeto-knwh010-vl_total        = ls_data-amountincompanycodecurrency. "vl_total.
-      ls_objeto-knwh010-vl_total        = lv_total.
-      ls_objeto-knwh010-qtde            = ls_data-valuationquantity.
-      ls_objeto-knwh010-vl_unitario     = ls_data-movingaverageprice. "standardprice.
+      ls_objeto-knwh010-vl_total        = |{ lv_vl_total }|.
+      ls_objeto-knwh010-qtde            = |{ lv_qtde }|.
+      ls_objeto-knwh010-vl_unitario     = |{ lv_vl_unitario }|. "standardprice.
       ls_objeto-knwh010-dt_inventario   = lv_dt_ini.
-      ls_objeto-knwh010-dm_sit_estoque  = 0.
+      ls_objeto-knwh010-dm_sit_estoque  = '0'.
       IF ls_data-customer IS NOT INITIAL.
-        ls_objeto-knwh010-dm_sit_estoque  = 1.
+        ls_objeto-knwh010-dm_sit_estoque  = '1'.
         ls_objeto-knwh010-cd_pessoa_propr = ls_data-customer.
       ENDIF.
       IF ls_data-supplier IS NOT INITIAL.
-        ls_objeto-knwh010-dm_sit_estoque  = 1.
+        ls_objeto-knwh010-dm_sit_estoque  = '1'.
         ls_objeto-knwh010-cd_pessoa_propr = ls_data-supplier.
       ENDIF.
       "ls_objeto-knwh010-vl_total_ir     = ls_data-amountincompanycodecurrency. " ls_data-productvaluationbasic-standardprice.
-      ls_objeto-knwh010-vl_total_ir     = lv_total.
+      ls_objeto-knwh010-vl_total_ir     = |{ lv_vl_total }|.
 
-      IF ls_objeto-knwh010-dm_sit_estoque  = 1.
+      IF ls_objeto-knwh010-dm_sit_estoque  = '1'.
         ls_objeto-knw0150-cod_empresa    = ls_objeto-knwh010-cod_empresa.
         ls_objeto-knw0150-cod_filial     = ls_objeto-knwh010-cod_filial.
         ls_objeto-knw0150-nm_razao_social = ls_data-organizationbpname1.
@@ -1323,14 +1329,14 @@ CLASS lcl_process IMPLEMENTATION.
       ls_objeto-knw0190-cod_empresa    = CONV i( s_branch_sov-sov_company ).
       ls_objeto-knw0190-cod_filial     = CONV i( s_branch_sov-sov_branch ).
       "ls_objeto-knw0190-id_usuario_imp = sy-uname.
-      ls_objeto-knw0190-dt_inicial     = '1900-01-01T12:00:00+03:00'.
-      "ls_objeto-knw0190-dt_importacao  = '1900-01-01T12:00:00+03:00'.
+      ls_objeto-knw0190-dt_inicial     = '1900-01-01T00:00:00-03:00'.
+      "ls_objeto-knw0190-dt_importacao  = '1900-01-01T00:00:00-03:00'.
       ls_objeto-knw0190-ds_unidade     = ls_data-unitofmeasure_e.
       ls_objeto-knw0190-ds_descricao   = ls_data-unitofmeasurename.
 
       " ─── KNW0200 ───
 
-      ls_objeto-knw0200-dt_inicial         = '1900-01-01T12:00:00+03:00'.
+      ls_objeto-knw0200-dt_inicial         = '1900-01-01T00:00:00-03:00'.
       ls_objeto-knw0200-cod_empresa        = CONV i( s_branch_sov-sov_company ).
       ls_objeto-knw0200-cod_filial         = CONV i( s_branch_sov-sov_branch ).
       ls_objeto-knw0200-cd_produto_serv    = ls_data-product.
