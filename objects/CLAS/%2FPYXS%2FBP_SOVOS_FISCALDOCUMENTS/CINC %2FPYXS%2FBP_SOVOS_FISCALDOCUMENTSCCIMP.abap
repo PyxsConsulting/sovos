@@ -3687,6 +3687,24 @@ CLASS lcl_process IMPLEMENTATION.
 
         LOOP AT lt_texts INTO DATA(ls_text).
 
+          "Quebras de linha reais (CR/LF/TAB) -> espaço (antes do parse, JSON não aceita controle cru)
+          DATA(lv_text) = condense( replace( val  =  ls_text-br_nftext
+                                             pcre = `[\r\n\t]+`
+                                             with = ` `
+                                             occ  = 0 ) ).
+
+          "Escapes \uXXXX gravados no texto -> caractere real, via parser JSON nativo
+          TRY.
+              DATA(lv_json_txt) = |\{"TEXT":"{ replace( val = lv_text sub = `"` with = `\"` occ = 0 ) }"\}|.
+              CALL TRANSFORMATION id SOURCE XML lv_json_txt RESULT text = lv_text.
+            CATCH cx_transformation_error.
+              "Texto com barra invertida solta (JSON inválido): mantém sem decodificar
+          ENDTRY.
+
+          IF lv_text IS INITIAL.
+            CONTINUE.
+          ENDIF.
+
           READ TABLE t_observ
             ASSIGNING FIELD-SYMBOL(<fs_observ>)
             WITH KEY br_notafiscal = ls_text-br_notafiscal.
@@ -3694,11 +3712,9 @@ CLASS lcl_process IMPLEMENTATION.
           IF sy-subrc <> 0.
             APPEND INITIAL LINE TO t_observ ASSIGNING <fs_observ>.
             <fs_observ>-br_notafiscal = ls_text-br_notafiscal.
-            <fs_observ>-observacao    = ls_text-br_nftext.
+            <fs_observ>-observacao    = lv_text.
           ELSE.
-            <fs_observ>-observacao =
-              |{ <fs_observ>-observacao } { ls_text-br_nftext }|.
-
+            <fs_observ>-observacao = |{ <fs_observ>-observacao } { lv_text }|.
           ENDIF.
 
         ENDLOOP.
