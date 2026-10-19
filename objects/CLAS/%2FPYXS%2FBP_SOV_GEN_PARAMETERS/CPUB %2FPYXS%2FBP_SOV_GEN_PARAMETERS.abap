@@ -1,0 +1,1 @@
+CLASS /pyxs/bp_sov_gen_parameters DEFINITION PUBLIC ABSTRACT FINAL FOR BEHAVIOR OF /pyxs/sov_gen_parameters.

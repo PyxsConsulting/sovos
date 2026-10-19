@@ -105,6 +105,7 @@ TYPES:
           businessplace TYPE i_br_businessplace,
           sel           TYPE ty_sel,
           t_data        TYPE TABLE OF ty_data,
+          gt_params     TYPE TABLE OF /pyxs/sov_params,
           gv_proc       TYPE string.
 
   PRIVATE SECTION.
@@ -299,6 +300,8 @@ CLASS lcl_process IMPLEMENTATION.
       AND branch = @sel-branch
       INTO @s_branch_sov.
 
+    SELECT * FROM /pyxs/sov_params INTO TABLE @gt_params.
+
     ENDMETHOD.
 
 
@@ -358,6 +361,12 @@ CLASS lcl_process IMPLEMENTATION.
         <ls_i250_list>-knw0500-cod_filial      = s_branch_sov-sov_branch.
         <ls_i250_list>-knw0500-cd_plano_conta  = ls_data-glaccount.
 
+        READ TABLE gt_params TRANSPORTING NO FIELDS WITH KEY pcode  = 'ACC_ZERO'
+                                                             active = abap_true.
+        IF sy-subrc IS INITIAL.
+          SHIFT <ls_i250_list>-knw0500-cd_plano_conta LEFT DELETING LEADING '0'.
+        ENDIF.
+
         " knwSctbI250
         <ls_i250_list>-knw_sctb_i250-nr_lancamento    = ls_data-accountingdocument.
         <ls_i250_list>-knw_sctb_i250-vl_lancamento    = abs( ls_data-amountincompanycodecurrency ).
@@ -373,6 +382,12 @@ CLASS lcl_process IMPLEMENTATION.
         <ls_i250_list>-knw_sctb_i250-cod_empresa   = s_branch_sov-sov_company.
         <ls_i250_list>-knw_sctb_i250-cod_filial    = s_branch_sov-sov_branch.
         <ls_i250_list>-knw_sctb_i250-cd_plano_conta = ls_data-glaccount.
+
+        READ TABLE gt_params TRANSPORTING NO FIELDS WITH KEY pcode  = 'ACC_ZERO'
+                                                             active = abap_true.
+        IF sy-subrc IS INITIAL.
+          SHIFT <ls_i250_list>-knw_sctb_i250-cd_plano_conta LEFT DELETING LEADING '0'.
+        ENDIF.
 
       ENDLOOP.
 

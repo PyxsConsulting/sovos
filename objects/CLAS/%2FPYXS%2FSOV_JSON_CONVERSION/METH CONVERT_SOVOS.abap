@@ -22,6 +22,8 @@
     REPLACE ALL OCCURRENCES OF 'KNWC110' IN lv_json WITH 'knwC110'.
     REPLACE ALL OCCURRENCES OF 'INTEGRACAONOTAFISCREFLIST' IN lv_json WITH 'integracaoNotaFiscalReferenciadaList'.
     REPLACE ALL OCCURRENCES OF 'KNWC113' IN lv_json WITH 'knwC113'.
+        "Remove escapes \r \n \t (e espaços adjacentes) -> um único espaço
+    REPLACE ALL OCCURRENCES OF PCRE `\s*(\\[rnt]\s*)+` IN lv_json WITH ` `.
     ret = lv_json.
 
   ENDMETHOD.

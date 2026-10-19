@@ -353,6 +353,7 @@ CLASS lcl_process DEFINITION FRIENDS lhc_sovos_year_inventory.
                 gs_company   TYPE ty_companycode,
                 gt_accounts  TYPE ty_t_accounts,
                 s_branch_sov TYPE /pyxs/sov_branch,
+                gt_params    TYPE TABLE OF /pyxs/sov_params,
                 "gt_sel2      TYPE TABLE OF ty_stock_value2,
                 gt_sel2 TYPE TABLE OF ty_grouped,
                 t_nfitem     TYPE TABLE OF ty_nfitem,
@@ -1324,6 +1325,12 @@ CLASS lcl_process IMPLEMENTATION.
       READ TABLE gt_accounts INTO DATA(ls_acc) WHERE product = ls_data-product.
       IF sy-subrc = 0.
         ls_objeto-knwh010-cd_plano_conta  = ls_acc-glaccount.
+
+        READ TABLE gt_params TRANSPORTING NO FIELDS WITH KEY pcode  = 'ACC_ZERO'
+                                                             active = abap_true.
+        IF sy-subrc IS INITIAL.
+          SHIFT ls_objeto-knwh010-cd_plano_conta LEFT DELETING LEADING '0'.
+        ENDIF.
       ENDIF.
 
       " ─── KNW0190 ───
@@ -1615,6 +1622,8 @@ CLASS lcl_process IMPLEMENTATION.
     WHERE company_code = @sel-companycode
       AND branch = @sel-businessplace
       INTO @s_branch_sov.
+
+    SELECT * FROM /pyxs/sov_params INTO TABLE @gt_params.
 
 ***    select    stock~material,
 ***         sum( stock~valuationquantity ) as val,

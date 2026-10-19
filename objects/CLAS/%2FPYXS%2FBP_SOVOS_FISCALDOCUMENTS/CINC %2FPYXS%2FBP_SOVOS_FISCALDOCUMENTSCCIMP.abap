@@ -1262,6 +1262,7 @@ TYPES: BEGIN OF ty_observ,
                 t_tax_type         TYPE TABLE OF ty_tax_type,
                 t_ret_imp          TYPE ty_json_imp,
                 t_add_imp          TYPE TABLE OF ty_add_imp,
+                gt_params          TYPE TABLE OF /pyxs/sov_params,
                 s_branch_sov       TYPE /pyxs/sov_branch,
                 gv_icmscontributor TYPE c,
                 gv_branch_cnpj     TYPE string,
@@ -3092,6 +3093,12 @@ CLASS lcl_process IMPLEMENTATION.
             <item>-knw0500-cd_plano_conta = '99999999'.
           ENDIF.
 
+          READ TABLE gt_params TRANSPORTING NO FIELDS WITH KEY pcode  = 'ACC_ZERO'
+                                                               active = abap_true.
+          IF sy-subrc IS INITIAL.
+            SHIFT <item>-knw0500-cd_plano_conta LEFT DELETING LEADING '0'.
+          ENDIF.
+
           <item>-knw0500-ds_plano_conta = ls_nfitem-glaccountname.
           IF <item>-knw0500-ds_plano_conta IS INITIAL.
             <item>-knw0500-ds_plano_conta = 'Sem Conta'.
@@ -3470,6 +3477,8 @@ CLASS lcl_process IMPLEMENTATION.
     WHERE company_code = @sel-company
       AND branch = @sel-branch
       INTO TABLE @t_branch_sov.
+
+    SELECT * FROM /pyxs/sov_params INTO TABLE @gt_params.
 
     SELECT *
       FROM i_br_nfpartner
@@ -4113,6 +4122,13 @@ CLASS lcl_process IMPLEMENTATION.
         ls_objeto-knw0500-cd_plan_cta_tot = ls_nfitem-chartofaccounts.
         ls_objeto-knw0500-ds_plano_conta = ls_nfitem-glaccountname.
         ls_objeto-knw0500-cd_plano_conta = ls_nfitem-nf-glaccount.
+
+        READ TABLE gt_params TRANSPORTING NO FIELDS WITH KEY pcode  = 'ACC_ZERO'
+                                                             active = abap_true.
+        IF sy-subrc IS INITIAL.
+          SHIFT ls_objeto-knw0500-cd_plano_conta LEFT DELETING LEADING '0'.
+        ENDIF.
+
         ls_objeto-knw0500-dt_inicial = '1900-01-01T00:00:00-03:00'.
 
         APPEND INITIAL LINE TO ls_objeto-integracaonotafiscalservico ASSIGNING FIELD-SYMBOL(<item>).
@@ -4151,6 +4167,13 @@ CLASS lcl_process IMPLEMENTATION.
         <item>-knwa170-dm_emitente     = ls_objeto-knwa100-dm_emitente .
         <item>-knwa170-cd_pessoa_remet_dest     = ls_objeto-knwa100-cd_pessoa_remet_dest .
         <item>-knwa170-cd_plano_conta     = ls_nfitem-nf-glaccount.
+
+        READ TABLE gt_params TRANSPORTING NO FIELDS WITH KEY pcode  = 'ACC_ZERO'
+                                                             active = abap_true.
+        IF sy-subrc IS INITIAL.
+          SHIFT <item>-knwa170-cd_plano_conta LEFT DELETING LEADING '0'.
+        ENDIF.
+
         <item>-knwa170-cd_lst     = ls_nfitem-nf-br_lc116servicecode.
         <item>-knwa170-cd_prod_serv     = ls_nfitem-nf-material.
 

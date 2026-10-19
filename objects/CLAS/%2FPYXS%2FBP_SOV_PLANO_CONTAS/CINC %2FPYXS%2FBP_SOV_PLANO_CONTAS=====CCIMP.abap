@@ -185,6 +185,7 @@ TYPES:
           gv_date_to            TYPE string,
           gv_date_start         TYPE string,
           gt_account_type       TYPE TABLE OF /pyxs/sov_acctyp,
+          gt_params             TYPE TABLE OF /pyxs/sov_params,
           gv_proc       TYPE string,
           gs_planocontasuperior TYPE ty_planocontasuperior.
 
@@ -384,6 +385,8 @@ CLASS lcl_process IMPLEMENTATION.
 
     SELECT * FROM /pyxs/sov_acctyp ORDER BY accprefix DESCENDING INTO TABLE @gt_account_type.
 
+    SELECT * FROM /pyxs/sov_params INTO TABLE @gt_params.
+
     gv_date_start = sel-validitystartdate && '-01-01T00:00:00'.
     gv_date_from  = sel-validitystartdate && '-' && sel-validitystartdate+4(2) && '-' && sel-validitystartdate+6(2) && 'T00:00:00'.
     gv_date_to = '2199-12-31T00:00:00'.
@@ -462,6 +465,12 @@ CLASS lcl_process IMPLEMENTATION.
     ls_out-knw0500-dt_inicial = '1900-01-01T12:00:00+03:00'.
     ls_out-knw0500-dt_importacao = lv_timestamp.
     ls_out-knw0500-cd_plano_conta = i_main-hierarchynode.
+
+    READ TABLE gt_params TRANSPORTING NO FIELDS WITH KEY pcode  = 'ACC_ZERO'
+                                                         active = abap_true.
+    IF sy-subrc IS INITIAL.
+      SHIFT ls_out-knw0500-cd_plano_conta LEFT DELETING LEADING '0'.
+    ENDIF.
     ls_out-knw0500-ds_plano_conta = i_main-hierarchynodetext.
     ls_out-knw0500-dm_nivel = i_main-hierarchynodelevel - 1.
     ls_out-knw0500-dm_tipo_conta = 'S'.
@@ -515,6 +524,12 @@ CLASS lcl_process IMPLEMENTATION.
     ls_out-knw0500-dt_inicial = '1900-01-01T12:00:00+03:00'.
     ls_out-knw0500-dt_importacao = lv_timestamp.
     ls_out-knw0500-cd_plano_conta = i_main-glaccount.
+
+    READ TABLE gt_params TRANSPORTING NO FIELDS WITH KEY pcode  = 'ACC_ZERO'
+                                                         active = abap_true.
+    IF sy-subrc IS INITIAL.
+      SHIFT ls_out-knw0500-cd_plano_conta LEFT DELETING LEADING '0'.
+    ENDIF.
     ls_out-knw0500-ds_plano_conta = i_main-glaccountlongname.
     ls_out-knw0500-dm_nivel = i_main-hierarchynodelevel - 1.
     ls_out-knw0500-dm_tipo_conta = 'A'.

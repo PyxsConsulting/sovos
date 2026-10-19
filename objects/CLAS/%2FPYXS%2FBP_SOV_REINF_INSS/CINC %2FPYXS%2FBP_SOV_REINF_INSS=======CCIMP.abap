@@ -639,10 +639,10 @@ CLASS lcl_process IMPLEMENTATION.
     INTO DATA(ls_irf_type).
 
     DATA(lv_root_id) =
-      |R2010{ ls_nfs-br_nfissuedate(6) }{ ls_nfs-br_nfpartner }{ ls_nfs-br_nfnumber }|.
+      |R2010{ ls_nfs-br_nfissuedate(6) }{ ls_nfs-br_nfpartner }|.
 
     IF ls_irf_type-Usardatapagto = abap_true.
-      lv_root_id = |R2010{ ls_data-clearingdate(6) }{ ls_nfs-br_nfpartner }{ ls_nfs-br_nfnumber }|.
+      lv_root_id = |R2010{ ls_data-clearingdate(6) }{ ls_nfs-br_nfpartner }|.
     ENDIF.
 
     READ TABLE gt_objects ASSIGNING FIELD-SYMBOL(<root>)
@@ -650,8 +650,8 @@ CLASS lcl_process IMPLEMENTATION.
 
     IF sy-subrc <> 0.
       APPEND INITIAL LINE TO gt_objects ASSIGNING <root>.
-      <root>-knwReinfR2010-cd_empresa          = gs_branch_sov-sov_company.
-      <root>-knwReinfR2010-cd_filial           = gs_branch_sov-sov_branch.
+      <root>-knwReinfR2010-cd_empresa          = '1'. "gs_branch_sov-sov_company.
+      <root>-knwReinfR2010-cd_filial           = '1'. "gs_branch_sov-sov_branch.
       "<root>-knwReinfR2010-cd_empresa          = gs_branch_main-CompanyCode.
       "<root>-knwReinfR2010-cd_filial           = gs_branch_main-CompanyCodeParameterValue.
       <root>-knwReinfR2010-id_referencia       = lv_root_id.
@@ -709,8 +709,8 @@ CLASS lcl_process IMPLEMENTATION.
           <root>-knwReinfR2010NotaList
           ASSIGNING <nota>.
 
-        <nota>-cd_empresa     = gs_branch_sov-sov_company.
-        <nota>-cd_filial      = gs_branch_sov-sov_branch.
+        <nota>-cd_empresa     = '1'. "gs_branch_sov-sov_company.
+        <nota>-cd_filial      = '1'. "gs_branch_sov-sov_branch.
         "<nota>-cd_empresa          = gs_branch_main-CompanyCode.
         "<nota>-cd_filial            = gs_branch_main-CompanyCodeParameterValue.
         <nota>-id_referencia  = lv_root_id.
@@ -722,7 +722,7 @@ CLASS lcl_process IMPLEMENTATION.
           <root>-knwReinfR2010-dt_apuracao         = format_date_yyyymmdd( ls_data-clearingdate ).
         ENDIF.
         <nota>-vl_bruto       = format_amount( iv_value = ls_nfs-br_nftotalamount ).
-        <nota>-ds_observacao  = ''.
+        <nota>-ds_observacao  = |Nota Fiscal { ls_nfs-br_nfnumber }|.
           "|Doc contábil { ls_data-accountingdocument }|.
         IF <nota>-nr_serie IS INITIAL OR <nota>-nr_serie = ' '.
           <nota>-nr_serie = '000'.
@@ -740,8 +740,8 @@ CLASS lcl_process IMPLEMENTATION.
           <root>-knwReinfR2010ServicoList
           ASSIGNING <serv>.
 
-        <serv>-cd_empresa        = gs_branch_sov-sov_company.
-        <serv>-cd_filial         = gs_branch_sov-sov_branch.
+        <serv>-cd_empresa        = '1'. "gs_branch_sov-sov_company.
+        <serv>-cd_filial         = '1'. "gs_branch_sov-sov_branch.
         "<serv>-cd_empresa             = gs_branch_main-CompanyCode.
         "<serv>-cd_filial           = gs_branch_main-CompanyCodeParameterValue.
         <serv>-id_referencia     = lv_root_id.
