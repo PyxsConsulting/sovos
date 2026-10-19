@@ -3695,7 +3695,7 @@ CLASS lcl_process IMPLEMENTATION.
 
           "Escapes \uXXXX gravados no texto -> caractere real, via parser JSON nativo
           TRY.
-              DATA(lv_json_txt) = |\{"TEXT":"{ replace( val = lv_text sub = `"` with = `\"` occ = 0 ) }"\}|.
+              DATA(lv_json_txt) = |\{"TEXT":"{ replace( val = lv_text sub = `"` with = `` occ = 0 ) }"\}|.
               CALL TRANSFORMATION id SOURCE XML lv_json_txt RESULT text = lv_text.
             CATCH cx_transformation_error.
               "Texto com barra invertida solta (JSON inválido): mantém sem decodificar
