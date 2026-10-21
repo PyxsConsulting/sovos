@@ -49,7 +49,7 @@ LOOP AT gt_data INTO DATA(ls_data).
     "<root>-knwReinfR4020-cd_empresa         = gs_branch_main-CompanyCode.
     "<root>-knwReinfR4020-cd_filial           = gs_branch_main-CompanyCodeParameterValue.
     <root>-knwReinfR4020-id_referencia      = lv_root_id.
-    <root>-knwReinfR4020-id_evento          = lv_root_id.
+    "<root>-knwReinfR4020-id_evento          = lv_root_id.
     <root>-knwReinfR4020-dm_retificacao     = '1'.
     DATA(lv_dt_apura) = |{ ls_nfs-br_nfpostingdate+6(2) }{ ls_nfs-br_nfpostingdate+4(2) }{ ls_nfs-br_nfpostingdate(4) }|.
     IF ls_irf_type-Usardatapagto = abap_true.
