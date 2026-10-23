@@ -4277,8 +4277,15 @@ CLASS lcl_process IMPLEMENTATION.
           <item>-knw0200-dm_tipo_item = '09'.
 
         ENDLOOP.
-        APPEND ls_objeto TO ls_main-objetos.
+        DATA(lv_integrar) = abap_true.
 
+        IF ls_objeto-knwa100-dm_cancelamento = '02' AND ls_objeto-knwa100-dm_emitente = '1'.
+          lv_integrar = abap_false.
+        ENDIF.
+
+        IF lv_integrar = abap_true.
+          APPEND ls_objeto TO ls_main-objetos.
+        ENDIF.
 
       ENDLOOP.
       ls_main-docnum = p_nfdoc-doc-br_notafiscal.

@@ -754,6 +754,17 @@ CLASS lcl_process IMPLEMENTATION.
         READ TABLE mt_cdreinf
           INTO DATA(ls_cdreinf)
           WITH KEY material = ls_nfs-material.
+
+        IF sy-subrc <> 0.
+          DATA(lv_material) = condense( val = CONV string( ls_nfs-material ) ).
+          IF lv_material IS NOT INITIAL AND lv_material CO '0123456789'.
+            SHIFT lv_material LEFT DELETING LEADING '0'.
+            READ TABLE mt_cdreinf
+              INTO ls_cdreinf
+              WITH KEY material = lv_material.
+          ENDIF.
+        ENDIF.
+
         IF sy-subrc = '0'.
           <serv>-cd_tipo_servico = ls_cdreinf-codreinf.
         ENDIF.
