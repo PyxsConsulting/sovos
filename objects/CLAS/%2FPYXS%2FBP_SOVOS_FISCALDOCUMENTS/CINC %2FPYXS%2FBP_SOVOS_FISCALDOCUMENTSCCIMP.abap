@@ -549,6 +549,7 @@ CLASS lcl_process DEFINITION FRIENDS lhc_sovos_fiscaldocuments.
         vl_bc_iss_rt         TYPE string,
         vl_iss_rt            TYPE string,
         qtd_volume_total     TYPE string,
+        dm_natureza_frete    TYPE string,
       END OF ty_knwc170,
 
       BEGIN OF ty_knwc180,
@@ -2741,6 +2742,7 @@ CLASS lcl_process IMPLEMENTATION.
         <item>-knwc170-nr_item = CONV string( <counter>-counter ).
         "<item>-knwc170-nr_item          = ls_nfitem-nf-br_notafiscalitem.
         "FIX 20260602 VVM - COD SEQUENCIAL
+        <item>-knwc170-dm_natureza_frete = ls_nfitem-nf-BR_NFFreightNature.
 
         <item>-knwc170-nr_documento     = ls_objeto-knwc100-nr_documento.
         <item>-knwc170-serie_subserie     = ls_objeto-knwc100-serie_subserie .

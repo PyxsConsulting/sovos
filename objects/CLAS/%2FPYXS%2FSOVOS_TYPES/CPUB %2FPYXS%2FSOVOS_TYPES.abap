@@ -412,6 +412,7 @@ CLASS /pyxs/sovos_types DEFINITION
         vl_bc_iss_rt         TYPE string,
         vl_iss_rt            TYPE string,
         qtd_volume_total     TYPE string,
+        dm_natureza_frete    TYPE string,
       END OF ty_knwc170,
 
       BEGIN OF ty_knw0220,
