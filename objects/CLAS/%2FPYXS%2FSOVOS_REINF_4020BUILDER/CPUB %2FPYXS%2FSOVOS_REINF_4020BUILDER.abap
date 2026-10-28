@@ -145,6 +145,282 @@ CLASS /pyxs/sovos_reinf_4020builder DEFINITION
              knwReinfR4020InfoPgtoRetList  TYPE TABLE OF ty_info_pgto_ret WITH DEFAULT KEY,
            END OF ty_root_r4020.
 **********************************************************************
+* R4010 - Pagamentos/créditos a beneficiário pessoa física
+**********************************************************************
+    TYPES: BEGIN OF ty_knw_r4010,
+             cd_empresa         TYPE string,
+             cd_filial          TYPE string,
+             id_referencia      TYPE string,
+             dm_retificacao     TYPE string,
+             dt_apuracao        TYPE string,
+             nr_nat_jur         TYPE string,
+             dm_inscricao_estab TYPE string,
+             nr_inscricao_estab TYPE string,
+             nr_cnpj_benef      TYPE string,
+             nm_benef           TYPE string,
+             cd_evt_adic        TYPE string,
+           END OF ty_knw_r4010.
+
+    TYPES: BEGIN OF ty_rend_4010,
+             cd_empresa    TYPE string,
+             cd_filial     TYPE string,
+             id_referencia TYPE string,
+             nr_item_rend  TYPE string,
+             cd_nat_rend   TYPE string,
+             ds_observacao TYPE string,
+           END OF ty_rend_4010.
+
+    TYPES: BEGIN OF ty_pgto_4010,
+             cd_empresa           TYPE string,
+             cd_filial            TYPE string,
+             id_referencia        TYPE string,
+             nr_item_rend         TYPE string,
+             nr_item_pgto         TYPE string,
+             dt_fato_gerador      TYPE string,
+             dt_comp_rendimento   TYPE string,
+             dm_dec_terc          TYPE string,
+             vl_rend_bruto        TYPE string,
+             vl_rend_trib         TYPE string,
+             vl_ir                TYPE string,
+             dm_ind_rra           TYPE string,
+             dm_fci_scp           TYPE string,
+             nr_inscricao_fci_scp TYPE string,
+             vl_perc_scp          TYPE string,
+             dm_indic_judicial    TYPE string,
+             cd_pais_resid_ext    TYPE string,
+             dt_escr_cont         TYPE string,
+             ds_observ            TYPE string,
+           END OF ty_pgto_4010.
+
+    TYPES: BEGIN OF ty_pgto_ext_4010,
+             cd_empresa         TYPE string,
+             cd_filial          TYPE string,
+             id_referencia      TYPE string,
+             nr_item_rend       TYPE string,
+             nr_item_pgto       TYPE string,
+             dm_nfi             TYPE string,
+             nr_identificao_nfi TYPE string,
+             cd_forma_trib      TYPE string,
+             ds_logradouro      TYPE string,
+             nr_logradouro      TYPE string,
+             ds_complemento     TYPE string,
+             ds_bairro          TYPE string,
+             ds_cidade          TYPE string,
+             ds_estado          TYPE string,
+             cd_postal          TYPE string,
+             nr_telefone        TYPE string,
+           END OF ty_pgto_ext_4010.
+
+    TYPES: BEGIN OF ty_rend_isento_4010,
+             cd_empresa          TYPE string,
+             cd_filial           TYPE string,
+             id_referencia       TYPE string,
+             nr_item_rend        TYPE string,
+             nr_item_pgto        TYPE string,
+             nr_item_rend_isento TYPE string,
+             dm_tipo_isencao     TYPE string,
+             vl_isento           TYPE string,
+           END OF ty_rend_isento_4010.
+
+    TYPES: BEGIN OF ty_ded_4010,
+             cd_empresa    TYPE string,
+             cd_filial     TYPE string,
+             id_referencia TYPE string,
+             nr_item_rend  TYPE string,
+             nr_item_pgto  TYPE string,
+             nr_item_ded   TYPE string,
+             dm_tipo_ded   TYPE string,
+             vl_deducao    TYPE string,
+             dm_info_ent   TYPE string,
+           END OF ty_ded_4010.
+
+    TYPES: BEGIN OF ty_benef_pensao_ded_4010,
+             cd_empresa               TYPE string,
+             cd_filial                TYPE string,
+             id_referencia            TYPE string,
+             nr_item_rend             TYPE string,
+             nr_item_pgto             TYPE string,
+             nr_item_ded              TYPE string,
+             nr_item_benef_pensao_ded TYPE string,
+             nr_cpf                   TYPE string,
+             vl_dependencia           TYPE string,
+           END OF ty_benef_pensao_ded_4010.
+
+    TYPES: BEGIN OF ty_proc_ret_4010,
+             cd_empresa       TYPE string,
+             cd_filial        TYPE string,
+             id_referencia    TYPE string,
+             nr_item_rend     TYPE string,
+             nr_item_pgto     TYPE string,
+             nr_item_proc_ret TYPE string,
+             dm_tipo_proc_ret TYPE string,
+             nr_proc_ret      TYPE string,
+             vl_nao_retencao  TYPE string,
+             vl_deposito_jud  TYPE string,
+           END OF ty_proc_ret_4010.
+
+    TYPES: BEGIN OF ty_ded_susp_4010,
+             cd_empresa       TYPE string,
+             cd_filial        TYPE string,
+             id_referencia    TYPE string,
+             nr_item_rend     TYPE string,
+             nr_item_pgto     TYPE string,
+             nr_item_proc_ret TYPE string,
+             nr_item_ded_susp TYPE string,
+             dm_tipo_ded      TYPE string,
+             vl_deducao_susp  TYPE string,
+           END OF ty_ded_susp_4010.
+
+    TYPES: BEGIN OF ty_benef_pensao_dsusp_4010,
+             cd_empresa             TYPE string,
+             cd_filial              TYPE string,
+             id_referencia          TYPE string,
+             nr_item_rend           TYPE string,
+             nr_item_pgto           TYPE string,
+             nr_item_proc_ret       TYPE string,
+             nr_item_ded_susp       TYPE string,
+             nr_item_benef_ded_susp TYPE string,
+             nr_cpf                 TYPE string,
+             vl_dependencia_susp    TYPE string,
+           END OF ty_benef_pensao_dsusp_4010.
+
+    TYPES: BEGIN OF ty_rra_4010,
+             cd_empresa        TYPE string,
+             cd_filial         TYPE string,
+             id_referencia     TYPE string,
+             nr_item_rend      TYPE string,
+             nr_item_pgto      TYPE string,
+             nr_item_rra       TYPE string,
+             dm_tipo_processo  TYPE string,
+             nr_processo       TYPE string,
+             dm_origem_rec     TYPE string,
+             ds_rra            TYPE string,
+             nr_qtde_meses_rra TYPE string,
+             nr_cnpj_origem    TYPE string,
+             vl_desp_custas    TYPE string,
+             vl_desp_adv       TYPE string,
+           END OF ty_rra_4010.
+
+    TYPES: BEGIN OF ty_rra_adv_4010,
+             cd_empresa       TYPE string,
+             cd_filial        TYPE string,
+             id_referencia    TYPE string,
+             nr_item_rend     TYPE string,
+             nr_item_pgto     TYPE string,
+             nr_item_rra      TYPE string,
+             nr_item_adv      TYPE string,
+             dm_tipo_adv      TYPE string,
+             nr_inscricao_adv TYPE string,
+             vl_adv           TYPE string,
+           END OF ty_rra_adv_4010.
+
+    TYPES: BEGIN OF ty_proc_jud_4010,
+             cd_empresa       TYPE string,
+             cd_filial        TYPE string,
+             id_referencia    TYPE string,
+             nr_item_rend     TYPE string,
+             nr_item_pgto     TYPE string,
+             nr_item_proc_jud TYPE string,
+             nr_processo      TYPE string,
+             dm_origem        TYPE string,
+             nr_cnpj_origem   TYPE string,
+             ds_descricao     TYPE string,
+             vl_desp_custas   TYPE string,
+             vl_desp_adv      TYPE string,
+           END OF ty_proc_jud_4010.
+
+    TYPES: BEGIN OF ty_proc_jud_adv_4010,
+             cd_empresa       TYPE string,
+             cd_filial        TYPE string,
+             id_referencia    TYPE string,
+             nr_item_rend     TYPE string,
+             nr_item_pgto     TYPE string,
+             nr_item_proc_jud TYPE string,
+             nr_item_adv      TYPE string,
+             dm_tipo_adv      TYPE string,
+             nr_inscricao_adv TYPE string,
+             vl_adv           TYPE string,
+           END OF ty_proc_jud_adv_4010.
+
+    TYPES: BEGIN OF ty_oper_saude_4010,
+             cd_empresa         TYPE string,
+             cd_filial          TYPE string,
+             id_referencia      TYPE string,
+             nr_item_oper_saude TYPE string,
+             nr_inscricao       TYPE string,
+             cd_ans             TYPE string,
+             vl_saude           TYPE string,
+           END OF ty_oper_saude_4010.
+
+    TYPES: BEGIN OF ty_depende_saude_4010,
+             cd_empresa         TYPE string,
+             cd_filial          TYPE string,
+             id_referencia      TYPE string,
+             nr_item_oper_saude TYPE string,
+             nr_item_depende    TYPE string,
+             nr_cpf             TYPE string,
+             vl_saude           TYPE string,
+           END OF ty_depende_saude_4010.
+
+    TYPES: BEGIN OF ty_reemb_4010,
+             cd_empresa         TYPE string,
+             cd_filial          TYPE string,
+             id_referencia      TYPE string,
+             nr_item_oper_saude TYPE string,
+             nr_item_reemb      TYPE string,
+             dm_tipo_inscricao  TYPE string,
+             nr_inscricao       TYPE string,
+             vl_reembolso       TYPE string,
+           END OF ty_reemb_4010.
+
+    TYPES: BEGIN OF ty_reemb_depende_4010,
+             cd_empresa            TYPE string,
+             cd_filial             TYPE string,
+             id_referencia         TYPE string,
+             nr_item_oper_saude    TYPE string,
+             nr_item_depende       TYPE string,
+             nr_item_reemb_depende TYPE string,
+             dm_tipo_inscricao     TYPE string,
+             nr_inscricao          TYPE string,
+             vl_reembolso          TYPE string,
+           END OF ty_reemb_depende_4010.
+
+    TYPES: BEGIN OF ty_dependente_4010,
+             cd_empresa      TYPE string,
+             cd_filial       TYPE string,
+             id_referencia   TYPE string,
+             nr_item_depende TYPE string,
+             nr_cpf          TYPE string,
+             dm_relacao      TYPE string,
+             ds_dependente   TYPE string,
+           END OF ty_dependente_4010.
+
+    " Nomes de componente limitados a 30 caracteres: BenPenDedList / BenPenDedSuspList
+    " são convertidos para BenefPensaoDedList / BenefPensaoDedSuspList no convert_reinf4010
+    TYPES: BEGIN OF ty_root_r4010,
+             knwReinfR4010                  TYPE ty_knw_r4010,
+             knwReinfR4010RendList          TYPE TABLE OF ty_rend_4010 WITH DEFAULT KEY,
+             knwReinfR4010PgtoList          TYPE TABLE OF ty_pgto_4010 WITH DEFAULT KEY,
+             knwReinfR4010PgtoExtList       TYPE TABLE OF ty_pgto_ext_4010 WITH DEFAULT KEY,
+             knwReinfR4010RendIsentoList    TYPE TABLE OF ty_rend_isento_4010 WITH DEFAULT KEY,
+             knwReinfR4010DedList           TYPE TABLE OF ty_ded_4010 WITH DEFAULT KEY,
+             knwReinfR4010BenPenDedList     TYPE TABLE OF ty_benef_pensao_ded_4010 WITH DEFAULT KEY,
+             knwReinfR4010ProcRetList       TYPE TABLE OF ty_proc_ret_4010 WITH DEFAULT KEY,
+             knwReinfR4010DedSuspList       TYPE TABLE OF ty_ded_susp_4010 WITH DEFAULT KEY,
+             knwReinfR4010BenPenDedSuspList TYPE TABLE OF ty_benef_pensao_dsusp_4010 WITH DEFAULT KEY,
+             knwReinfR4010RraList           TYPE TABLE OF ty_rra_4010 WITH DEFAULT KEY,
+             knwReinfR4010RraAdvList        TYPE TABLE OF ty_rra_adv_4010 WITH DEFAULT KEY,
+             knwReinfR4010ProcJudList       TYPE TABLE OF ty_proc_jud_4010 WITH DEFAULT KEY,
+             knwReinfR4010ProcJudAdvList    TYPE TABLE OF ty_proc_jud_adv_4010 WITH DEFAULT KEY,
+             knwReinfR4010OperSaudeList     TYPE TABLE OF ty_oper_saude_4010 WITH DEFAULT KEY,
+             knwReinfR4010DependeSaudeList  TYPE TABLE OF ty_depende_saude_4010 WITH DEFAULT KEY,
+             knwReinfR4010ReembList         TYPE TABLE OF ty_reemb_4010 WITH DEFAULT KEY,
+             knwReinfR4010ReembDependeList  TYPE TABLE OF ty_reemb_depende_4010 WITH DEFAULT KEY,
+             knwReinfR4010DependenteList    TYPE TABLE OF ty_dependente_4010 WITH DEFAULT KEY,
+           END OF ty_root_r4010.
+
+    TYPES: tt_r4010_objects TYPE STANDARD TABLE OF ty_root_r4010 WITH DEFAULT KEY.
+**********************************************************************
     TYPES: BEGIN OF ty_tax_item,
              companycode                    TYPE i_journalentry-companycode,
              accountingdocument             TYPE i_journalentry-accountingdocument,
@@ -198,6 +474,7 @@ CLASS /pyxs/sovos_reinf_4020builder DEFINITION
              br_lc116servicecode          TYPE i_br_nfitem-br_lc116servicecode,
              br_nftotalamount             TYPE i_br_nfdocument-br_nftotalamount,
              br_nfpostingdate             TYPE i_br_nfdocument-br_nfpostingdate,
+             br_nfpartnerisnaturalperson  TYPE i_br_nfdocument-br_nfpartnerisnaturalperson,
            END OF ty_nf_item,
 
            ty_r_tax_type TYPE RANGE OF i_br_nftax-taxgroup,
@@ -213,6 +490,7 @@ CLASS /pyxs/sovos_reinf_4020builder DEFINITION
     DATA ls_root TYPE ty_root_r4020.
 
     DATA: gt_objects       TYPE tt_r4020_objects.
+    DATA: gt_objects4010   TYPE tt_r4010_objects.
 
     METHODS:
       constructor

@@ -190,4 +190,144 @@
 
   ENDLOOP.
 
+**********************************************************************
+* R4010
+**********************************************************************
+  DATA ls_root4010 TYPE ty_root_r4010.
+
+  LOOP AT gt_objects4010 INTO ls_root4010.
+    lv_idx = sy-tabix.
+    CLEAR: lo_ret, lv_sucesso, gv_proc.
+
+    json_out = /ui2/cl_json=>serialize(
+      EXPORTING
+        data             = ls_root4010
+        compress         = abap_true
+        pretty_name      = 'L'
+        assoc_arrays     = abap_false
+        assoc_arrays_opt = abap_false
+    ).
+
+    json_out = /pyxs/sov_json_conversion=>convert_reinf4010( json_out ).
+
+    lv_utf8_xstring = cl_abap_conv_codepage=>create_out( codepage = 'UTF-8' )->convert( source = json_out ).
+    cl_abap_gzip=>compress_binary_with_header(
+      EXPORTING
+        raw_in = lv_utf8_xstring
+      IMPORTING
+        gzip_out = lv_gzip_xstring ).
+    lv_base64 = cl_web_http_utility=>encode_x_base64( lv_gzip_xstring ).
+    CONCATENATE '{"nr_licenca": "00000","dados": "' lv_base64 '"}'
+    INTO json_out. "o valor nr_licenca deve ser setado na integração
+
+    " find CA by scenario
+    lr_cscn = VALUE #( ( sign = 'I' option = 'EQ' low = '/PYXS/SOVOS' ) ).
+    lo_factory = cl_com_arrangement_factory=>create_instance( ).
+    lo_factory->query_ca(
+      EXPORTING
+        is_query           = VALUE #( cscn_id_range = lr_cscn )
+      IMPORTING
+        et_com_arrangement = lt_ca ).
+
+    IF lt_ca IS INITIAL.
+      APPEND INITIAL LINE TO /pyxs/bp_reinflog=>lt_log ASSIGNING <log>.
+      GET TIME STAMP FIELD time.
+      <log>-ano_mes = me->sel-creation[ 1 ]-low.
+      <log>-time = time.
+      <log>-evento = '4010'.
+      <log>-partner = ''.
+      <log>-resultado = '999'.
+      <log>-retorno = 'Cenário de comunicação não encontrado'.
+      EXIT.
+    ENDIF.
+
+    " take the first one
+    READ TABLE lt_ca INTO lo_ca INDEX 1.
+
+    " get destination based to Communication Arrangement
+    TRY.
+        lo_dest = cl_http_destination_provider=>create_by_comm_arrangement(
+              comm_scenario  = '/PYXS/SOVOS'
+              service_id     = '/PYXS/SOV_REINF2_REST'
+              comm_system_id = lo_ca->get_comm_system_id( ) ).
+
+        lo_http_client = cl_web_http_client_manager=>create_by_http_destination( lo_dest ).
+
+        " execute the request
+        lo_request = lo_http_client->get_http_request( ).
+        lo_request->set_text( i_text = json_out ).
+
+        lo_request->set_uri_path( i_uri_path = 'R4010' ).
+
+        lo_response = lo_http_client->execute( if_web_http_client=>post ).
+        lv_ret = lo_response->get_status( ).
+        IF lv_ret-code = '200'.
+          lv_msg = lo_response->get_text( ).
+          IF lv_msg IS INITIAL.
+            gv_proc = 'Successfully processed'(002).
+          ELSE.
+            gv_proc = lv_msg.
+            /ui2/cl_json=>deserialize(
+               EXPORTING
+                 json             = gv_proc
+              CHANGING
+                data             = lo_ret
+            ).
+            lv_sucesso = lo_ret->('SUCESSO')->*.
+            IF lv_sucesso = abap_true.
+              gv_proc = 'Successfully processed'(002).
+            ELSE.
+              lv_ret-code = 400.
+            ENDIF.
+          ENDIF.
+        ELSE.
+          gv_proc = lo_response->get_text( ).
+        ENDIF.
+
+      CATCH cx_web_message_error.
+
+
+      CATCH cx_http_dest_provider_error.
+        IF sy-subrc <> 0.
+        ENDIF.
+
+      CATCH cx_web_http_client_error.
+        IF sy-subrc <> 0.
+        ENDIF.
+    ENDTRY.
+    GET TIME STAMP FIELD time.
+
+    " id_referencia = R4010 + AAAAMM + parceiro
+    DATA(ls_nf4010) = ls_root4010-knwReinfR4010.
+
+    IF lo_ret IS INITIAL.
+      APPEND INITIAL LINE TO /pyxs/bp_reinflog=>lt_log ASSIGNING <log>.
+      <log>-id = lv_idx.
+      <log>-time = time.
+      <log>-ano_mes = ls_nf4010-id_referencia+5(6).
+      <log>-evento = '4010'.
+      <log>-partner = ls_nf4010-id_referencia+11.
+      <log>-resultado = COND #( WHEN lv_ret IS INITIAL THEN '999' ELSE lv_ret-code ).
+      <log>-retorno = COND #( WHEN gv_proc IS NOT INITIAL THEN gv_proc
+                              WHEN lv_ret IS NOT INITIAL THEN lv_ret-reason
+                              ELSE 'Erro no serviço' ).
+
+    ELSE.
+      APPEND INITIAL LINE TO /pyxs/bp_reinflog=>lt_log ASSIGNING <log>.
+      <log>-id = lv_idx.
+      <log>-time = time.
+      <log>-ano_mes = ls_nf4010-id_referencia+5(6).
+      <log>-evento = '4010'.
+      <log>-partner = ls_nf4010-id_referencia+11.
+      <log>-resultado = lv_ret-code.
+      IF lv_ret-code = 200.
+        <log>-retorno = lv_base64.
+      ELSE.
+        <log>-retorno = gv_proc.
+      ENDIF.
+    ENDIF.
+    CLEAR lv_ret.
+
+  ENDLOOP.
+
   ENDMETHOD.

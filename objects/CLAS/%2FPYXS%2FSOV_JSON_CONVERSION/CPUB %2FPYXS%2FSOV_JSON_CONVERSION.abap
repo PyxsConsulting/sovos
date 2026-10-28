@@ -23,7 +23,19 @@ CLASS /pyxs/sov_json_conversion DEFINITION
         RETURNING
           VALUE(ret) TYPE string,
 
+      convert_reinf4010
+        IMPORTING
+          json       TYPE string
+        RETURNING
+          VALUE(ret) TYPE string,
+
       convert_reinf2010
+        IMPORTING
+          json       TYPE string
+        RETURNING
+          VALUE(ret) TYPE string,
+
+      convert_reinf2020
         IMPORTING
           json       TYPE string
         RETURNING

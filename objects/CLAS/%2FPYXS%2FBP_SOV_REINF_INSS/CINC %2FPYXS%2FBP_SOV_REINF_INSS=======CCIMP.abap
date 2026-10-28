@@ -179,6 +179,92 @@ CLASS lcl_process DEFINITION FRIENDS lhc_SOV_REINF_INSS.
       ty_t_root_r2010 TYPE STANDARD TABLE OF ty_root_r2010 WITH NON-UNIQUE DEFAULT KEY,
       tt_r2010_objects TYPE STANDARD TABLE OF ty_root_r2010 WITH DEFAULT KEY,
 
+      "*----------------------------------------------------------------------
+      "* KNW_R2020 – header (flat structure, all strings)
+      "*----------------------------------------------------------------------
+      BEGIN OF ty_knw_r2020,
+        cd_empresa             TYPE string,
+        cd_filial              TYPE string,
+        id_referencia          TYPE string,
+        id_evento              TYPE string,
+        dm_retificacao         TYPE string,
+        dt_apuracao            TYPE string,
+        dm_inscricao_prestador TYPE string,
+        nr_inscricao_prestador TYPE string,
+        dm_inscricao_tomador   TYPE string,
+        nr_inscricao_tomador   TYPE string,
+        dm_obra                TYPE string,
+        vl_total_bruto         TYPE string,
+        vl_total_base          TYPE string,
+        vl_total_retencao      TYPE string,
+        vl_tot_retencao_adic   TYPE string,
+        vl_tot_ret_nao_efet    TYPE string,
+        vl_tot_ret_adic_n_efet TYPE string,
+      END OF ty_knw_r2020,
+
+      "*----------------------------------------------------------------------
+      "* KNW_R2020_NOTA – one per NF (flat structure, all strings)
+      "*----------------------------------------------------------------------
+      BEGIN OF ty_knw_r2020_nota,
+        cd_empresa    TYPE string,
+        cd_filial     TYPE string,
+        id_referencia TYPE string,
+        nr_item_nota  TYPE string,
+        nr_serie      TYPE string,
+        nr_documento  TYPE string,
+        dt_emissao    TYPE string,
+        vl_bruto      TYPE string,
+        ds_observacao TYPE string,
+      END OF ty_knw_r2020_nota,
+
+      "*----------------------------------------------------------------------
+      "* KNW_R2020_SERVICO – one per service line (flat structure, all strings)
+      "*----------------------------------------------------------------------
+      BEGIN OF ty_knw_r2020_servico,
+        cd_empresa           TYPE string,
+        cd_filial            TYPE string,
+        id_referencia        TYPE string,
+        nr_item_nota         TYPE string,
+        nr_item_servico      TYPE string,
+        cd_tipo_servico      TYPE string,
+        vl_base_retencao     TYPE string,
+        vl_retencao          TYPE string,
+        vl_retencao_sub      TYPE string,
+        vl_retencao_nao_efet TYPE string,
+        vl_servico_15        TYPE string,
+        vl_servico_20        TYPE string,
+        vl_servico_25        TYPE string,
+        vl_adicional         TYPE string,
+        vl_ret_adic_nao_efet TYPE string,
+      END OF ty_knw_r2020_servico,
+
+      "*----------------------------------------------------------------------
+      "* KNW_R2020_PROCESSO / PROCESSO_ADIC (flat structure, all strings)
+      "*----------------------------------------------------------------------
+      BEGIN OF ty_knw_r2020_processo,
+        cd_empresa       TYPE string,
+        cd_filial        TYPE string,
+        id_referencia    TYPE string,
+        nr_item_processo TYPE string,
+        dm_processo      TYPE string,
+        nr_processo      TYPE string,
+        cd_suspensao     TYPE string,
+        vl_retencao      TYPE string,
+      END OF ty_knw_r2020_processo,
+
+      "*----------------------------------------------------------------------
+      "* Root payload R2020: one object per POST call
+      "*----------------------------------------------------------------------
+      BEGIN OF ty_root_r2020,
+        knwReinfR2020                 TYPE ty_knw_r2020,
+        knwReinfR2020NotaList         TYPE TABLE OF ty_knw_r2020_nota WITH DEFAULT KEY,
+        knwReinfR2020ServicoList      TYPE TABLE OF ty_knw_r2020_servico WITH DEFAULT KEY,
+        knwReinfR2020ProcessoList     TYPE TABLE OF ty_knw_r2020_processo WITH DEFAULT KEY,
+        knwReinfR2020ProcessoAdicList TYPE TABLE OF ty_knw_r2020_processo WITH DEFAULT KEY,
+      END OF ty_root_r2020,
+
+      tt_r2020_objects TYPE STANDARD TABLE OF ty_root_r2020 WITH DEFAULT KEY,
+
       BEGIN OF ty_companycode,
         companycode     TYPE i_companycode-companycode,
         companycodename TYPE i_companycode-companycodename,
@@ -194,6 +280,7 @@ CLASS lcl_process DEFINITION FRIENDS lhc_SOV_REINF_INSS.
       gs_branch_main TYPE i_addlcompanycodeinformation,
       gt_data        TYPE ty_t_wit_data,
       gt_objects     TYPE tt_r2010_objects,
+      gt_objects2020 TYPE tt_r2020_objects,
       gt_nfs         TYPE ty_t_nf_data,
       mt_nature      TYPE TABLE OF /pyxs/sov_natren,
       mt_cdreinf     TYPE TABLE OF /pyxs/sov_cdrei2,
@@ -630,6 +717,9 @@ CLASS lcl_process IMPLEMENTATION.
 
     CHECK sy-subrc = 0.
 
+    " R2010 – somente notas de entrada
+    CHECK ls_nfs-br_nfdirection = '1'.
+
 ***    IF ls_nfs-br_lc116servicecode IS INITIAL.
 ***      CONTINUE.
 ***    ENDIF.
@@ -772,6 +862,155 @@ CLASS lcl_process IMPLEMENTATION.
 
     <serv>-vl_base_retencao =  abs( ls_data-whldgtaxbaseamtincocodecrcy ).
     <serv>-vl_retencao      += abs( ls_data-whldgtaxamtintransaccrcy ).
+
+  ENDLOOP.
+
+  "*------------------------------------------------------------------------
+  "* R2020 – somente notas de saída (br_nfdirection = 2)
+  "*------------------------------------------------------------------------
+  LOOP AT gt_data INTO ls_data.
+
+    READ TABLE gt_nfs
+      WITH KEY br_nfsourcedocumentnumber = ls_data-originalreferencedocument
+      INTO ls_nfs.
+
+    CHECK sy-subrc = 0.
+
+    CHECK ls_nfs-br_nfdirection = '2'.
+
+    CLEAR ls_irf_type.
+    READ TABLE mt_irf_types
+      WITH KEY categoriairf = ls_data-withholdingtaxtype
+      INTO ls_irf_type.
+
+    lv_root_id = |R2020{ ls_nfs-br_nfissuedate(6) }{ ls_nfs-br_nfpartner }|.
+
+    IF ls_irf_type-Usardatapagto = abap_true.
+      lv_root_id = |R2020{ ls_data-clearingdate(6) }{ ls_nfs-br_nfpartner }|.
+    ENDIF.
+
+    READ TABLE gt_objects2020 ASSIGNING FIELD-SYMBOL(<root2020>)
+      WITH KEY knwReinfR2020-id_referencia = lv_root_id.
+
+    IF sy-subrc <> 0.
+      APPEND INITIAL LINE TO gt_objects2020 ASSIGNING <root2020>.
+      <root2020>-knwReinfR2020-cd_empresa             = '1'. "gs_branch_sov-sov_company.
+      <root2020>-knwReinfR2020-cd_filial              = '1'. "gs_branch_sov-sov_branch.
+      <root2020>-knwReinfR2020-id_referencia          = lv_root_id.
+      <root2020>-knwReinfR2020-id_evento              = '1'.
+      <root2020>-knwReinfR2020-dm_retificacao         = '1'.
+      <root2020>-knwReinfR2020-dt_apuracao            = format_date_yyyymmdd( ls_nfs-br_nfissuedate ).
+      IF ls_irf_type-Usardatapagto = abap_true.
+        <root2020>-knwReinfR2020-dt_apuracao          = format_date_yyyymmdd( ls_data-clearingdate ).
+      ENDIF.
+      <root2020>-knwReinfR2020-dm_inscricao_prestador = '1'.
+      <root2020>-knwReinfR2020-nr_inscricao_prestador = ls_nfs-br_businessplacecnpj.
+      <root2020>-knwReinfR2020-dm_inscricao_tomador   = '1'.
+      <root2020>-knwReinfR2020-nr_inscricao_tomador   = ls_nfs-br_nfpartnercnpj.
+      <root2020>-knwReinfR2020-dm_obra                = '0'.
+      <root2020>-knwReinfR2020-vl_total_bruto         = '0'.
+      <root2020>-knwReinfR2020-vl_total_base          = '0'.
+      <root2020>-knwReinfR2020-vl_total_retencao      = '0'.
+      <root2020>-knwReinfR2020-vl_tot_retencao_adic   = '0'.
+      <root2020>-knwReinfR2020-vl_tot_ret_nao_efet    = '0'.
+      <root2020>-knwReinfR2020-vl_tot_ret_adic_n_efet = '0'.
+    ENDIF.
+
+    " Accumulate totals on the root header
+    <root2020>-knwReinfR2020-vl_total_bruto =
+      abs( ls_nfs-br_nftotalamount ).
+    <root2020>-knwReinfR2020-vl_total_base =
+      abs( ls_data-whldgtaxbaseamtincocodecrcy ).
+    <root2020>-knwReinfR2020-vl_total_retencao +=
+      abs( ls_data-whldgtaxamtintransaccrcy ).
+
+    READ TABLE gt_item_counter ASSIGNING <counter>
+      WITH TABLE KEY id_referencia = lv_root_id.
+
+    IF sy-subrc = 0.
+      <counter>-counter += 1.
+      lv_nr_item_nota = <counter>-counter.
+    ELSE.
+      INSERT VALUE #(
+        id_referencia = lv_root_id
+        counter       = 1
+      ) INTO TABLE gt_item_counter
+      ASSIGNING <counter>.
+
+      lv_nr_item_nota = 1.
+    ENDIF.
+
+    READ TABLE <root2020>-knwReinfR2020NotaList
+      ASSIGNING FIELD-SYMBOL(<nota2020>)
+      WITH KEY id_referencia = lv_root_id.
+
+    IF sy-subrc <> 0.
+        APPEND INITIAL LINE TO
+          <root2020>-knwReinfR2020NotaList
+          ASSIGNING <nota2020>.
+
+        <nota2020>-cd_empresa     = '1'. "gs_branch_sov-sov_company.
+        <nota2020>-cd_filial      = '1'. "gs_branch_sov-sov_branch.
+        <nota2020>-id_referencia  = lv_root_id.
+        <nota2020>-nr_item_nota   = lv_nr_item_nota.
+        <nota2020>-nr_serie       = ls_nfs-br_nfseries.
+        <nota2020>-nr_documento   = ls_nfs-br_nfnumber.
+        <nota2020>-dt_emissao     = format_date_yyyymmdd( iv_date = ls_nfs-br_nfissuedate ).
+        <nota2020>-vl_bruto       = format_amount( iv_value = ls_nfs-br_nftotalamount ).
+        <nota2020>-ds_observacao  = |Nota Fiscal { ls_nfs-br_nfnumber }|.
+        IF <nota2020>-nr_serie IS INITIAL OR <nota2020>-nr_serie = ' '.
+          <nota2020>-nr_serie = '000'.
+        ENDIF.
+    ENDIF.
+
+    READ TABLE <root2020>-knwReinfR2020ServicoList
+      ASSIGNING FIELD-SYMBOL(<serv2020>)
+      WITH KEY id_referencia = lv_root_id.
+
+    IF sy-subrc <> 0.
+
+        APPEND INITIAL LINE TO
+          <root2020>-knwReinfR2020ServicoList
+          ASSIGNING <serv2020>.
+
+        <serv2020>-cd_empresa           = '1'. "gs_branch_sov-sov_company.
+        <serv2020>-cd_filial            = '1'. "gs_branch_sov-sov_branch.
+        <serv2020>-id_referencia        = lv_root_id.
+        <serv2020>-nr_item_nota         = lv_nr_item_nota.
+        <serv2020>-nr_item_servico      = 1.
+        <serv2020>-cd_tipo_servico      = ls_nfs-BR_EFDREINFServiceCode.
+        <serv2020>-vl_base_retencao     = '0'.
+        <serv2020>-vl_retencao          = '0'.
+        <serv2020>-vl_retencao_sub      = '0'.
+        <serv2020>-vl_retencao_nao_efet = '0'.
+        <serv2020>-vl_servico_15        = '0'.
+        <serv2020>-vl_servico_20        = '0'.
+        <serv2020>-vl_servico_25        = '0'.
+        <serv2020>-vl_adicional         = '0'.
+        <serv2020>-vl_ret_adic_nao_efet = '0'.
+
+        CLEAR ls_cdreinf.
+        READ TABLE mt_cdreinf
+          INTO ls_cdreinf
+          WITH KEY material = ls_nfs-material.
+
+        IF sy-subrc <> 0.
+          lv_material = condense( val = CONV string( ls_nfs-material ) ).
+          IF lv_material IS NOT INITIAL AND lv_material CO '0123456789'.
+            SHIFT lv_material LEFT DELETING LEADING '0'.
+            READ TABLE mt_cdreinf
+              INTO ls_cdreinf
+              WITH KEY material = lv_material.
+          ENDIF.
+        ENDIF.
+
+        IF sy-subrc = '0'.
+          <serv2020>-cd_tipo_servico = ls_cdreinf-codreinf.
+        ENDIF.
+    ENDIF.
+
+    <serv2020>-vl_base_retencao =  abs( ls_data-whldgtaxbaseamtincocodecrcy ).
+    <serv2020>-vl_retencao      += abs( ls_data-whldgtaxamtintransaccrcy ).
 
   ENDLOOP.
 
@@ -924,6 +1163,87 @@ ENDMETHOD.
         ano_mes   = sel-anomes
         evento    = '4000'
         partner   = ls_root-knwreinfr2010-id_referencia+11
+        resultado = ls_status-code
+        retorno   = COND #( WHEN gv_proc IS NOT INITIAL THEN gv_proc
+                            WHEN ls_status-reason IS NOT INITIAL THEN ls_status-reason
+                            ELSE 'Erro no serviço' ) )
+        TO /pyxs/bp_sov_reinf_inss=>lt_log.
+
+    ENDLOOP.
+
+    "*----------------------------------------------------------------------
+    "* R2020
+    "*----------------------------------------------------------------------
+    LOOP AT gt_objects2020 INTO DATA(ls_root2020).
+
+      CLEAR: gv_proc, lo_ret, lv_sucesso, ls_status, lt_ca.
+
+      json_out = /ui2/cl_json=>serialize( data        = ls_root2020
+                                          compress    = abap_true
+                                          pretty_name = 'L' ).
+      json_out = /pyxs/sov_json_conversion=>convert_reinf2020( json_out ).
+
+      lv_utf8 = cl_abap_conv_codepage=>create_out( codepage = 'UTF-8' )->convert( json_out ).
+      cl_abap_gzip=>compress_binary_with_header( EXPORTING raw_in = lv_utf8 IMPORTING gzip_out = lv_gzip ).
+      lv_base64 = cl_web_http_utility=>encode_x_base64( lv_gzip ).
+      json_out = |\{"nr_licenca": "00000","dados": "{ lv_base64 }"\}|.
+
+      lr_cscn = VALUE #( ( sign = 'I' option = 'EQ' low = '/PYXS/SOVOS' ) ).
+      cl_com_arrangement_factory=>create_instance( )->query_ca(
+        EXPORTING is_query           = VALUE #( cscn_id_range = lr_cscn )
+        IMPORTING et_com_arrangement = lt_ca ).
+
+      IF lt_ca IS INITIAL.
+        ls_status-code = 999.
+        gv_proc = 'Cenário de comunicação não encontrado'.
+      ELSE.
+        TRY.
+            lo_dest = cl_http_destination_provider=>create_by_comm_arrangement(
+                        comm_scenario  = '/PYXS/SOVOS'
+                        service_id     = '/PYXS/SOV_REINF2_REST'
+                        comm_system_id = lt_ca[ 1 ]->get_comm_system_id( ) ).
+            lo_client = cl_web_http_client_manager=>create_by_http_destination( lo_dest ).
+            lo_req = lo_client->get_http_request( ).
+            lo_req->set_text( json_out ).
+            lo_req->set_uri_path( 'R2020' ).
+
+            lo_resp = lo_client->execute( if_web_http_client=>post ).
+            ls_status = lo_resp->get_status( ).
+            gv_proc   = lo_resp->get_text( ).
+
+            IF ls_status-code = 200.
+              IF gv_proc IS INITIAL.
+                gv_proc = 'Successfully processed'(002).
+              ELSE.
+                /ui2/cl_json=>deserialize( EXPORTING json = gv_proc CHANGING data = lo_ret ).
+                ASSIGN lo_ret->('SUCESSO') TO <suc_ref>.
+                IF sy-subrc = 0 AND <suc_ref> IS BOUND.
+                  ASSIGN <suc_ref>->* TO <suc>.
+                  lv_sucesso = <suc>.
+                ENDIF.
+                IF lv_sucesso = abap_true.
+                  gv_proc = 'Successfully processed'(002).
+                ELSE.
+                  ls_status-code = 400.   " mantém gv_proc = resposta da Sovos
+                ENDIF.
+              ENDIF.
+            ENDIF.
+
+          CATCH cx_http_dest_provider_error cx_web_http_client_error cx_web_message_error INTO lx.
+            ls_status-code = 999.
+            gv_proc = lx->get_text( ).
+        ENDTRY.
+      ENDIF.
+
+      " ---- LOG no buffer DESTE BO ----
+      GET TIME STAMP FIELD lv_time.
+      lv_id += 1.
+      APPEND VALUE #(
+        id        = lv_id
+        time      = lv_time
+        ano_mes   = sel-anomes
+        evento    = '4000'
+        partner   = ls_root2020-knwreinfr2020-id_referencia+11
         resultado = ls_status-code
         retorno   = COND #( WHEN gv_proc IS NOT INITIAL THEN gv_proc
                             WHEN ls_status-reason IS NOT INITIAL THEN ls_status-reason

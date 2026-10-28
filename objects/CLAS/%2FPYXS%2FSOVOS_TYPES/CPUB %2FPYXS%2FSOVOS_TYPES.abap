@@ -767,7 +767,7 @@ CLASS /pyxs/sovos_types DEFINITION
         cod_filial           TYPE string,
         cd_pessoa_remet_dest TYPE string,
         cd_plano_conta       TYPE string,
-        vl_servico           TYPE string,
+        vl_servico2          TYPE string,
         nr_item              TYPE string,
         cd_lst               TYPE string,
         cd_prod_serv         TYPE string,

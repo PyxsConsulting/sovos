@@ -177,7 +177,7 @@ CLASS lcl_process_srv DEFINITION.
         cod_filial           TYPE string,
         cd_pessoa_remet_dest TYPE string,
         cd_plano_conta       TYPE string,
-        vl_servico           TYPE string,
+        vl_servico2          TYPE string,
         nr_item              TYPE string,
         cd_lst               TYPE string,
         cd_prod_serv         TYPE string,
@@ -1587,16 +1587,6 @@ CLASS lcl_process IMPLEMENTATION.
       GET TIME STAMP FIELD time.
       READ TABLE t_nfs INTO ls_not INDEX 1.
 
-      IF lo_ret IS INITIAL.
-        APPEND INITIAL LINE TO /pyxs/bp_sovos_fiscaldocuments=>lt_log ASSIGNING <log>.
-        <log>-timedate = time.
-        "READ TABLE t_nfdocs INTO ls_nf WITH KEY doc-br_nfenumber = ls_doc-objetos[ 1 ]-knwc100-nr_documento.
-        <log>-br_notafiscal =  lv_docnum. "ls_nf-doc-br_notafiscal .
-        <log>-response = |Erro no serviço: { gv_proc }|.
-        <log>-returncode = lv_ret-code.
-        <log>-returnreason = lv_ret-reason.
-
-      ELSE.
 ***        LOOP AT lo_ret->('MENSAGENS')->* ASSIGNING FIELD-SYMBOL(<lv_msg>).
           lv_utf8_xstring = cl_abap_conv_codepage=>create_out( codepage = 'UTF-8' )->convert( source = json_out ).
           cl_abap_gzip=>compress_binary_with_header(
@@ -1605,6 +1595,17 @@ CLASS lcl_process IMPLEMENTATION.
             IMPORTING
               gzip_out = lv_gzip_xstring ).
           lv_base64 = cl_web_http_utility=>encode_x_base64( lv_gzip_xstring ).
+
+      IF lo_ret IS INITIAL.
+        APPEND INITIAL LINE TO /pyxs/bp_sovos_fiscaldocuments=>lt_log ASSIGNING <log>.
+        <log>-timedate = time.
+        "READ TABLE t_nfdocs INTO ls_nf WITH KEY doc-br_nfenumber = ls_doc-objetos[ 1 ]-knwc100-nr_documento.
+        <log>-br_notafiscal =  lv_docnum. "ls_nf-doc-br_notafiscal .
+        <log>-response = |Erro no serviço: { gv_proc } - Payload: { lv_base64 }|.
+        <log>-returncode = lv_ret-code.
+        <log>-returnreason = lv_ret-reason.
+
+      ELSE.
           APPEND INITIAL LINE TO /pyxs/bp_sovos_fiscaldocuments=>lt_log ASSIGNING <log>.
           <log>-id = sy-tabix.
           <log>-timedate = time.
@@ -1770,17 +1771,6 @@ CLASS lcl_process IMPLEMENTATION.
       GET TIME STAMP FIELD time.
       READ TABLE t_nfs INTO ls_not INDEX 1.
 
-      IF lo_ret IS INITIAL.
-        APPEND INITIAL LINE TO /pyxs/bp_sovos_fiscaldocuments=>lt_log ASSIGNING <log>.
-        <log>-timedate = time.
-        "READ TABLE t_nfdocs INTO ls_nf WITH KEY doc-br_nfenumber = ls_doc-objetos[ 1 ]-knwc100-nr_documento.
-        <log>-br_notafiscal = lv_docnum. "ls_nf-doc-br_notafiscal .
-        <log>-response = |Erro no serviço: { gv_proc }|.
-        <log>-returncode = lv_ret-code.
-        <log>-returnreason = lv_ret-reason.
-
-      ELSE.
-***        LOOP AT lo_ret->('MENSAGENS')->* ASSIGNING FIELD-SYMBOL(<lv_msg>).
           lv_utf8_xstring = cl_abap_conv_codepage=>create_out( codepage = 'UTF-8' )->convert( source = json_out ).
           cl_abap_gzip=>compress_binary_with_header(
             EXPORTING
@@ -1788,6 +1778,18 @@ CLASS lcl_process IMPLEMENTATION.
             IMPORTING
               gzip_out = lv_gzip_xstring ).
           lv_base64 = cl_web_http_utility=>encode_x_base64( lv_gzip_xstring ).
+
+      IF lo_ret IS INITIAL.
+        APPEND INITIAL LINE TO /pyxs/bp_sovos_fiscaldocuments=>lt_log ASSIGNING <log>.
+        <log>-timedate = time.
+        "READ TABLE t_nfdocs INTO ls_nf WITH KEY doc-br_nfenumber = ls_doc-objetos[ 1 ]-knwc100-nr_documento.
+        <log>-br_notafiscal = lv_docnum. "ls_nf-doc-br_notafiscal .
+        <log>-response = |Erro no serviço: { gv_proc } - Payload: { lv_base64 }|.
+        <log>-returncode = lv_ret-code.
+        <log>-returnreason = lv_ret-reason.
+
+      ELSE.
+***        LOOP AT lo_ret->('MENSAGENS')->* ASSIGNING FIELD-SYMBOL(<lv_msg>).
           APPEND INITIAL LINE TO /pyxs/bp_sovos_fiscaldocuments=>lt_log ASSIGNING <log>.
           <log>-id = sy-tabix.
           <log>-timedate = time.
@@ -1952,17 +1954,6 @@ CLASS lcl_process IMPLEMENTATION.
       ENDTRY.
       GET TIME STAMP FIELD time.
 
-      IF lo_ret IS INITIAL.
-        APPEND INITIAL LINE TO /pyxs/bp_sovos_fiscaldocuments=>lt_log ASSIGNING <log>.
-        <log>-timedate = time.
-        "READ TABLE t_nfdocs INTO ls_nf WITH KEY doc-br_nfenumber = ls_doc-objetos[ 1 ]-knwc100-nr_documento.
-        <log>-br_notafiscal = lv_docnum. "ls_nf-doc-br_notafiscal .
-        <log>-response = |Erro no serviço: { gv_proc }|.
-        <log>-returncode = lv_ret-code.
-        <log>-returnreason = lv_ret-reason.
-
-      ELSE.
-
           lv_utf8_xstring = cl_abap_conv_codepage=>create_out( codepage = 'UTF-8' )->convert( source = json_out ).
           cl_abap_gzip=>compress_binary_with_header(
             EXPORTING
@@ -1970,6 +1961,18 @@ CLASS lcl_process IMPLEMENTATION.
             IMPORTING
               gzip_out = lv_gzip_xstring ).
           lv_base64 = cl_web_http_utility=>encode_x_base64( lv_gzip_xstring ).
+
+      IF lo_ret IS INITIAL.
+        APPEND INITIAL LINE TO /pyxs/bp_sovos_fiscaldocuments=>lt_log ASSIGNING <log>.
+        <log>-timedate = time.
+        "READ TABLE t_nfdocs INTO ls_nf WITH KEY doc-br_nfenumber = ls_doc-objetos[ 1 ]-knwc100-nr_documento.
+        <log>-br_notafiscal = lv_docnum. "ls_nf-doc-br_notafiscal .
+        <log>-response = |Erro no serviço: { gv_proc } - Payload: { lv_base64 } |.
+        <log>-returncode = lv_ret-code.
+        <log>-returnreason = lv_ret-reason.
+
+      ELSE.
+
           APPEND INITIAL LINE TO /pyxs/bp_sovos_fiscaldocuments=>lt_log ASSIGNING <log>.
           <log>-id = sy-tabix.
           <log>-timedate = time.
@@ -4196,7 +4199,7 @@ CLASS lcl_process IMPLEMENTATION.
         <item>-knwa170-cd_prod_serv     = ls_nfitem-nf-material.
 
 
-        <item>-knwa170-vl_servico = ls_nfitem-nf-br_nftotalamount.
+        <item>-knwa170-vl_servico2 = ls_nfitem-nf-br_nftotalamount.
         IF ls_nfitem-nf-br_nfdiscountamountwithtaxes > 0.
           <item>-knwa170-vl_desconto = ls_nfitem-nf-br_nfdiscountamountwithtaxes.
         ENDIF.

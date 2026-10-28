@@ -33,6 +33,134 @@ LOOP AT gt_data INTO DATA(ls_data).
     CONTINUE.
   ENDIF.
 
+**********************************************************************
+* R4010 - Beneficiário pessoa física (BR_NFPartnerIsNaturalPerson = 'X')
+* R4020 segue abaixo somente quando BR_NFPartnerIsNaturalPerson IS INITIAL
+**********************************************************************
+  IF ls_nfs-br_nfpartnerisnaturalperson = abap_true.
+
+    DATA(lv_root_id_4010) =
+      |R4010{ ls_nfs-br_nfpostingdate(6) }{ ls_nfs-br_nfpartner }|.
+    IF ls_irf_type-Usardatapagto = abap_true.
+      lv_root_id_4010 = |R4010{ ls_data-clearingdate(6) }{ ls_nfs-br_nfpartner }|.
+    ENDIF.
+
+    READ TABLE gt_objects4010 ASSIGNING FIELD-SYMBOL(<root4010>)
+      WITH KEY knwReinfR4010-id_referencia = lv_root_id_4010.
+
+    IF sy-subrc <> 0.
+      APPEND INITIAL LINE TO gt_objects4010 ASSIGNING <root4010>.
+      <root4010>-knwReinfR4010-cd_empresa         = '1'. "ENVIAR SEMPRE NA FILIAL: INSTRUÇÃO SOVOS
+      <root4010>-knwReinfR4010-cd_filial          = '1'.
+      <root4010>-knwReinfR4010-id_referencia      = lv_root_id_4010.
+      <root4010>-knwReinfR4010-dm_retificacao     = '1'.
+      DATA(lv_dt_apura_4010) = |{ ls_nfs-br_nfpostingdate+6(2) }{ ls_nfs-br_nfpostingdate+4(2) }{ ls_nfs-br_nfpostingdate(4) }|.
+      IF ls_irf_type-Usardatapagto = abap_true.
+        lv_dt_apura_4010 = |{ ls_data-clearingdate+6(2) }{ ls_data-clearingdate+4(2) }{ ls_data-clearingdate(4) }|.
+      ENDIF.
+      <root4010>-knwReinfR4010-dt_apuracao        = lv_dt_apura_4010.
+      <root4010>-knwReinfR4010-dm_inscricao_estab = '1'.
+      <root4010>-knwReinfR4010-nr_inscricao_estab = ls_nfs-br_businessplacecnpj.
+      <root4010>-knwReinfR4010-nr_cnpj_benef      = ls_nfs-br_nfpartnercnpj.
+      <root4010>-knwReinfR4010-nm_benef           = ls_nfs-br_nfpartnername1.
+      <root4010>-knwReinfR4010-cd_evt_adic        = ''.
+    ENDIF.
+
+    DATA(lv_rend_key_4010) =
+      |{ lv_root_id_4010 }{ lv_natureza }|.
+
+    READ TABLE <root4010>-knwReinfR4010RendList
+      ASSIGNING FIELD-SYMBOL(<rend4010>)
+      WITH KEY ds_observacao = lv_rend_key_4010.
+
+    IF sy-subrc <> 0.
+
+      DATA(lv_item_rend_4010) =
+        lines( <root4010>-knwReinfR4010RendList ) + 1.
+
+      APPEND INITIAL LINE TO
+        <root4010>-knwReinfR4010RendList
+        ASSIGNING <rend4010>.
+
+      <rend4010>-cd_empresa    = '1'.
+      <rend4010>-cd_filial     = '1'.
+      <rend4010>-id_referencia = lv_root_id_4010.
+      <rend4010>-nr_item_rend  = lv_item_rend_4010.
+      <rend4010>-cd_nat_rend   = lv_natureza.
+      <rend4010>-ds_observacao = lv_rend_key_4010.
+
+    ENDIF.
+
+    DATA(lv_pgto_key_4010) =
+      |{ lv_rend_key_4010 }{ ls_nfs-br_nfsnumber }|.
+
+    READ TABLE <root4010>-knwReinfR4010PgtoList
+      ASSIGNING FIELD-SYMBOL(<pgto4010>)
+      WITH KEY ds_observ = lv_pgto_key_4010.
+
+    IF sy-subrc <> 0.
+
+      DATA(lv_item_pgto_4010) = 1.
+
+      LOOP AT <root4010>-knwReinfR4010PgtoList
+        ASSIGNING FIELD-SYMBOL(<tmp_pgto4010>)
+        WHERE id_referencia = lv_root_id_4010
+          AND nr_item_rend  = <rend4010>-nr_item_rend.
+
+        lv_item_pgto_4010 = lv_item_pgto_4010 + 1.
+
+      ENDLOOP.
+
+      APPEND INITIAL LINE TO
+        <root4010>-knwReinfR4010PgtoList
+        ASSIGNING <pgto4010>.
+
+      <pgto4010>-cd_empresa      = '1'.
+      <pgto4010>-cd_filial       = '1'.
+      <pgto4010>-id_referencia   = lv_root_id_4010.
+      <pgto4010>-nr_item_rend    = <rend4010>-nr_item_rend.
+      <pgto4010>-nr_item_pgto    = lv_item_pgto_4010.
+      <pgto4010>-dt_fato_gerador = format_date( iv_date = ls_nfs-br_nfissuedate ).
+      IF ls_irf_type-Usardatapagto = abap_true.
+        <pgto4010>-dt_fato_gerador = format_date( iv_date = ls_data-clearingdate ).
+      ENDIF.
+      <pgto4010>-vl_rend_bruto        = format_amount( iv_value = ls_nfs-br_nftotalamount ).
+      <pgto4010>-ds_observ            = lv_pgto_key_4010.
+      <pgto4010>-dt_comp_rendimento   = ''.
+      <pgto4010>-dm_dec_terc          = ''.
+      <pgto4010>-dm_ind_rra           = ''.
+      <pgto4010>-dm_fci_scp           = ''.
+      <pgto4010>-nr_inscricao_fci_scp = ''.
+      <pgto4010>-vl_perc_scp          = ''.
+      <pgto4010>-dm_indic_judicial    = ''.
+      <pgto4010>-cd_pais_resid_ext    = ''.
+      <pgto4010>-dt_escr_cont         = ''.
+    ENDIF.
+
+    IF <pgto4010>-vl_ir IS INITIAL.
+      <pgto4010>-vl_ir = '0'.
+    ENDIF.
+    IF <pgto4010>-vl_rend_trib IS INITIAL.
+      <pgto4010>-vl_rend_trib = '0'.
+    ENDIF.
+
+    " R4010 possui somente retenção de IR
+    CASE ls_irf_type-imposto.
+
+      WHEN 'IR'.
+
+        <pgto4010>-vl_ir +=
+          abs( ls_data-withholdingtaxamtintransaccrcy ).
+
+        <pgto4010>-vl_rend_trib =
+          abs( ls_data-withholdingtaxbaseamtincocode ).
+
+    ENDCASE.
+
+    CONTINUE.
+
+  ENDIF.
+
   DATA(lv_root_id) =
     |R4020{ ls_nfs-br_nfpostingdate(6) }{ ls_nfs-br_nfpartner }|.
   IF ls_irf_type-Usardatapagto = abap_true.
