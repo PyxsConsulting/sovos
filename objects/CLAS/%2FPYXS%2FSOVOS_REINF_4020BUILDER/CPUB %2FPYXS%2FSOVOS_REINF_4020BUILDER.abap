@@ -475,6 +475,7 @@ CLASS /pyxs/sovos_reinf_4020builder DEFINITION
              br_nftotalamount             TYPE i_br_nfdocument-br_nftotalamount,
              br_nfpostingdate             TYPE i_br_nfdocument-br_nfpostingdate,
              br_nfpartnerisnaturalperson  TYPE i_br_nfdocument-br_nfpartnerisnaturalperson,
+             br_nfpartnercpf              TYPE i_br_nfdocument-br_nfpartnercpf,
            END OF ty_nf_item,
 
            ty_r_tax_type TYPE RANGE OF i_br_nftax-taxgroup,

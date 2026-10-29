@@ -1161,12 +1161,11 @@ ENDMETHOD.
         id        = lv_id
         time      = lv_time
         ano_mes   = sel-anomes
-        evento    = '4000'
+        evento    = '2010'
         partner   = ls_root-knwreinfr2010-id_referencia+11
         resultado = ls_status-code
-        retorno   = COND #( WHEN gv_proc IS NOT INITIAL THEN gv_proc
-                            WHEN ls_status-reason IS NOT INITIAL THEN ls_status-reason
-                            ELSE 'Erro no serviço' ) )
+        retorno   = COND #( WHEN ls_status-code = 200 THEN lv_base64
+                            ELSE |Erro no serviço: { gv_proc } - Payload: { lv_base64 }| ) )
         TO /pyxs/bp_sov_reinf_inss=>lt_log.
 
     ENDLOOP.
@@ -1242,12 +1241,11 @@ ENDMETHOD.
         id        = lv_id
         time      = lv_time
         ano_mes   = sel-anomes
-        evento    = '4000'
+        evento    = '2020'
         partner   = ls_root2020-knwreinfr2020-id_referencia+11
         resultado = ls_status-code
-        retorno   = COND #( WHEN gv_proc IS NOT INITIAL THEN gv_proc
-                            WHEN ls_status-reason IS NOT INITIAL THEN ls_status-reason
-                            ELSE 'Erro no serviço' ) )
+        retorno   = COND #( WHEN ls_status-code = 200 THEN lv_base64
+                            ELSE |Erro no serviço: { gv_proc } - Payload: { lv_base64 }| ) )
         TO /pyxs/bp_sov_reinf_inss=>lt_log.
 
     ENDLOOP.

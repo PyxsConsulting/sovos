@@ -61,7 +61,7 @@ LOOP AT gt_data INTO DATA(ls_data).
       <root4010>-knwReinfR4010-dt_apuracao        = lv_dt_apura_4010.
       <root4010>-knwReinfR4010-dm_inscricao_estab = '1'.
       <root4010>-knwReinfR4010-nr_inscricao_estab = ls_nfs-br_businessplacecnpj.
-      <root4010>-knwReinfR4010-nr_cnpj_benef      = ls_nfs-br_nfpartnercnpj.
+      <root4010>-knwReinfR4010-nr_cnpj_benef      = ls_nfs-br_nfpartnercpf.
       <root4010>-knwReinfR4010-nm_benef           = ls_nfs-br_nfpartnername1.
       <root4010>-knwReinfR4010-cd_evt_adic        = ''.
     ENDIF.

@@ -168,9 +168,7 @@
       <log>-evento = '4020'.
       <log>-partner = ls_nf-id_referencia+11.
       <log>-resultado = COND #( WHEN lv_ret IS INITIAL THEN '999' ELSE lv_ret-code ).
-      <log>-retorno = COND #( WHEN gv_proc IS NOT INITIAL THEN gv_proc
-                              WHEN lv_ret IS NOT INITIAL THEN lv_ret-reason
-                              ELSE 'Erro no serviço' ).
+      <log>-retorno = |Retorno: { gv_proc } - Payload: { lv_base64 }|.
 
     ELSE.
       APPEND INITIAL LINE TO /pyxs/bp_reinflog=>lt_log ASSIGNING <log>.
@@ -183,7 +181,7 @@
       IF lv_ret-code = 200.
         <log>-retorno = lv_base64.
       ELSE.
-        <log>-retorno = gv_proc.
+        <log>-retorno = |Retorno: { gv_proc } - Payload: { lv_base64 }|.
       ENDIF.
     ENDIF.
     CLEAR lv_ret.
@@ -308,9 +306,7 @@
       <log>-evento = '4010'.
       <log>-partner = ls_nf4010-id_referencia+11.
       <log>-resultado = COND #( WHEN lv_ret IS INITIAL THEN '999' ELSE lv_ret-code ).
-      <log>-retorno = COND #( WHEN gv_proc IS NOT INITIAL THEN gv_proc
-                              WHEN lv_ret IS NOT INITIAL THEN lv_ret-reason
-                              ELSE 'Erro no serviço' ).
+      <log>-retorno = |Retorno: { gv_proc } - Payload: { lv_base64 }|.
 
     ELSE.
       APPEND INITIAL LINE TO /pyxs/bp_reinflog=>lt_log ASSIGNING <log>.
@@ -323,7 +319,7 @@
       IF lv_ret-code = 200.
         <log>-retorno = lv_base64.
       ELSE.
-        <log>-retorno = gv_proc.
+        <log>-retorno = |Retorno: { gv_proc } - Payload: { lv_base64 }|.
       ENDIF.
     ENDIF.
     CLEAR lv_ret.

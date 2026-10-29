@@ -68,7 +68,7 @@
               nft~br_taxtype, nft~br_nfitembaseamount, nft~br_nfitemtaxrate,
               nft~br_nfitemtaxamount, nft~br_nfitemwhldgcollectioncode, nft~taxgroup, nf~br_businessplacecnpj, nf~br_nfpartnercnpj,
               nf~br_nfpartnername1, nfi~br_lc116servicecode, nf~br_nftotalamount, nf~br_nfpostingdate,
-              nf~br_nfpartnerisnaturalperson
+              nf~br_nfpartnerisnaturalperson, nf~br_nfpartnercpf
          FROM i_br_nfitem AS nfi
 *     ON jo~OriginalReferenceDocument = nfi~BR_NFSourceDocumentNumber
          INNER JOIN i_br_nfdocument AS nf
@@ -104,7 +104,7 @@
               nft~br_taxtype, nft~br_nfitembaseamount, nft~br_nfitemtaxrate,
               nft~br_nfitemtaxamount, nft~br_nfitemwhldgcollectioncode, nft~taxgroup, nf~br_businessplacecnpj, nf~br_nfpartnercnpj,
               nf~br_nfpartnername1, nfi~br_lc116servicecode, nf~br_nftotalamount, nf~br_nfpostingdate,
-              nf~br_nfpartnerisnaturalperson
+              nf~br_nfpartnerisnaturalperson, nf~br_nfpartnercpf
          FROM i_br_nfitem AS nfi
          INNER JOIN i_br_nfdocument AS nf
                  ON nf~br_notafiscal = nfi~br_notafiscal
