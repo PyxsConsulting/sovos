@@ -111,6 +111,7 @@ CLASS lcl_process DEFINITION FRIENDS lhc_SOV_REINF_INSS.
         br_nftotalamount             TYPE i_br_nfdocument-br_nftotalamount,
         BR_EFDREINFServiceCode       TYPE i_br_nfitem-BR_EFDREINFServiceCode,
         material                     TYPE i_br_nfitem-Material,
+        br_cprbisrelevant            TYPE i_br_nfitem-br_cprbisrelevant,
       END OF ty_nf_data,
 
       ty_t_nf_data TYPE STANDARD TABLE OF ty_nf_data WITH NON-UNIQUE DEFAULT KEY,
@@ -594,7 +595,8 @@ CLASS lcl_process IMPLEMENTATION.
            nf~br_businessplacecnpj, nf~br_nfpartnercnpj, nf~br_nfpartnername1,
            nfi~br_lc116servicecode, nf~br_nftotalamount,
            nfi~BR_EFDREINFServiceCode,
-           nfi~material
+           nfi~material,
+           nfi~br_cprbisrelevant
       FROM i_br_nfitem AS nfi
       INNER JOIN i_br_nfdocument AS nf
         ON nf~br_notafiscal = nfi~br_notafiscal
@@ -637,7 +639,8 @@ CLASS lcl_process IMPLEMENTATION.
            nf~br_businessplacecnpj, nf~br_nfpartnercnpj, nf~br_nfpartnername1,
            nfi~br_lc116servicecode, nf~br_nftotalamount,
            nfi~BR_EFDREINFServiceCode,
-           nfi~material
+           nfi~material,
+           nfi~br_cprbisrelevant
          FROM i_br_nfitem AS nfi
          INNER JOIN i_br_nfdocument AS nf
                  ON nf~br_notafiscal = nfi~br_notafiscal
@@ -760,7 +763,11 @@ CLASS lcl_process IMPLEMENTATION.
       <root>-knwReinfR2010-vl_tot_retencao_adic  = '0'.
       <root>-knwReinfR2010-vl_tot_ret_nao_efet   = '0'.
       <root>-knwReinfR2010-vl_tot_ret_nefe_adic  = '0'.
-      <root>-knwReinfR2010-dm_cprb             = '0'.
+      IF ls_nfs-br_cprbisrelevant IS NOT INITIAL.
+        <root>-knwReinfR2010-dm_cprb = 1.
+      ELSE.
+        <root>-knwReinfR2010-dm_cprb = 0.
+      ENDIF.
     ENDIF.
 
     " Accumulate totals on the root header

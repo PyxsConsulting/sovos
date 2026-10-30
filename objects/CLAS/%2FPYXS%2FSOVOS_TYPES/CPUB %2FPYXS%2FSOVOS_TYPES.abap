@@ -823,6 +823,7 @@ CLASS /pyxs/sovos_types DEFINITION
         cod_filial             TYPE string,
         cd_pessoa_remet_dest   TYPE string,
         cd_centro_custo        TYPE string,
+        dm_desoneracao_folha   TYPE string,
       END OF ty_knwa100,
 
       BEGIN OF ty_knw0600,

@@ -263,6 +263,7 @@ CLASS lcl_process_srv DEFINITION.
         cod_filial             TYPE string,
         cd_pessoa_remet_dest   TYPE string,
         cd_centro_custo        TYPE string,
+        dm_desoneracao_folha   TYPE string,
       END OF ty_knwa100,
 
 
@@ -3706,9 +3707,16 @@ CLASS lcl_process IMPLEMENTATION.
               "Texto com barra invertida solta (JSON inválido): mantém sem decodificar
           ENDTRY.
 
+
           IF lv_text IS INITIAL.
             CONTINUE.
           ENDIF.
+
+          "Remove caracteres não permitidos: @ # ' \ |
+          lv_text = condense( replace( val  = lv_text
+                                       pcre = `[@#'\\|]`
+                                       with = ``
+                                       occ  = 0 ) ).
 
           READ TABLE t_observ
             ASSIGNING FIELD-SYMBOL(<fs_observ>)
@@ -4135,7 +4143,13 @@ CLASS lcl_process IMPLEMENTATION.
       LOOP AT t_nfitem INTO DATA(ls_nfitem)
            WHERE nf-br_notafiscal  = p_nfdoc-doc-br_notafiscal.
 
-        ls_objeto-knwa100-cd_centro_custo      = ls_nfitem-nf-costcenter.
+***        ls_objeto-knwa100-cd_centro_custo      = ls_nfitem-nf-costcenter.
+***        IF ls_nfitem-nf-br_cprbisrelevant IS NOT INITIAL.
+***            ls_objeto-knwa100-dm_desoneracao_folha = '1'.
+***        ELSE.
+***            ls_objeto-knwa100-dm_desoneracao_folha = '0'.
+***        ENDIF.
+
         ls_objeto-knw0500-cod_empresa  = ls_objeto-knwa100-cod_empresa.
         ls_objeto-knw0500-cod_filial   = ls_objeto-knwa100-cod_filial.
         ls_objeto-knw0500-dm_tipo_conta = 'A'.
@@ -4143,6 +4157,7 @@ CLASS lcl_process IMPLEMENTATION.
         ls_objeto-knw0500-cd_plan_cta_tot = ls_nfitem-chartofaccounts.
         ls_objeto-knw0500-ds_plano_conta = ls_nfitem-glaccountname.
         ls_objeto-knw0500-cd_plano_conta = ls_nfitem-nf-glaccount.
+
 
         READ TABLE gt_params TRANSPORTING NO FIELDS WITH KEY pcode  = 'ACC_ZERO'
                                                              active = abap_true.
