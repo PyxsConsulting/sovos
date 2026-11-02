@@ -666,161 +666,104 @@ CLASS lcl_process IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD send_integration.
-    DATA: lo_ret     TYPE REF TO data,
-          lv_sucesso TYPE abap_boolean.
 
+    DATA: lo_ret     TYPE REF TO data,
+          lv_sucesso TYPE abap_boolean,
+          ls_status  TYPE if_web_http_response=>http_status,
+          lv_utf8    TYPE xstring,
+          lv_gzip    TYPE xstring,
+          lv_base64  TYPE string,
+          lv_id      TYPE i,
+          lr_cscn    TYPE if_com_scenario_factory=>ty_query-cscn_id_range.
+
+    DATA(lv_anomes) = |{ sel-fiscalyear }{ sel-fiscalperiod+1 }|.
+
+    " Communication Arrangement - busca uma única vez para todos os lotes
+    lr_cscn = VALUE #( ( sign = 'I' option = 'EQ' low = '/PYXS/SOVOS' ) ).
+    cl_com_arrangement_factory=>create_instance( )->query_ca(
+      EXPORTING is_query           = VALUE #( cscn_id_range = lr_cscn )
+      IMPORTING et_com_arrangement = DATA(lt_ca) ).
+
+    " Cada linha de t_out é um lote de até 100 objetos
     LOOP AT t_out INTO DATA(ls_doc).
 
-      DATA(json_out) = /ui2/cl_json=>serialize(
-        EXPORTING
-          data             = ls_doc
-          compress         = abap_true
-*        name             =
-           pretty_name      = /ui2/cl_json=>pretty_mode-none
-*        type_descr       =
-           assoc_arrays     = abap_false
-*        ts_as_iso8601    =
-*        expand_includes  =
-           assoc_arrays_opt = abap_false
-*        numc_as_string   =
-*        name_mappings    =
-*        conversion_exits =
-*        format_output    =
-*        hex_as_base64    =
-*      RECEIVING
-*        r_json           =
-      ).
+      CLEAR: gv_proc, lo_ret, lv_sucesso, ls_status, lv_utf8, lv_gzip, lv_base64.
 
+      DATA(json_out) = /ui2/cl_json=>serialize( data             = ls_doc
+                                                compress         = abap_true
+                                                pretty_name      = /ui2/cl_json=>pretty_mode-none
+                                                assoc_arrays     = abap_false
+                                                assoc_arrays_opt = abap_false ).
       json_out = /pyxs/sov_json_conversion=>convert_inventory( json_out ).
-      DATA: lr_cscn TYPE if_com_scenario_factory=>ty_query-cscn_id_range.
 
-      " find CA by scenario
-      lr_cscn = VALUE #( ( sign = 'I' option = 'EQ' low = '/PYXS/SOVOS' ) ).
-      DATA(lo_factory) = cl_com_arrangement_factory=>create_instance( ).
-      lo_factory->query_ca(
-        EXPORTING
-          is_query           = VALUE #( cscn_id_range = lr_cscn )
-        IMPORTING
-          et_com_arrangement = DATA(lt_ca) ).
+      " ---- Payload do lote: UTF-8 -> GZIP -> Base64 (somente para o LOG) ----
+      TRY.
+          lv_utf8 = cl_abap_conv_codepage=>create_out( codepage = 'UTF-8' )->convert( json_out ).
+          cl_abap_gzip=>compress_binary_with_header( EXPORTING raw_in   = lv_utf8
+                                                     IMPORTING gzip_out = lv_gzip ).
+          lv_base64 = cl_web_http_utility=>encode_x_base64( lv_gzip ).
+        CATCH cx_root INTO DATA(lx_zip).
+          lv_base64 = |Falha ao compactar payload: { lx_zip->get_text( ) }|.
+      ENDTRY.
 
       IF lt_ca IS INITIAL.
-        APPEND INITIAL LINE TO /pyxs/bp_sovos_year_inventory=>lt_log ASSIGNING FIELD-SYMBOL(<log>).
-        GET TIME STAMP FIELD DATA(time).
-        <log>-timedate = time.
-        <log>-anomes = |{ sel-fiscalyear }{ sel-fiscalperiod+1 }|.
-        "READ TABLE t_nfdocs INTO DATA(ls_nf) WITH KEY doc-br_nfenumber = ls_doc-objetos[ 1 ]-knwc100-nr_documento.
-        <log>-material = ls_doc-objetos[ 1 ]-knwh010-cd_produto_serv.
-        <log>-response = 'Cenário de comunicação não encontrado'.
-        <log>-returncode = '999'.
-        <log>-returnreason = 'Erro de configuração'.
+        ls_status-code = 999.
+        gv_proc = 'Cenário de comunicação não encontrado'.
+      ELSE.
+        TRY.
+            DATA(lo_dest) = cl_http_destination_provider=>create_by_comm_arrangement(
+                              comm_scenario  = '/PYXS/SOVOS'
+                              service_id     = '/PYXS/TCO_SOVOS_REST'
+                              comm_system_id = lt_ca[ 1 ]->get_comm_system_id( ) ).
+            DATA(lo_http_client) = cl_web_http_client_manager=>create_by_http_destination( lo_dest ).
+            DATA(lo_request) = lo_http_client->get_http_request( ).
+            lo_request->set_text( json_out ).
+            lo_request->set_uri_path( '/api/knw/v2/inventario' ).
 
-        EXIT.
-      ENDIF.
+            DATA(lo_response) = lo_http_client->execute( if_web_http_client=>post ).
+            ls_status = lo_response->get_status( ).
+            gv_proc   = lo_response->get_text( ).
+            lo_http_client->close( ).
 
-      " take the first one
-      READ TABLE lt_ca INTO DATA(lo_ca) INDEX 1.
-
-      " get destination based to Communication Arrangement
-      TRY.
-          DATA(lo_dest) = cl_http_destination_provider=>create_by_comm_arrangement(
-              comm_scenario  = '/PYXS/SOVOS'
-              service_id     = '/PYXS/TCO_SOVOS_REST'
-              comm_system_id = lo_ca->get_comm_system_id( ) ).
-
-          DATA(lo_http_client) = cl_web_http_client_manager=>create_by_http_destination( lo_dest ).
-
-          " execute the request
-          DATA(lo_request) = lo_http_client->get_http_request( ).
-          lo_request->set_text(
-            EXPORTING
-              i_text   = json_out
-*            i_offset = 0
-*            i_length = -1
-*          RECEIVING
-*            r_value  =
-          ).
-
-          lo_request->set_uri_path(
-            EXPORTING
-              i_uri_path = '/api/knw/v2/inventario'
-*              multivalue = 0
-*            RECEIVING
-*              r_value    =
-          ).
-
-          "lo_request->set_header_field( i_name = 'X-Cnpj'  i_value = gv_branch_cnpj ).
-
-          DATA(lo_response) = lo_http_client->execute( if_web_http_client=>post ).
-          DATA(lv_ret) = lo_response->get_status( ).
-          CLEAR lo_ret.
-          IF lv_ret-code = '200'.
-            DATA(lv_msg) = lo_response->get_text( ).
-            IF lv_msg IS INITIAL.
-              gv_proc = 'Successfully processed'(002).
-            ELSE.
-              gv_proc = lv_msg.
-              /ui2/cl_json=>deserialize(
-                 EXPORTING
-                   json             = gv_proc
-*                  jsonx            =
-*                  jsonx_cp         = `UTF-8`
-*                  pretty_name      =
-*                  assoc_arrays     =
-*                  assoc_arrays_opt =
-*                  name_mappings    =
-*                  conversion_exits =
-*                  hex_as_base64    =
-*                  gen_optimize     =
-                CHANGING
-                  data             = lo_ret
-              ).
-              lv_sucesso = lo_ret->('SUCESSO')->*.
-              IF lv_sucesso = abap_true.
+            IF ls_status-code = 200.
+              IF gv_proc IS INITIAL.
                 gv_proc = 'Successfully processed'(002).
               ELSE.
-                lv_ret-code = 400.
+                /ui2/cl_json=>deserialize( EXPORTING json = gv_proc CHANGING data = lo_ret ).
+                IF lo_ret IS BOUND.
+                  ASSIGN lo_ret->('SUCESSO') TO FIELD-SYMBOL(<suc_ref>).
+                  IF sy-subrc = 0 AND <suc_ref> IS BOUND.
+                    ASSIGN <suc_ref>->* TO FIELD-SYMBOL(<suc>).
+                    lv_sucesso = <suc>.
+                  ENDIF.
+                ENDIF.
+                IF lv_sucesso = abap_true.
+                  gv_proc = 'Successfully processed'(002).
+                ELSE.
+                  ls_status-code = 400.   " mantém gv_proc = resposta da Sovos
+                ENDIF.
               ENDIF.
             ENDIF.
-          ELSE.
-            gv_proc = lo_response->get_text( ). "|{ 'Error'(003) }: { lv_ret-reason }|.
-          ENDIF.
 
-        CATCH cx_web_message_error.
-
-
-        CATCH cx_http_dest_provider_error.
-          IF sy-subrc <> 0.
-          ENDIF.
-
-        CATCH cx_web_http_client_error.
-          IF sy-subrc <> 0.
-          ENDIF.
-      ENDTRY.
-      GET TIME STAMP FIELD time.
-
-      IF lo_ret IS INITIAL.
-        APPEND INITIAL LINE TO /pyxs/bp_sovos_year_inventory=>lt_log ASSIGNING <log>.
-        <log>-timedate = time.
-        "READ TABLE t_nfdocs INTO ls_nf WITH KEY doc-br_nfenumber = ls_doc-objetos[ 1 ]-knwc100-nr_documento.
-        <log>-material = ls_doc-objetos[ 1 ]-knwh010-cd_produto_serv.
-        <log>-response = |Erro no serviço: { gv_proc }|.
-        <log>-returncode = lv_ret-code.
-        <log>-returnreason = lv_ret-reason.
-
-      ELSE.
-
-***        LOOP AT lo_ret->('MENSAGENS')->* ASSIGNING FIELD-SYMBOL(<lv_msg>).
-***          APPEND INITIAL LINE TO /pyxs/bp_sovos_year_inventory=>lt_log ASSIGNING <log>.
-***          <log>-id = sy-tabix.
-***          <log>-timedate = time.
-***          "READ TABLE t_nfdocs INTO ls_nf WITH KEY doc-br_nfenumber = ls_doc-objetos[ 1 ]-knwc100-nr_documento.
-***          <log>-material = ls_doc-objetos[ 1 ]-knwh010-cd_produto_serv.
-***          <log>-response = <lv_msg>->*.
-***          <log>-returncode = lv_ret-code.
-***          <log>-returnreason = lv_ret-reason.
-***        ENDLOOP.
+          CATCH cx_http_dest_provider_error cx_web_http_client_error cx_web_message_error INTO DATA(lx).
+            ls_status-code = 999.
+            gv_proc = lx->get_text( ).
+        ENDTRY.
       ENDIF.
 
+      " ---- LOG no buffer DESTE BO (1 linha por lote) ----
+      GET TIME STAMP FIELD DATA(lv_time).
+      lv_id += 1.
+      APPEND VALUE #(
+        timedate     = lv_time
+        anomes       = lv_anomes
+        material     = VALUE #( ls_doc-objetos[ 1 ]-knwh010-cd_produto_serv OPTIONAL )
+        id           = |{ lv_id }|
+        returncode   = |{ ls_status-code }|
+        returnreason = substring( val = gv_proc len = nmin( val1 = strlen( gv_proc ) val2 = 1000 ) )
+        response     = COND #( WHEN ls_status-code = 200 THEN lv_base64
+                               ELSE |Erro no serviço: { gv_proc } - Payload: { lv_base64 }| ) )
+        TO /pyxs/bp_sovos_year_inventory=>lt_log.
 
     ENDLOOP.
 
