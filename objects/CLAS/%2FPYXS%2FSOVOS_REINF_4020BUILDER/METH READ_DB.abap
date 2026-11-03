@@ -15,7 +15,7 @@
 
     SELECT * FROM /pyxs/sov_taxtype_irf INTO TABLE @mt_irf_types.
     SELECT * FROM /pyxs/sov_natren INTO TABLE @mt_nature.
-
+    SELECT * FROM /pyxs/sov_params INTO TABLE @gt_params.
 
     SELECT single *
       FROM i_addlcompanycodeinformation WITH PRIVILEGED ACCESS

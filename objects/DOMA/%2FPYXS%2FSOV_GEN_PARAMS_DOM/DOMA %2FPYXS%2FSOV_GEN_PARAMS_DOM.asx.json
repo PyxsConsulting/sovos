@@ -71,6 +71,15 @@
     "DOMVALUE_L":"PARTN_ZERO",
     "DOMVALUE_H":"",
     "APPVAL":""
+   },
+   {
+    "DOMNAME":"/PYXS/SOV_GEN_PARAMS_DOM",
+    "AS4LOCAL":"N",
+    "VALPOS":3,
+    "AS4VERS":0,
+    "DOMVALUE_L":"REINF_MULT",
+    "DOMVALUE_H":"",
+    "APPVAL":""
    }
   ]
  },
@@ -99,6 +108,17 @@
     "DOMVAL_LD":"",
     "DOMVAL_HD":"",
     "DOMVALUE_L":"PARTN_ZERO"
+   },
+   {
+    "DOMNAME":"/PYXS/SOV_GEN_PARAMS_DOM",
+    "DDLANGUAGE":"P",
+    "AS4LOCAL":"N",
+    "VALPOS":3,
+    "AS4VERS":0,
+    "DDTEXT":"Reinf: Matrizes Multiplas",
+    "DOMVAL_LD":"",
+    "DOMVAL_HD":"",
+    "DOMVALUE_L":"REINF_MULT"
    }
   ]
  },

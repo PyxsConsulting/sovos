@@ -278,6 +278,7 @@ CLASS lcl_process DEFINITION FRIENDS lhc_SOV_REINF_INSS.
       gv_proc        TYPE string,
       gs_company     TYPE ty_companycode,
       gs_branch_sov  TYPE /pyxs/sov_branch,
+      gt_params          TYPE TABLE OF /pyxs/sov_params,
       gs_branch_main TYPE i_addlcompanycodeinformation,
       gt_data        TYPE ty_t_wit_data,
       gt_objects     TYPE tt_r2010_objects,
@@ -494,6 +495,7 @@ CLASS lcl_process IMPLEMENTATION.
          originalreferencedocument TYPE i_journalentry-originalreferencedocument,
        END OF ty_oreftab.
 
+    SELECT * FROM /pyxs/sov_params INTO TABLE @gt_params.
 
     SELECT single *
       FROM i_addlcompanycodeinformation WITH PRIVILEGED ACCESS
@@ -712,6 +714,13 @@ CLASS lcl_process IMPLEMENTATION.
   DATA: gt_item_counter TYPE HASHED TABLE OF ty_item_counter
                         WITH UNIQUE KEY id_referencia.
 
+  READ TABLE gt_params TRANSPORTING NO FIELDS WITH KEY pcode  = 'REINF_MULT'
+                                                               active = abap_true.
+  IF sy-subrc IS NOT INITIAL.
+    gs_branch_sov-sov_company = '1'.
+    gs_branch_sov-sov_branch = '1'.
+  ENDIF.
+
   LOOP AT gt_data INTO DATA(ls_data).
 
     READ TABLE gt_nfs
@@ -743,8 +752,8 @@ CLASS lcl_process IMPLEMENTATION.
 
     IF sy-subrc <> 0.
       APPEND INITIAL LINE TO gt_objects ASSIGNING <root>.
-      <root>-knwReinfR2010-cd_empresa          = '1'. "gs_branch_sov-sov_company.
-      <root>-knwReinfR2010-cd_filial           = '1'. "gs_branch_sov-sov_branch.
+      <root>-knwReinfR2010-cd_empresa          = gs_branch_sov-sov_company.
+      <root>-knwReinfR2010-cd_filial           = gs_branch_sov-sov_branch.
       "<root>-knwReinfR2010-cd_empresa          = gs_branch_main-CompanyCode.
       "<root>-knwReinfR2010-cd_filial           = gs_branch_main-CompanyCodeParameterValue.
       <root>-knwReinfR2010-id_referencia       = lv_root_id.
@@ -806,8 +815,8 @@ CLASS lcl_process IMPLEMENTATION.
           <root>-knwReinfR2010NotaList
           ASSIGNING <nota>.
 
-        <nota>-cd_empresa     = '1'. "gs_branch_sov-sov_company.
-        <nota>-cd_filial      = '1'. "gs_branch_sov-sov_branch.
+        <nota>-cd_empresa     = gs_branch_sov-sov_company.
+        <nota>-cd_filial      = gs_branch_sov-sov_branch.
         "<nota>-cd_empresa          = gs_branch_main-CompanyCode.
         "<nota>-cd_filial            = gs_branch_main-CompanyCodeParameterValue.
         <nota>-id_referencia  = lv_root_id.
@@ -837,8 +846,8 @@ CLASS lcl_process IMPLEMENTATION.
           <root>-knwReinfR2010ServicoList
           ASSIGNING <serv>.
 
-        <serv>-cd_empresa        = '1'. "gs_branch_sov-sov_company.
-        <serv>-cd_filial         = '1'. "gs_branch_sov-sov_branch.
+        <serv>-cd_empresa        = gs_branch_sov-sov_company.
+        <serv>-cd_filial         = gs_branch_sov-sov_branch.
         "<serv>-cd_empresa             = gs_branch_main-CompanyCode.
         "<serv>-cd_filial           = gs_branch_main-CompanyCodeParameterValue.
         <serv>-id_referencia     = lv_root_id.
@@ -901,8 +910,8 @@ CLASS lcl_process IMPLEMENTATION.
 
     IF sy-subrc <> 0.
       APPEND INITIAL LINE TO gt_objects2020 ASSIGNING <root2020>.
-      <root2020>-knwReinfR2020-cd_empresa             = '1'. "gs_branch_sov-sov_company.
-      <root2020>-knwReinfR2020-cd_filial              = '1'. "gs_branch_sov-sov_branch.
+      <root2020>-knwReinfR2020-cd_empresa             = gs_branch_sov-sov_company.
+      <root2020>-knwReinfR2020-cd_filial              = gs_branch_sov-sov_branch.
       <root2020>-knwReinfR2020-id_referencia          = lv_root_id.
       <root2020>-knwReinfR2020-id_evento              = '1'.
       <root2020>-knwReinfR2020-dm_retificacao         = '1'.
@@ -956,8 +965,8 @@ CLASS lcl_process IMPLEMENTATION.
           <root2020>-knwReinfR2020NotaList
           ASSIGNING <nota2020>.
 
-        <nota2020>-cd_empresa     = '1'. "gs_branch_sov-sov_company.
-        <nota2020>-cd_filial      = '1'. "gs_branch_sov-sov_branch.
+        <nota2020>-cd_empresa     = gs_branch_sov-sov_company.
+        <nota2020>-cd_filial      = gs_branch_sov-sov_branch.
         <nota2020>-id_referencia  = lv_root_id.
         <nota2020>-nr_item_nota   = lv_nr_item_nota.
         <nota2020>-nr_serie       = ls_nfs-br_nfseries.
@@ -980,8 +989,8 @@ CLASS lcl_process IMPLEMENTATION.
           <root2020>-knwReinfR2020ServicoList
           ASSIGNING <serv2020>.
 
-        <serv2020>-cd_empresa           = '1'. "gs_branch_sov-sov_company.
-        <serv2020>-cd_filial            = '1'. "gs_branch_sov-sov_branch.
+        <serv2020>-cd_empresa           = gs_branch_sov-sov_company.
+        <serv2020>-cd_filial            = gs_branch_sov-sov_branch.
         <serv2020>-id_referencia        = lv_root_id.
         <serv2020>-nr_item_nota         = lv_nr_item_nota.
         <serv2020>-nr_item_servico      = 1.
