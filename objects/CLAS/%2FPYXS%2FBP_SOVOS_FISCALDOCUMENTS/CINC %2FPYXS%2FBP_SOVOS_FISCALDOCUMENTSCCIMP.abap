@@ -1605,6 +1605,7 @@ CLASS lcl_process IMPLEMENTATION.
         <log>-response = |Erro no serviço: { gv_proc } - Payload: { lv_base64 }|.
         <log>-returncode = lv_ret-code.
         <log>-returnreason = lv_ret-reason.
+        <log>-attachment   = lv_utf8_xstring.
 
       ELSE.
           APPEND INITIAL LINE TO /pyxs/bp_sovos_fiscaldocuments=>lt_log ASSIGNING <log>.
@@ -1619,6 +1620,7 @@ CLASS lcl_process IMPLEMENTATION.
           ENDIF.
           <log>-returncode = lv_ret-code.
           <log>-returnreason = lv_ret-reason.
+          <log>-attachment   = lv_utf8_xstring.
 ***        ENDLOOP.
       ENDIF.
 
@@ -1788,6 +1790,7 @@ CLASS lcl_process IMPLEMENTATION.
         <log>-response = |Erro no serviço: { gv_proc } - Payload: { lv_base64 }|.
         <log>-returncode = lv_ret-code.
         <log>-returnreason = lv_ret-reason.
+        <log>-attachment   = lv_utf8_xstring.
 
       ELSE.
 ***        LOOP AT lo_ret->('MENSAGENS')->* ASSIGNING FIELD-SYMBOL(<lv_msg>).
@@ -1803,6 +1806,7 @@ CLASS lcl_process IMPLEMENTATION.
           ENDIF.
           <log>-returncode = lv_ret-code.
           <log>-returnreason = lv_ret-reason.
+          <log>-attachment   = lv_utf8_xstring.
 ***        ENDLOOP.
       ENDIF.
 
@@ -1971,6 +1975,7 @@ CLASS lcl_process IMPLEMENTATION.
         <log>-response = |Erro no serviço: { gv_proc } - Payload: { lv_base64 } |.
         <log>-returncode = lv_ret-code.
         <log>-returnreason = lv_ret-reason.
+        <log>-attachment   = lv_utf8_xstring.
 
       ELSE.
 
@@ -1986,6 +1991,7 @@ CLASS lcl_process IMPLEMENTATION.
           ENDIF.
           <log>-returncode = lv_ret-code.
           <log>-returnreason = lv_ret-reason.
+          <log>-attachment   = lv_utf8_xstring.
       ENDIF.
     ENDLOOP.
   ENDMETHOD.
@@ -2012,6 +2018,7 @@ CLASS lcl_process IMPLEMENTATION.
     <log>-timedate      = time.
     <log>-br_notafiscal = lv_docnum.
     <log>-response       = json_out.
+    <log>-attachment     = cl_abap_conv_codepage=>create_out( codepage = 'UTF-8' )->convert( source = json_out ).
     <log>-returncode     = '000'.
     <log>-returnreason   = 'JSON extraído - Nota Fiscal Própria'.
   ENDLOOP.
@@ -2035,6 +2042,7 @@ CLASS lcl_process IMPLEMENTATION.
     <log>-timedate      = time.
     <log>-br_notafiscal = lv_docnum.
     <log>-response       = json_out.
+    <log>-attachment     = cl_abap_conv_codepage=>create_out( codepage = 'UTF-8' )->convert( source = json_out ).
     <log>-returncode     = '000'.
     <log>-returnreason   = 'JSON extraído - Nota Fiscal Terceiros'.
   ENDLOOP.
@@ -2058,6 +2066,7 @@ CLASS lcl_process IMPLEMENTATION.
         <log>-timedate      = time.
         <log>-br_notafiscal = lv_docnum.
         <log>-response       = json_out.
+        <log>-attachment     = cl_abap_conv_codepage=>create_out( codepage = 'UTF-8' )->convert( source = json_out ).
         <log>-returncode     = '000'.
         <log>-returnreason   = 'JSON extraído - Nota Serviço'.
       ENDLOOP.
@@ -2688,7 +2697,11 @@ CLASS lcl_process IMPLEMENTATION.
       ENDCASE.
 
         READ TABLE t_observ ASSIGNING FIELD-SYMBOL(<obs>) WITH KEY br_notafiscal = p_nfdoc-doc-br_notafiscal.
-        IF sy-subrc = 0.
+        DATA(lv_ds_complementar) = COND string( WHEN sy-subrc = 0 THEN condense( <obs>-observacao ) ).
+        IF strlen( lv_ds_complementar ) > 4000.
+          lv_ds_complementar = substring( val = lv_ds_complementar off = 0 len = 4000 ).
+        ENDIF.
+        IF lv_ds_complementar IS NOT INITIAL.
             APPEND INITIAL LINE TO ls_objeto-notaFiscalInfComplementarList ASSIGNING FIELD-SYMBOL(<info_com>).
             "--- C110 ---
             <info_com>-knwc110-dm_entrada_saida   = ls_objeto-knwc100-dm_entrada_saida.
@@ -2701,7 +2714,7 @@ CLASS lcl_process IMPLEMENTATION.
             <info_com>-knwc110-cd_pessoa_rem_dest = ls_objeto-knwc100-cd_pessoa_remet_dest.
             <info_com>-knwc110-nr_item            = '1'.
             <info_com>-knwc110-cd_ref_0450        = '000020'.
-            <info_com>-knwc110-ds_complementar    = <obs>-observacao.
+            <info_com>-knwc110-ds_complementar    = lv_ds_complementar.
          ENDIF.
 *
 *      "--------------------------------------------------

@@ -9,10 +9,10 @@
     "AS4USER":"SAP_CUSTOMER",
     "AS4DATE":"0000-00-00",
     "AS4TIME":"00:00:00",
-    "SOURCE":"@AccessControl.authorizationCheck: #NOT_REQUIRED\r\n@EndUserText.label: 'Projeção - Documentos Fiscais'\r\n@Metadata.ignorePropagatedAnnotations: true\r\ndefine root view entity /PYXS/P_SOVOS_FISCALDOCUMENTS\r\n  as projection on /PYXS/SOVOS_FiscalDocuments\r\n{\r\n  key Timedate,\r\n  key BrNotafiscal,\r\n  key Id,\r\n      Returncode,\r\n      Returnreason,\r\n      Response\r\n}\r\n/*+[internal] {\n\"BASEINFO\":\n{\n\"FROM\":\n[\n\"/PYXS/SOVOS_FISCALDOCUMENTS\"\n],\n\"ASSOCIATED\":\n[],\n\"BASE\":\n[],\n\"ANNO_REF\":\n[],\n\"SCALAR_FUNCTION\":\n[],\n\"VERSION\":0,\n\"ANNOREF_EVALUATION_ERROR\":\"\"\n}\n}*/",
+    "SOURCE":"@AccessControl.authorizationCheck: #NOT_REQUIRED\r\n@EndUserText.label: 'Projeção - Documentos Fiscais'\r\n@Metadata.ignorePropagatedAnnotations: true\r\ndefine root view entity /PYXS/P_SOVOS_FISCALDOCUMENTS\r\n  as projection on /PYXS/SOVOS_FiscalDocuments\r\n{\r\n  key Timedate,\r\n  key BrNotafiscal,\r\n  key Id,\r\n      Returncode,\r\n      Returnreason,\r\n      Response,\r\n      @Semantics.largeObject: { fileName: 'Filename',\r\n                                mimeType: 'Mimetype',\r\n                                contentDispositionPreference: #ATTACHMENT }\r\n      Attachment,\r\n      @Semantics.mimeType: true\r\n      Mimetype,\r\n      Filename\r\n} \r\n/*+[internal] {\n\"BASEINFO\":\n{\n\"FROM\":\n[\n\"/PYXS/SOVOS_FISCALDOCUMENTS\"\n],\n\"ASSOCIATED\":\n[],\n\"BASE\":\n[],\n\"ANNO_REF\":\n[],\n\"SCALAR_FUNCTION\":\n[],\n\"VERSION\":0,\n\"ANNOREF_EVALUATION_ERROR\":\"\"\n}\n}*/",
     "PARENTNAME":"",
     "ACTFLAG":"",
-    "CHGFLAG":"",
+    "CHGFLAG":"4",
     "SOURCE_TYPE":"P",
     "SOURCE_ORIGIN":"0",
     "ABAP_LANGUAGE_VERSION":"5"
@@ -50,6 +50,34 @@
   [
    {
     "STRUCOBJN":"/PYXS/P_SOVOS_FISCALDOCUMENTS",
+    "LFIELDNAME":"ATTACHMENT",
+    "NAME":"SEMANTICS.LARGEOBJECT",
+    "POSITION":3,
+    "VALUE":""
+   },
+   {
+    "STRUCOBJN":"/PYXS/P_SOVOS_FISCALDOCUMENTS",
+    "LFIELDNAME":"ATTACHMENT",
+    "NAME":"SEMANTICS.LARGEOBJECT.CONTENTDISPOSITIONPREFERENCE",
+    "POSITION":6,
+    "VALUE":"#ATTACHMENT"
+   },
+   {
+    "STRUCOBJN":"/PYXS/P_SOVOS_FISCALDOCUMENTS",
+    "LFIELDNAME":"ATTACHMENT",
+    "NAME":"SEMANTICS.LARGEOBJECT.FILENAME",
+    "POSITION":4,
+    "VALUE":"'Filename'"
+   },
+   {
+    "STRUCOBJN":"/PYXS/P_SOVOS_FISCALDOCUMENTS",
+    "LFIELDNAME":"ATTACHMENT",
+    "NAME":"SEMANTICS.LARGEOBJECT.MIMETYPE",
+    "POSITION":5,
+    "VALUE":"'Mimetype'"
+   },
+   {
+    "STRUCOBJN":"/PYXS/P_SOVOS_FISCALDOCUMENTS",
     "LFIELDNAME":"MANDT",
     "NAME":"ABAPCATALOG",
     "POSITION":1,
@@ -61,6 +89,20 @@
     "NAME":"ABAPCATALOG.INTERNAL.ISMANDT",
     "POSITION":2,
     "VALUE":""
+   },
+   {
+    "STRUCOBJN":"/PYXS/P_SOVOS_FISCALDOCUMENTS",
+    "LFIELDNAME":"MIMETYPE",
+    "NAME":"SEMANTICS",
+    "POSITION":7,
+    "VALUE":""
+   },
+   {
+    "STRUCOBJN":"/PYXS/P_SOVOS_FISCALDOCUMENTS",
+    "LFIELDNAME":"MIMETYPE",
+    "NAME":"SEMANTICS.MIMETYPE",
+    "POSITION":8,
+    "VALUE":"true"
    }
   ]
  },

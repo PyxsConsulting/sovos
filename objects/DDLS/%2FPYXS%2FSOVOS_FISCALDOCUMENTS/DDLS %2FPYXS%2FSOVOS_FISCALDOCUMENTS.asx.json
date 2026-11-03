@@ -9,7 +9,7 @@
     "AS4USER":"SAP_CUSTOMER",
     "AS4DATE":"0000-00-00",
     "AS4TIME":"00:00:00",
-    "SOURCE":"@AccessControl.authorizationCheck: #NOT_REQUIRED\r\n@EndUserText.label: 'Documentos fiscais - SOVOS'\r\ndefine root view entity /PYXS/SOVOS_FiscalDocuments as select from /pyxs/sov_nf_log\r\n{\r\n    @UI.lineItem: [{ type: #FOR_ACTION, dataAction: 'SendIntegration', label: 'Enviar Integração' }\r\n    //{ type: #FOR_ACTION, dataAction: 'ExtractJson', label: 'Extrair JSON' }\r\n    ]\r\n    @EndUserText.label: 'Data/Hora'\r\n    key timedate as Timedate,\r\n    @EndUserText.label:  'Documento'\r\n    key br_notafiscal as BrNotafiscal,\r\n    @EndUserText.label: 'ID'\r\n    key id as Id,\r\n    @EndUserText.label: 'Código de retorno'\r\n    returncode as Returncode,\r\n    @EndUserText.label: 'Descrição do retorno'\r\n    returnreason as Returnreason,\r\n    @EndUserText.label: 'Resposta'\r\n    response as Response\r\n}\r\n/*+[internal] {\n\"BASEINFO\":\n{\n\"FROM\":\n[\n\"/PYXS/SOV_NF_LOG\"\n],\n\"ASSOCIATED\":\n[],\n\"BASE\":\n[],\n\"ANNO_REF\":\n[],\n\"SCALAR_FUNCTION\":\n[],\n\"VERSION\":0,\n\"ANNOREF_EVALUATION_ERROR\":\"\"\n}\n}*/",
+    "SOURCE":"@AccessControl.authorizationCheck: #NOT_REQUIRED\r\n@EndUserText.label: 'Documentos fiscais - SOVOS'\r\n\r\n@UI.presentationVariant: [{\r\n    sortOrder: [{\r\n        by: 'Timedate',\r\n        direction: #DESC\r\n    }],\r\n    visualizations: [{\r\n        type: #AS_LINEITEM\r\n    }]\r\n}]\r\n\r\ndefine root view entity /PYXS/SOVOS_FiscalDocuments\r\nas select from /pyxs/sov_nf_log\r\n{\r\n    @UI.lineItem: [{\r\n        type: #FOR_ACTION,\r\n        dataAction: 'SendIntegration',\r\n        label: 'Enviar Integração'\r\n    }]\r\n    // { type: #FOR_ACTION, dataAction: 'ExtractJson', label: 'Extrair JSON' }\r\n\r\n    @EndUserText.label: 'Data/Hora'\r\n    key timedate as Timedate,\r\n\r\n    @EndUserText.label: 'Documento'\r\n    key br_notafiscal as BrNotafiscal,\r\n\r\n    @EndUserText.label: 'ID'\r\n    key id as Id,\r\n\r\n    @EndUserText.label: 'Código de retorno'\r\n    returncode as Returncode,\r\n\r\n    @EndUserText.label: 'Descrição do retorno'\r\n    returnreason as Returnreason,\r\n\r\n    @EndUserText.label: 'Resposta'\r\n    @UI.hidden: true\r\n    response as Response,\r\n    \r\n    @UI.lineItem: [{ position: 20 }]\r\n    @UI.selectionField : [{position: 20}]\r\n\r\n    @EndUserText.label: 'Arquivo'\r\n    @Semantics.largeObject: {\r\n        fileName: 'Filename',\r\n        mimeType: 'Mimetype',\r\n        contentDispositionPreference: #ATTACHMENT\r\n    }\r\n    attachment as Attachment,\r\n\r\n    @EndUserText.label: 'Nome do arquivo'\r\n    @UI.hidden: true\r\n    concat(br_notafiscal, '.json') as Filename,\r\n\r\n    @EndUserText.label: 'Tipo MIME'\r\n    @Semantics.mimeType: true\r\n    @UI.hidden: true\r\n    cast('application/json' as abap.char(128)) as Mimetype\r\n}\r\n/*+[internal] {\n\"BASEINFO\":\n{\n\"FROM\":\n[\n\"/PYXS/SOV_NF_LOG\"\n],\n\"ASSOCIATED\":\n[],\n\"BASE\":\n[],\n\"ANNO_REF\":\n[],\n\"SCALAR_FUNCTION\":\n[],\n\"VERSION\":0,\n\"ANNOREF_EVALUATION_ERROR\":\"\"\n}\n}*/",
     "PARENTNAME":"",
     "ACTFLAG":"",
     "CHGFLAG":"",
@@ -42,6 +42,18 @@
     "NODENAME":".NODE1",
     "DDLANGUAGE":"P",
     "AS4LOCAL":"N",
+    "FIELDNAME":"ATTACHMENT",
+    "DEPTH":0,
+    "DDTEXT":"",
+    "FIELDLABEL":"Arquivo",
+    "QUICKINFO":""
+   },
+   {
+    "DDLNAME":"/PYXS/SOVOS_FISCALDOCUMENTS",
+    "STRUCOBJN":"/PYXS/SOVOS_FISCALDOCUMENTS",
+    "NODENAME":".NODE1",
+    "DDLANGUAGE":"P",
+    "AS4LOCAL":"N",
     "FIELDNAME":"BRNOTAFISCAL",
     "DEPTH":0,
     "DDTEXT":"",
@@ -54,10 +66,34 @@
     "NODENAME":".NODE1",
     "DDLANGUAGE":"P",
     "AS4LOCAL":"N",
+    "FIELDNAME":"FILENAME",
+    "DEPTH":0,
+    "DDTEXT":"",
+    "FIELDLABEL":"Nome do arquivo",
+    "QUICKINFO":""
+   },
+   {
+    "DDLNAME":"/PYXS/SOVOS_FISCALDOCUMENTS",
+    "STRUCOBJN":"/PYXS/SOVOS_FISCALDOCUMENTS",
+    "NODENAME":".NODE1",
+    "DDLANGUAGE":"P",
+    "AS4LOCAL":"N",
     "FIELDNAME":"ID",
     "DEPTH":0,
     "DDTEXT":"",
     "FIELDLABEL":"ID",
+    "QUICKINFO":""
+   },
+   {
+    "DDLNAME":"/PYXS/SOVOS_FISCALDOCUMENTS",
+    "STRUCOBJN":"/PYXS/SOVOS_FISCALDOCUMENTS",
+    "NODENAME":".NODE1",
+    "DDLANGUAGE":"P",
+    "AS4LOCAL":"N",
+    "FIELDNAME":"MIMETYPE",
+    "DEPTH":0,
+    "DDTEXT":"",
+    "FIELDLABEL":"Tipo MIME",
     "QUICKINFO":""
    },
    {
@@ -128,6 +164,76 @@
   [
    {
     "STRUCOBJN":"/PYXS/SOVOS_FISCALDOCUMENTS",
+    "LFIELDNAME":"ATTACHMENT",
+    "NAME":"ENDUSERTEXT",
+    "POSITION":25,
+    "VALUE":""
+   },
+   {
+    "STRUCOBJN":"/PYXS/SOVOS_FISCALDOCUMENTS",
+    "LFIELDNAME":"ATTACHMENT",
+    "NAME":"ENDUSERTEXT.LABEL",
+    "POSITION":26,
+    "VALUE":"'Arquivo'"
+   },
+   {
+    "STRUCOBJN":"/PYXS/SOVOS_FISCALDOCUMENTS",
+    "LFIELDNAME":"ATTACHMENT",
+    "NAME":"SEMANTICS.LARGEOBJECT",
+    "POSITION":27,
+    "VALUE":""
+   },
+   {
+    "STRUCOBJN":"/PYXS/SOVOS_FISCALDOCUMENTS",
+    "LFIELDNAME":"ATTACHMENT",
+    "NAME":"SEMANTICS.LARGEOBJECT.CONTENTDISPOSITIONPREFERENCE",
+    "POSITION":30,
+    "VALUE":"#ATTACHMENT"
+   },
+   {
+    "STRUCOBJN":"/PYXS/SOVOS_FISCALDOCUMENTS",
+    "LFIELDNAME":"ATTACHMENT",
+    "NAME":"SEMANTICS.LARGEOBJECT.FILENAME",
+    "POSITION":28,
+    "VALUE":"'Filename'"
+   },
+   {
+    "STRUCOBJN":"/PYXS/SOVOS_FISCALDOCUMENTS",
+    "LFIELDNAME":"ATTACHMENT",
+    "NAME":"SEMANTICS.LARGEOBJECT.MIMETYPE",
+    "POSITION":29,
+    "VALUE":"'Mimetype'"
+   },
+   {
+    "STRUCOBJN":"/PYXS/SOVOS_FISCALDOCUMENTS",
+    "LFIELDNAME":"ATTACHMENT",
+    "NAME":"UI",
+    "POSITION":21,
+    "VALUE":""
+   },
+   {
+    "STRUCOBJN":"/PYXS/SOVOS_FISCALDOCUMENTS",
+    "LFIELDNAME":"ATTACHMENT",
+    "NAME":"UI",
+    "POSITION":23,
+    "VALUE":""
+   },
+   {
+    "STRUCOBJN":"/PYXS/SOVOS_FISCALDOCUMENTS",
+    "LFIELDNAME":"ATTACHMENT",
+    "NAME":"UI.LINEITEM$1$.POSITION",
+    "POSITION":22,
+    "VALUE":"20"
+   },
+   {
+    "STRUCOBJN":"/PYXS/SOVOS_FISCALDOCUMENTS",
+    "LFIELDNAME":"ATTACHMENT",
+    "NAME":"UI.SELECTIONFIELD$1$.POSITION",
+    "POSITION":24,
+    "VALUE":"20"
+   },
+   {
+    "STRUCOBJN":"/PYXS/SOVOS_FISCALDOCUMENTS",
     "LFIELDNAME":"BRNOTAFISCAL",
     "NAME":"ENDUSERTEXT",
     "POSITION":9,
@@ -139,6 +245,34 @@
     "NAME":"ENDUSERTEXT.LABEL",
     "POSITION":10,
     "VALUE":"'Documento'"
+   },
+   {
+    "STRUCOBJN":"/PYXS/SOVOS_FISCALDOCUMENTS",
+    "LFIELDNAME":"FILENAME",
+    "NAME":"ENDUSERTEXT",
+    "POSITION":31,
+    "VALUE":""
+   },
+   {
+    "STRUCOBJN":"/PYXS/SOVOS_FISCALDOCUMENTS",
+    "LFIELDNAME":"FILENAME",
+    "NAME":"ENDUSERTEXT.LABEL",
+    "POSITION":32,
+    "VALUE":"'Nome do arquivo'"
+   },
+   {
+    "STRUCOBJN":"/PYXS/SOVOS_FISCALDOCUMENTS",
+    "LFIELDNAME":"FILENAME",
+    "NAME":"UI",
+    "POSITION":33,
+    "VALUE":""
+   },
+   {
+    "STRUCOBJN":"/PYXS/SOVOS_FISCALDOCUMENTS",
+    "LFIELDNAME":"FILENAME",
+    "NAME":"UI.HIDDEN",
+    "POSITION":34,
+    "VALUE":"true"
    },
    {
     "STRUCOBJN":"/PYXS/SOVOS_FISCALDOCUMENTS",
@@ -170,6 +304,48 @@
    },
    {
     "STRUCOBJN":"/PYXS/SOVOS_FISCALDOCUMENTS",
+    "LFIELDNAME":"MIMETYPE",
+    "NAME":"ENDUSERTEXT",
+    "POSITION":35,
+    "VALUE":""
+   },
+   {
+    "STRUCOBJN":"/PYXS/SOVOS_FISCALDOCUMENTS",
+    "LFIELDNAME":"MIMETYPE",
+    "NAME":"ENDUSERTEXT.LABEL",
+    "POSITION":36,
+    "VALUE":"'Tipo MIME'"
+   },
+   {
+    "STRUCOBJN":"/PYXS/SOVOS_FISCALDOCUMENTS",
+    "LFIELDNAME":"MIMETYPE",
+    "NAME":"SEMANTICS",
+    "POSITION":37,
+    "VALUE":""
+   },
+   {
+    "STRUCOBJN":"/PYXS/SOVOS_FISCALDOCUMENTS",
+    "LFIELDNAME":"MIMETYPE",
+    "NAME":"SEMANTICS.MIMETYPE",
+    "POSITION":38,
+    "VALUE":"true"
+   },
+   {
+    "STRUCOBJN":"/PYXS/SOVOS_FISCALDOCUMENTS",
+    "LFIELDNAME":"MIMETYPE",
+    "NAME":"UI",
+    "POSITION":39,
+    "VALUE":""
+   },
+   {
+    "STRUCOBJN":"/PYXS/SOVOS_FISCALDOCUMENTS",
+    "LFIELDNAME":"MIMETYPE",
+    "NAME":"UI.HIDDEN",
+    "POSITION":40,
+    "VALUE":"true"
+   },
+   {
+    "STRUCOBJN":"/PYXS/SOVOS_FISCALDOCUMENTS",
     "LFIELDNAME":"RESPONSE",
     "NAME":"ENDUSERTEXT",
     "POSITION":17,
@@ -181,6 +357,20 @@
     "NAME":"ENDUSERTEXT.LABEL",
     "POSITION":18,
     "VALUE":"'Resposta'"
+   },
+   {
+    "STRUCOBJN":"/PYXS/SOVOS_FISCALDOCUMENTS",
+    "LFIELDNAME":"RESPONSE",
+    "NAME":"UI",
+    "POSITION":19,
+    "VALUE":""
+   },
+   {
+    "STRUCOBJN":"/PYXS/SOVOS_FISCALDOCUMENTS",
+    "LFIELDNAME":"RESPONSE",
+    "NAME":"UI.HIDDEN",
+    "POSITION":20,
+    "VALUE":"true"
    },
    {
     "STRUCOBJN":"/PYXS/SOVOS_FISCALDOCUMENTS",
@@ -294,6 +484,30 @@
     "NAME":"ENDUSERTEXT.LABEL",
     "POSITION":4,
     "VALUE":"'Documentos fiscais - SOVOS'"
+   },
+   {
+    "STRUCOBJN":"/PYXS/SOVOS_FISCALDOCUMENTS",
+    "NAME":"UI",
+    "POSITION":5,
+    "VALUE":""
+   },
+   {
+    "STRUCOBJN":"/PYXS/SOVOS_FISCALDOCUMENTS",
+    "NAME":"UI.PRESENTATIONVARIANT$1$.SORTORDER$1$.BY",
+    "POSITION":6,
+    "VALUE":"'Timedate'"
+   },
+   {
+    "STRUCOBJN":"/PYXS/SOVOS_FISCALDOCUMENTS",
+    "NAME":"UI.PRESENTATIONVARIANT$1$.SORTORDER$1$.DIRECTION",
+    "POSITION":7,
+    "VALUE":"#DESC"
+   },
+   {
+    "STRUCOBJN":"/PYXS/SOVOS_FISCALDOCUMENTS",
+    "NAME":"UI.PRESENTATIONVARIANT$1$.VISUALIZATIONS$1$.TYPE",
+    "POSITION":8,
+    "VALUE":"#AS_LINEITEM"
    }
   ]
  },
