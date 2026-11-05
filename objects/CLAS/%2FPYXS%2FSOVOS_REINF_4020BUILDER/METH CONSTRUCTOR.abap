@@ -14,7 +14,7 @@
 
     read_db( sel ).
     build_r4020_new(  ).
-    guid_generate(  ).
+    "guid_generate(  ).
     send_integration(  ).
 
   ENDMETHOD.

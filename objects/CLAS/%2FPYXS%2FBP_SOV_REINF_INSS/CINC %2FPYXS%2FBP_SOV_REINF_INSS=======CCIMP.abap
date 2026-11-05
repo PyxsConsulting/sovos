@@ -389,7 +389,7 @@ CLASS lhc_sov_reinf_inss IMPLEMENTATION.
 
     lcl_process=>read_db( ).
     lcl_process=>build_objects( ).
-    lcl_process=>guid_generate( ).
+    "lcl_process=>guid_generate( ).
     lcl_process=>send_integration( ).
 
     APPEND INITIAL LINE TO reported-/pyxs/sov_reinf_inss ASSIGNING FIELD-SYMBOL(<fs>).
@@ -1377,7 +1377,7 @@ ENDMETHOD.
     hora_sys = cl_abap_context_info=>get_system_time( ).
     read_db( ).
     build_objects( ).
-    guid_generate( ).
+    "guid_generate( ).
     send_integration( ).
   ENDMETHOD.
 
