@@ -1,5 +1,67 @@
   METHOD build_r4020_new.
 
+    TYPES: BEGIN OF ty_nf_tax_tot,
+             br_notafiscal     TYPE i_br_nftax-br_notafiscal,
+             vl_ir             TYPE i_br_nftax-br_nfitemtaxamount,
+             vl_base_ir        TYPE i_br_nftax-br_nfitembaseamount,
+             vl_csll           TYPE i_br_nftax-br_nfitemtaxamount,
+             vl_base_csll      TYPE i_br_nftax-br_nfitembaseamount,
+             vl_cofins         TYPE i_br_nftax-br_nfitemtaxamount,
+             vl_base_cofins    TYPE i_br_nftax-br_nfitembaseamount,
+             vl_pis_pasep      TYPE i_br_nftax-br_nfitemtaxamount,
+             vl_base_pis_pasep TYPE i_br_nftax-br_nfitembaseamount,
+             vl_agreg          TYPE i_br_nftax-br_nfitemtaxamount,
+             vl_base_agreg     TYPE i_br_nftax-br_nfitembaseamount,
+           END OF ty_nf_tax_tot.
+
+    DATA: lt_nf_tax_tot TYPE HASHED TABLE OF ty_nf_tax_tot WITH UNIQUE KEY br_notafiscal,
+          ls_nf_tax_tot TYPE ty_nf_tax_tot.
+
+**********************************************************************
+* Totais de impostos por NF a partir da I_BR_NFTAX (gt_nfs)
+* Os dois SELECTs do read_db podem trazer a mesma linha de imposto,
+* por isso elimina duplicidade por NF / item / tipo de imposto
+**********************************************************************
+    DATA(lt_nfs_tax) = gt_nfs.
+    SORT lt_nfs_tax BY br_notafiscal br_notafiscalitem br_taxtype.
+    DELETE ADJACENT DUPLICATES FROM lt_nfs_tax COMPARING br_notafiscal br_notafiscalitem br_taxtype.
+
+    LOOP AT lt_nfs_tax INTO DATA(ls_nfs_tax).
+
+      READ TABLE lt_nf_tax_tot ASSIGNING FIELD-SYMBOL(<nf_tax_tot>)
+        WITH TABLE KEY br_notafiscal = ls_nfs_tax-br_notafiscal.
+
+      IF sy-subrc <> 0.
+        INSERT VALUE #( br_notafiscal = ls_nfs_tax-br_notafiscal )
+          INTO TABLE lt_nf_tax_tot ASSIGNING <nf_tax_tot>.
+      ENDIF.
+
+      CASE ls_nfs_tax-taxgroup.
+
+        WHEN 'WHPI' OR 'WAPI'. "PIS
+          <nf_tax_tot>-vl_pis_pasep      += abs( ls_nfs_tax-br_nfitemtaxamount ).
+          <nf_tax_tot>-vl_base_pis_pasep  = abs( ls_nfs_tax-br_nfitembaseamount ).
+
+        WHEN 'WHCO' OR 'WACO'. "COFINS
+          <nf_tax_tot>-vl_cofins      += abs( ls_nfs_tax-br_nfitemtaxamount ).
+          <nf_tax_tot>-vl_base_cofins  = abs( ls_nfs_tax-br_nfitembaseamount ).
+
+        WHEN 'IRRF' OR 'WHIR' OR 'WAIR'. "IR
+          <nf_tax_tot>-vl_ir      += abs( ls_nfs_tax-br_nfitemtaxamount ).
+          <nf_tax_tot>-vl_base_ir  = abs( ls_nfs_tax-br_nfitembaseamount ).
+
+        WHEN 'WACS' OR 'WHCS'. "CSLL
+          <nf_tax_tot>-vl_csll      += abs( ls_nfs_tax-br_nfitemtaxamount ).
+          <nf_tax_tot>-vl_base_csll  = abs( ls_nfs_tax-br_nfitembaseamount ).
+
+        WHEN 'WHT' OR 'WAT'. "PCC
+          <nf_tax_tot>-vl_agreg      += abs( ls_nfs_tax-br_nfitemtaxamount ).
+          <nf_tax_tot>-vl_base_agreg  = abs( ls_nfs_tax-br_nfitembaseamount ).
+
+      ENDCASE.
+
+    ENDLOOP.
+
 LOOP AT gt_data INTO DATA(ls_data).
 
   READ TABLE gt_nfs
@@ -160,7 +222,7 @@ LOOP AT gt_data INTO DATA(ls_data).
           abs( ls_data-withholdingtaxamtintransaccrcy ).
 
         <pgto4010>-vl_rend_trib =
-          abs( ls_data-whldgtaxexmptamtincocodecrcy ).
+          abs( ls_data-WhldgTaxBaseAmtInCoCodeCrcy ).
 
     ENDCASE.
 
@@ -328,47 +390,99 @@ LOOP AT gt_data INTO DATA(ls_data).
       <ret>-vl_base_agreg = '0'.
     ENDIF.
 
+  CLEAR ls_nf_tax_tot.
+  READ TABLE lt_nf_tax_tot INTO ls_nf_tax_tot
+    WITH TABLE KEY br_notafiscal = ls_nfs-br_notafiscal.
+  IF sy-subrc <> 0.
+    CLEAR ls_nf_tax_tot.
+  ENDIF.
+
   CASE ls_irf_type-imposto.
 
     WHEN 'IR'.
 
-      <ret>-vl_ir +=
-        abs( ls_data-withholdingtaxamtintransaccrcy ).
+      IF ls_nf_tax_tot-vl_ir IS NOT INITIAL.
 
-      <ret>-vl_base_ir =
-        abs( ls_data-whldgtaxexmptamtincocodecrcy ).
+        <ret>-vl_ir      = ls_nf_tax_tot-vl_ir.
+        <ret>-vl_base_ir = ls_nf_tax_tot-vl_base_ir.
+
+      ELSE.
+
+        <ret>-vl_ir +=
+          abs( ls_data-withholdingtaxamtintransaccrcy ).
+
+        <ret>-vl_base_ir =
+          abs( ls_data-WhldgTaxBaseAmtInCoCodeCrcy ).
+
+      ENDIF.
 
     WHEN 'CSLL'.
 
-      <ret>-vl_csll +=
-        abs( ls_data-withholdingtaxamtintransaccrcy ).
+      IF ls_nf_tax_tot-vl_csll IS NOT INITIAL.
 
-      <ret>-vl_base_csll =
-        abs( ls_data-whldgtaxexmptamtincocodecrcy ).
+        <ret>-vl_csll      = ls_nf_tax_tot-vl_csll.
+        <ret>-vl_base_csll = ls_nf_tax_tot-vl_base_csll.
+
+      ELSE.
+
+        <ret>-vl_csll +=
+          abs( ls_data-withholdingtaxamtintransaccrcy ).
+
+        <ret>-vl_base_csll =
+          abs( ls_data-WhldgTaxBaseAmtInCoCodeCrcy ).
+
+      ENDIF.
 
     WHEN 'COFINS'.
 
-      <ret>-vl_cofins +=
-        abs( ls_data-withholdingtaxamtintransaccrcy ).
+      IF ls_nf_tax_tot-vl_cofins IS NOT INITIAL.
 
-      <ret>-vl_base_cofins =
-        abs( ls_data-whldgtaxexmptamtincocodecrcy ).
+        <ret>-vl_cofins      = ls_nf_tax_tot-vl_cofins.
+        <ret>-vl_base_cofins = ls_nf_tax_tot-vl_base_cofins.
+
+      ELSE.
+
+        <ret>-vl_cofins +=
+          abs( ls_data-withholdingtaxamtintransaccrcy ).
+
+        <ret>-vl_base_cofins =
+          abs( ls_data-WhldgTaxBaseAmtInCoCodeCrcy ).
+
+      ENDIF.
 
     WHEN 'PIS'.
 
-      <ret>-vl_pis_pasep +=
-        abs( ls_data-withholdingtaxamtintransaccrcy ).
+      IF ls_nf_tax_tot-vl_pis_pasep IS NOT INITIAL.
 
-      <ret>-vl_base_pis_pasep =
-        abs( ls_data-whldgtaxexmptamtincocodecrcy ).
+        <ret>-vl_pis_pasep      = ls_nf_tax_tot-vl_pis_pasep.
+        <ret>-vl_base_pis_pasep = ls_nf_tax_tot-vl_base_pis_pasep.
+
+      ELSE.
+
+        <ret>-vl_pis_pasep +=
+          abs( ls_data-withholdingtaxamtintransaccrcy ).
+
+        <ret>-vl_base_pis_pasep =
+          abs( ls_data-WhldgTaxBaseAmtInCoCodeCrcy ).
+
+      ENDIF.
 
     WHEN 'PCC'.
 
-      <ret>-vl_agreg +=
-        abs( ls_data-withholdingtaxamtintransaccrcy ).
+      IF ls_nf_tax_tot-vl_agreg IS NOT INITIAL.
 
-      <ret>-vl_base_agreg =
-        abs( ls_data-whldgtaxexmptamtincocodecrcy ).
+        <ret>-vl_agreg      = ls_nf_tax_tot-vl_agreg.
+        <ret>-vl_base_agreg = ls_nf_tax_tot-vl_base_agreg.
+
+      ELSE.
+
+        <ret>-vl_agreg +=
+          abs( ls_data-withholdingtaxamtintransaccrcy ).
+
+        <ret>-vl_base_agreg =
+          abs( ls_data-WhldgTaxBaseAmtInCoCodeCrcy ).
+
+      ENDIF.
 
   ENDCASE.
 
