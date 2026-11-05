@@ -730,6 +730,51 @@ CLASS lcl_process IMPLEMENTATION.
   DATA: gt_item_counter TYPE HASHED TABLE OF ty_item_counter
                         WITH UNIQUE KEY id_referencia.
 
+  TYPES: BEGIN OF ty_nf_inss_tot,
+           br_notafiscal TYPE i_br_nftax-br_notafiscal,
+           vl_inss       TYPE i_br_nftax-br_nfitemtaxamount,
+           vl_base_inss  TYPE i_br_nftax-br_nfitembaseamount,
+         END OF ty_nf_inss_tot,
+
+         BEGIN OF ty_nf_inss_used,
+           id_referencia TYPE string,
+           br_notafiscal TYPE i_br_nftax-br_notafiscal,
+         END OF ty_nf_inss_used.
+
+  DATA: lt_nf_inss_tot  TYPE HASHED TABLE OF ty_nf_inss_tot WITH UNIQUE KEY br_notafiscal,
+        ls_nf_inss_tot  TYPE ty_nf_inss_tot,
+        lt_nf_inss_used TYPE HASHED TABLE OF ty_nf_inss_used WITH UNIQUE KEY id_referencia br_notafiscal,
+        lv_add_nf_inss  TYPE abap_bool.
+
+**********************************************************************
+* Totais de INSS por NF a partir da I_BR_NFTAX (gt_nfs)
+* Os dois SELECTs do read_db podem trazer a mesma linha de imposto,
+* por isso elimina duplicidade por NF / item / tipo de imposto
+**********************************************************************
+  DATA(lt_nfs_tax) = gt_nfs.
+  SORT lt_nfs_tax BY br_notafiscal br_notafiscalitem br_taxtype.
+  DELETE ADJACENT DUPLICATES FROM lt_nfs_tax COMPARING br_notafiscal br_notafiscalitem br_taxtype.
+
+  LOOP AT lt_nfs_tax INTO DATA(ls_nfs_tax).
+
+    READ TABLE lt_nf_inss_tot ASSIGNING FIELD-SYMBOL(<nf_inss_tot>)
+      WITH TABLE KEY br_notafiscal = ls_nfs_tax-br_notafiscal.
+
+    IF sy-subrc <> 0.
+      INSERT VALUE #( br_notafiscal = ls_nfs_tax-br_notafiscal )
+        INTO TABLE lt_nf_inss_tot ASSIGNING <nf_inss_tot>.
+    ENDIF.
+
+    CASE ls_nfs_tax-taxgroup.
+
+      WHEN 'INSS'. "INSS
+        <nf_inss_tot>-vl_inss      += abs( ls_nfs_tax-br_nfitemtaxamount ).
+        <nf_inss_tot>-vl_base_inss  = abs( ls_nfs_tax-br_nfitembaseamount ).
+
+    ENDCASE.
+
+  ENDLOOP.
+
   READ TABLE gt_params TRANSPORTING NO FIELDS WITH KEY pcode  = 'REINF_MULT'
                                                                active = abap_true.
   IF sy-subrc IS NOT INITIAL.
@@ -795,13 +840,42 @@ CLASS lcl_process IMPLEMENTATION.
       ENDIF.
     ENDIF.
 
+    CLEAR ls_nf_inss_tot.
+    READ TABLE lt_nf_inss_tot INTO ls_nf_inss_tot
+      WITH TABLE KEY br_notafiscal = ls_nfs-br_notafiscal.
+    IF sy-subrc <> 0.
+      CLEAR ls_nf_inss_tot.
+    ENDIF.
+
+    " Total da NF entra uma única vez por id_referencia
+    lv_add_nf_inss = abap_false.
+    IF ls_nf_inss_tot-vl_inss IS NOT INITIAL.
+      INSERT VALUE #( id_referencia = lv_root_id
+                      br_notafiscal = ls_nfs-br_notafiscal ) INTO TABLE lt_nf_inss_used.
+      IF sy-subrc = 0.
+        lv_add_nf_inss = abap_true.
+      ENDIF.
+    ENDIF.
+
     " Accumulate totals on the root header
     <root>-knwReinfR2010-vl_total_bruto =
       abs( ls_nfs-br_nftotalamount ).
-    <root>-knwReinfR2010-vl_total_base =
-      abs( ls_data-whldgtaxbaseamtincocodecrcy ).
-    <root>-knwReinfR2010-vl_total_retencao +=
-      abs( ls_data-whldgtaxamtintransaccrcy ).
+
+    IF ls_nf_inss_tot-vl_inss IS NOT INITIAL.
+
+      IF lv_add_nf_inss = abap_true.
+        <root>-knwReinfR2010-vl_total_base      = ls_nf_inss_tot-vl_base_inss.
+        <root>-knwReinfR2010-vl_total_retencao += ls_nf_inss_tot-vl_inss.
+      ENDIF.
+
+    ELSE.
+
+      <root>-knwReinfR2010-vl_total_base =
+        abs( ls_data-whldgtaxbaseamtincocodecrcy ).
+      <root>-knwReinfR2010-vl_total_retencao +=
+        abs( ls_data-whldgtaxamtintransaccrcy ).
+
+    ENDIF.
 
     READ TABLE gt_item_counter ASSIGNING FIELD-SYMBOL(<counter>)
       WITH TABLE KEY id_referencia = lv_root_id.
@@ -892,8 +966,19 @@ CLASS lcl_process IMPLEMENTATION.
         ENDIF.
     ENDIF.
 
-    <serv>-vl_base_retencao =  abs( ls_data-whldgtaxexmptamtincocodecrcy ).
-    <serv>-vl_retencao      += abs( ls_data-whldgtaxamtintransaccrcy ).
+    IF ls_nf_inss_tot-vl_inss IS NOT INITIAL.
+
+      IF lv_add_nf_inss = abap_true.
+        <serv>-vl_base_retencao =  ls_nf_inss_tot-vl_base_inss.
+        <serv>-vl_retencao      += ls_nf_inss_tot-vl_inss.
+      ENDIF.
+
+    ELSE.
+
+      <serv>-vl_base_retencao =  abs( ls_data-whldgtaxexmptamtincocodecrcy ).
+      <serv>-vl_retencao      += abs( ls_data-whldgtaxamtintransaccrcy ).
+
+    ENDIF.
 
   ENDLOOP.
 
@@ -948,13 +1033,42 @@ CLASS lcl_process IMPLEMENTATION.
       <root2020>-knwReinfR2020-vl_tot_ret_adic_n_efet = '0'.
     ENDIF.
 
+    CLEAR ls_nf_inss_tot.
+    READ TABLE lt_nf_inss_tot INTO ls_nf_inss_tot
+      WITH TABLE KEY br_notafiscal = ls_nfs-br_notafiscal.
+    IF sy-subrc <> 0.
+      CLEAR ls_nf_inss_tot.
+    ENDIF.
+
+    " Total da NF entra uma única vez por id_referencia
+    lv_add_nf_inss = abap_false.
+    IF ls_nf_inss_tot-vl_inss IS NOT INITIAL.
+      INSERT VALUE #( id_referencia = lv_root_id
+                      br_notafiscal = ls_nfs-br_notafiscal ) INTO TABLE lt_nf_inss_used.
+      IF sy-subrc = 0.
+        lv_add_nf_inss = abap_true.
+      ENDIF.
+    ENDIF.
+
     " Accumulate totals on the root header
     <root2020>-knwReinfR2020-vl_total_bruto =
       abs( ls_nfs-br_nftotalamount ).
-    <root2020>-knwReinfR2020-vl_total_base =
-      abs( ls_data-whldgtaxbaseamtincocodecrcy ).
-    <root2020>-knwReinfR2020-vl_total_retencao +=
-      abs( ls_data-whldgtaxamtintransaccrcy ).
+
+    IF ls_nf_inss_tot-vl_inss IS NOT INITIAL.
+
+      IF lv_add_nf_inss = abap_true.
+        <root2020>-knwReinfR2020-vl_total_base      = ls_nf_inss_tot-vl_base_inss.
+        <root2020>-knwReinfR2020-vl_total_retencao += ls_nf_inss_tot-vl_inss.
+      ENDIF.
+
+    ELSE.
+
+      <root2020>-knwReinfR2020-vl_total_base =
+        abs( ls_data-whldgtaxbaseamtincocodecrcy ).
+      <root2020>-knwReinfR2020-vl_total_retencao +=
+        abs( ls_data-whldgtaxamtintransaccrcy ).
+
+    ENDIF.
 
     READ TABLE gt_item_counter ASSIGNING <counter>
       WITH TABLE KEY id_referencia = lv_root_id.
@@ -1041,8 +1155,19 @@ CLASS lcl_process IMPLEMENTATION.
         ENDIF.
     ENDIF.
 
-    <serv2020>-vl_base_retencao =  abs( ls_data-whldgtaxexmptamtincocodecrcy ).
-    <serv2020>-vl_retencao      += abs( ls_data-whldgtaxamtintransaccrcy ).
+    IF ls_nf_inss_tot-vl_inss IS NOT INITIAL.
+
+      IF lv_add_nf_inss = abap_true.
+        <serv2020>-vl_base_retencao =  ls_nf_inss_tot-vl_base_inss.
+        <serv2020>-vl_retencao      += ls_nf_inss_tot-vl_inss.
+      ENDIF.
+
+    ELSE.
+
+      <serv2020>-vl_base_retencao =  abs( ls_data-whldgtaxexmptamtincocodecrcy ).
+      <serv2020>-vl_retencao      += abs( ls_data-whldgtaxamtintransaccrcy ).
+
+    ENDIF.
 
   ENDLOOP.
 
