@@ -160,6 +160,13 @@
     " id_referencia = R4020 + AAAAMM + parceiro
     DATA(ls_nf) = ls_root-knwReinfR4020.
 
+    " restaura o id_referencia original (substituído por GUID no guid_generate)
+    READ TABLE gt_guid_map INTO DATA(ls_guid_map)
+      WITH TABLE KEY guid = ls_root-knwReinfR4020-id_referencia.
+    IF sy-subrc = 0.
+      ls_nf-id_referencia = ls_guid_map-id_referencia.
+    ENDIF.
+
     IF lo_ret IS INITIAL.
       APPEND INITIAL LINE TO /pyxs/bp_reinflog=>lt_log ASSIGNING <log>.
       <log>-id = lv_idx.
@@ -297,6 +304,13 @@
 
     " id_referencia = R4010 + AAAAMM + parceiro
     DATA(ls_nf4010) = ls_root4010-knwReinfR4010.
+
+    " restaura o id_referencia original (substituído por GUID no guid_generate)
+    READ TABLE gt_guid_map INTO ls_guid_map
+      WITH TABLE KEY guid = ls_root4010-knwReinfR4010-id_referencia.
+    IF sy-subrc = 0.
+      ls_nf4010-id_referencia = ls_guid_map-id_referencia.
+    ENDIF.
 
     IF lo_ret IS INITIAL.
       APPEND INITIAL LINE TO /pyxs/bp_reinflog=>lt_log ASSIGNING <log>.

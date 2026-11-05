@@ -494,6 +494,15 @@ CLASS /pyxs/sovos_reinf_4020builder DEFINITION
     DATA: gt_objects       TYPE tt_r4020_objects.
     DATA: gt_objects4010   TYPE tt_r4010_objects.
 
+    " De-para GUID → id_referencia original (usado no log)
+    TYPES: BEGIN OF ty_guid_map,
+             guid          TYPE string,
+             id_referencia TYPE string,
+           END OF ty_guid_map,
+           tt_guid_map TYPE HASHED TABLE OF ty_guid_map WITH UNIQUE KEY guid.
+
+    DATA: gt_guid_map      TYPE tt_guid_map.
+
     METHODS:
       constructor
         IMPORTING

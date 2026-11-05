@@ -269,7 +269,17 @@ CLASS lcl_process DEFINITION FRIENDS lhc_SOV_REINF_INSS.
       BEGIN OF ty_companycode,
         companycode     TYPE i_companycode-companycode,
         companycodename TYPE i_companycode-companycodename,
-      END OF ty_companycode.
+      END OF ty_companycode,
+
+      "*----------------------------------------------------------------------
+      "* De-para GUID → id_referencia original (usado no log)
+      "*----------------------------------------------------------------------
+      BEGIN OF ty_guid_map,
+        guid          TYPE string,
+        id_referencia TYPE string,
+      END OF ty_guid_map,
+
+      tt_guid_map TYPE HASHED TABLE OF ty_guid_map WITH UNIQUE KEY guid.
 
     CLASS-DATA:
       sel            TYPE ty_sel,
@@ -283,7 +293,8 @@ CLASS lcl_process DEFINITION FRIENDS lhc_SOV_REINF_INSS.
       gt_data        TYPE ty_t_wit_data,
       gt_objects     TYPE tt_r2010_objects,
       gt_objects2020 TYPE tt_r2020_objects,
-      gt_nfs         TYPE ty_t_nf_data,
+      gt_guid_map    TYPE tt_guid_map,
+      gt_nfs       TYPE ty_t_nf_data,
       mt_nature      TYPE TABLE OF /pyxs/sov_natren,
       mt_cdreinf     TYPE TABLE OF /pyxs/sov_cdrei2,
       mt_irf_types   TYPE TABLE OF /pyxs/sov_taxtype_irf,
@@ -293,6 +304,7 @@ CLASS lcl_process DEFINITION FRIENDS lhc_SOV_REINF_INSS.
     CLASS-METHODS:
       read_db,
       build_objects,
+      guid_generate,
       send_integration,
 
       format_amount
@@ -377,6 +389,7 @@ CLASS lhc_sov_reinf_inss IMPLEMENTATION.
 
     lcl_process=>read_db( ).
     lcl_process=>build_objects( ).
+    lcl_process=>guid_generate( ).
     lcl_process=>send_integration( ).
 
     APPEND INITIAL LINE TO reported-/pyxs/sov_reinf_inss ASSIGNING FIELD-SYMBOL(<fs>).
@@ -1033,6 +1046,79 @@ CLASS lcl_process IMPLEMENTATION.
 ENDMETHOD.
 
   "*------------------------------------------------------------------------
+  "* guid_generate
+  "* Substitui o id_referencia de cada objeto (header + listas filhas)
+  "* por um GUID único. R2010 e R2020 processados separadamente.
+  "*------------------------------------------------------------------------
+  METHOD guid_generate.
+
+    DATA lv_guid TYPE string.
+
+    CLEAR gt_guid_map.
+
+    "*----------------------------------------------------------------------
+    "* R2010
+    "*----------------------------------------------------------------------
+    LOOP AT gt_objects ASSIGNING FIELD-SYMBOL(<root>).
+
+      TRY.
+          lv_guid = cl_system_uuid=>create_uuid_c32_static( ).
+        CATCH cx_uuid_error.
+          CONTINUE.
+      ENDTRY.
+
+      INSERT VALUE #( guid          = lv_guid
+                      id_referencia = <root>-knwReinfR2010-id_referencia ) INTO TABLE gt_guid_map.
+
+      <root>-knwReinfR2010-id_referencia = lv_guid.
+
+      LOOP AT <root>-knwReinfR2010NotaList ASSIGNING FIELD-SYMBOL(<nota>).
+        <nota>-id_referencia = lv_guid.
+      ENDLOOP.
+
+      LOOP AT <root>-knwReinfR2010ServicoList ASSIGNING FIELD-SYMBOL(<serv>).
+        <serv>-id_referencia = lv_guid.
+      ENDLOOP.
+
+    ENDLOOP.
+
+    "*----------------------------------------------------------------------
+    "* R2020
+    "*----------------------------------------------------------------------
+    LOOP AT gt_objects2020 ASSIGNING FIELD-SYMBOL(<root2020>).
+
+      TRY.
+          lv_guid = cl_system_uuid=>create_uuid_c32_static( ).
+        CATCH cx_uuid_error.
+          CONTINUE.
+      ENDTRY.
+
+      INSERT VALUE #( guid          = lv_guid
+                      id_referencia = <root2020>-knwReinfR2020-id_referencia ) INTO TABLE gt_guid_map.
+
+      <root2020>-knwReinfR2020-id_referencia = lv_guid.
+
+      LOOP AT <root2020>-knwReinfR2020NotaList ASSIGNING FIELD-SYMBOL(<nota2020>).
+        <nota2020>-id_referencia = lv_guid.
+      ENDLOOP.
+
+      LOOP AT <root2020>-knwReinfR2020ServicoList ASSIGNING FIELD-SYMBOL(<serv2020>).
+        <serv2020>-id_referencia = lv_guid.
+      ENDLOOP.
+
+      LOOP AT <root2020>-knwReinfR2020ProcessoList ASSIGNING FIELD-SYMBOL(<proc2020>).
+        <proc2020>-id_referencia = lv_guid.
+      ENDLOOP.
+
+      LOOP AT <root2020>-knwReinfR2020ProcessoAdicList ASSIGNING FIELD-SYMBOL(<procadic2020>).
+        <procadic2020>-id_referencia = lv_guid.
+      ENDLOOP.
+
+    ENDLOOP.
+
+  ENDMETHOD.
+
+  "*------------------------------------------------------------------------
   "* JSON builders
   "*------------------------------------------------------------------------
   METHOD build_r2010_json.
@@ -1171,6 +1257,14 @@ ENDMETHOD.
       ENDIF.
 
       " ---- LOG no buffer DESTE BO ----
+      " id_referencia original (R2010 + AAAAMM + parceiro) via de-para do GUID
+      DATA(lv_id_orig) = ls_root-knwreinfr2010-id_referencia.
+      READ TABLE gt_guid_map INTO DATA(ls_guid_map)
+        WITH TABLE KEY guid = ls_root-knwreinfr2010-id_referencia.
+      IF sy-subrc = 0.
+        lv_id_orig = ls_guid_map-id_referencia.
+      ENDIF.
+
       GET TIME STAMP FIELD DATA(lv_time).
       lv_id += 1.
       APPEND VALUE #(
@@ -1178,7 +1272,7 @@ ENDMETHOD.
         time      = lv_time
         ano_mes   = sel-anomes
         evento    = '2010'
-        partner   = ls_root-knwreinfr2010-id_referencia+11
+        partner   = lv_id_orig+11
         resultado = ls_status-code
         retorno   = COND #( WHEN ls_status-code = 200 THEN lv_base64
                             ELSE |Erro no serviço: { gv_proc } - Payload: { lv_base64 }| ) )
@@ -1251,6 +1345,14 @@ ENDMETHOD.
       ENDIF.
 
       " ---- LOG no buffer DESTE BO ----
+      " id_referencia original (R2020 + AAAAMM + parceiro) via de-para do GUID
+      lv_id_orig = ls_root2020-knwreinfr2020-id_referencia.
+      READ TABLE gt_guid_map INTO ls_guid_map
+        WITH TABLE KEY guid = ls_root2020-knwreinfr2020-id_referencia.
+      IF sy-subrc = 0.
+        lv_id_orig = ls_guid_map-id_referencia.
+      ENDIF.
+
       GET TIME STAMP FIELD lv_time.
       lv_id += 1.
       APPEND VALUE #(
@@ -1258,7 +1360,7 @@ ENDMETHOD.
         time      = lv_time
         ano_mes   = sel-anomes
         evento    = '2020'
-        partner   = ls_root2020-knwreinfr2020-id_referencia+11
+        partner   = lv_id_orig+11
         resultado = ls_status-code
         retorno   = COND #( WHEN ls_status-code = 200 THEN lv_base64
                             ELSE |Erro no serviço: { gv_proc } - Payload: { lv_base64 }| ) )
@@ -1275,6 +1377,7 @@ ENDMETHOD.
     hora_sys = cl_abap_context_info=>get_system_time( ).
     read_db( ).
     build_objects( ).
+    guid_generate( ).
     send_integration( ).
   ENDMETHOD.
 
