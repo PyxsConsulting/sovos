@@ -437,7 +437,7 @@ CLASS /pyxs/sovos_reinf_4020builder DEFINITION
              referencedocumenttype          TYPE i_journalentry-referencedocumenttype,
              originalreferencedocument      TYPE i_br_nfitem-br_nfsourcedocumentnumber,
              netduedate                     TYPE i_journalentryitem-netduedate,
-             whldgtaxamtincocodecrcy        TYPE i_withholdingtaxitem-whldgtaxamtincocodecrcy,
+             whldgtaxexmptamtincocodecrcy        TYPE i_withholdingtaxitem-whldgtaxexmptamtincocodecrcy,
 
            END OF ty_tax_item,
            BEGIN OF ty_nf_item,

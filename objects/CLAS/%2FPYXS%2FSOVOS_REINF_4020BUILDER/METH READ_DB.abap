@@ -41,7 +41,7 @@
              wit~withholdingtaxtype, wit~withholdingtaxcode, wit~whldgtaxbaseamtincocodecrcy,
              wit~whldgtaxamtintransaccrcy, joi~clearingdate, wit~clearingaccountingdocument,
              wit~withholdingtaxpercent, jo~referencedocumenttype, jo~originalreferencedocument, joi~netduedate,
-             wit~whldgtaxamtincocodecrcy
+             wit~whldgtaxexmptamtincocodecrcy
        FROM i_withholdingtaxitem AS wit
        INNER JOIN i_journalentry AS jo
        ON wit~companycode = jo~companycode
@@ -130,7 +130,7 @@
                  wit~withholdingtaxtype, wit~withholdingtaxcode, wit~whldgtaxbaseamtincocodecrcy,
                  wit~whldgtaxamtintransaccrcy, jo~postingdate AS clearingdate, wit~clearingaccountingdocument,
                  wit~withholdingtaxpercent, jo~referencedocumenttype, jo~originalreferencedocument, joi~netduedate,
-                 wit~whldgtaxamtincocodecrcy
+                 wit~whldgtaxexmptamtincocodecrcy
            FROM i_withholdingtaxitem AS wit
            INNER JOIN i_journalentry AS jo
            ON wit~companycode = jo~companycode

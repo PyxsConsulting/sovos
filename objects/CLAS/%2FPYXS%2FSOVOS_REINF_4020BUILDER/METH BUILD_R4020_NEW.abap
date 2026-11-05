@@ -160,7 +160,7 @@ LOOP AT gt_data INTO DATA(ls_data).
           abs( ls_data-withholdingtaxamtintransaccrcy ).
 
         <pgto4010>-vl_rend_trib =
-          abs( ls_data-whldgtaxamtincocodecrcy ).
+          abs( ls_data-whldgtaxexmptamtincocodecrcy ).
 
     ENDCASE.
 
@@ -336,7 +336,7 @@ LOOP AT gt_data INTO DATA(ls_data).
         abs( ls_data-withholdingtaxamtintransaccrcy ).
 
       <ret>-vl_base_ir =
-        abs( ls_data-whldgtaxamtincocodecrcy ).
+        abs( ls_data-whldgtaxexmptamtincocodecrcy ).
 
     WHEN 'CSLL'.
 
@@ -344,7 +344,7 @@ LOOP AT gt_data INTO DATA(ls_data).
         abs( ls_data-withholdingtaxamtintransaccrcy ).
 
       <ret>-vl_base_csll =
-        abs( ls_data-whldgtaxamtincocodecrcy ).
+        abs( ls_data-whldgtaxexmptamtincocodecrcy ).
 
     WHEN 'COFINS'.
 
@@ -352,7 +352,7 @@ LOOP AT gt_data INTO DATA(ls_data).
         abs( ls_data-withholdingtaxamtintransaccrcy ).
 
       <ret>-vl_base_cofins =
-        abs( ls_data-whldgtaxamtincocodecrcy ).
+        abs( ls_data-whldgtaxexmptamtincocodecrcy ).
 
     WHEN 'PIS'.
 
@@ -360,7 +360,7 @@ LOOP AT gt_data INTO DATA(ls_data).
         abs( ls_data-withholdingtaxamtintransaccrcy ).
 
       <ret>-vl_base_pis_pasep =
-        abs( ls_data-whldgtaxamtincocodecrcy ).
+        abs( ls_data-whldgtaxexmptamtincocodecrcy ).
 
     WHEN 'PCC'.
 
@@ -368,7 +368,7 @@ LOOP AT gt_data INTO DATA(ls_data).
         abs( ls_data-withholdingtaxamtintransaccrcy ).
 
       <ret>-vl_base_agreg =
-        abs( ls_data-whldgtaxamtincocodecrcy ).
+        abs( ls_data-whldgtaxexmptamtincocodecrcy ).
 
   ENDCASE.
 

@@ -69,7 +69,7 @@ CLASS lcl_process DEFINITION FRIENDS lhc_SOV_REINF_INSS.
         referencedocumenttype         TYPE i_journalentry-referencedocumenttype,
         originalreferencedocument     TYPE i_br_nfitem-br_nfsourcedocumentnumber,
         netduedate                    TYPE i_journalentryitem-netduedate,
-        whldgtaxamtincocodecrcy       TYPE i_withholdingtaxitem-whldgtaxamtincocodecrcy,
+        whldgtaxexmptamtincocodecrcy       TYPE i_withholdingtaxitem-whldgtaxexmptamtincocodecrcy,
       END OF ty_wit_data,
 
       ty_t_wit_data TYPE STANDARD TABLE OF ty_wit_data WITH NON-UNIQUE DEFAULT KEY,
@@ -575,7 +575,7 @@ CLASS lcl_process IMPLEMENTATION.
            wit~withholdingtaxtype, wit~withholdingtaxcode, wit~whldgtaxbaseamtincocodecrcy,
            wit~whldgtaxamtintransaccrcy, joi~clearingdate, wit~clearingaccountingdocument,
            wit~withholdingtaxpercent, jo~referencedocumenttype, jo~originalreferencedocument, joi~netduedate,
-             wit~whldgtaxamtincocodecrcy
+             wit~whldgtaxexmptamtincocodecrcy
       FROM i_withholdingtaxitem AS wit
       INNER JOIN i_journalentry AS jo
         ON wit~companycode         = jo~companycode
@@ -686,7 +686,7 @@ CLASS lcl_process IMPLEMENTATION.
            wit~withholdingtaxtype, wit~withholdingtaxcode, wit~whldgtaxbaseamtincocodecrcy,
            wit~whldgtaxamtintransaccrcy, joi~clearingdate, wit~clearingaccountingdocument,
            wit~withholdingtaxpercent, jo~referencedocumenttype, jo~originalreferencedocument, joi~netduedate,
-             wit~whldgtaxamtincocodecrcy
+             wit~whldgtaxexmptamtincocodecrcy
            FROM i_withholdingtaxitem AS wit
            INNER JOIN i_journalentry AS jo
            ON wit~companycode = jo~companycode
@@ -892,7 +892,7 @@ CLASS lcl_process IMPLEMENTATION.
         ENDIF.
     ENDIF.
 
-    <serv>-vl_base_retencao =  abs( ls_data-whldgtaxamtincocodecrcy ).
+    <serv>-vl_base_retencao =  abs( ls_data-whldgtaxexmptamtincocodecrcy ).
     <serv>-vl_retencao      += abs( ls_data-whldgtaxamtintransaccrcy ).
 
   ENDLOOP.
@@ -1041,7 +1041,7 @@ CLASS lcl_process IMPLEMENTATION.
         ENDIF.
     ENDIF.
 
-    <serv2020>-vl_base_retencao =  abs( ls_data-whldgtaxamtincocodecrcy ).
+    <serv2020>-vl_base_retencao =  abs( ls_data-whldgtaxexmptamtincocodecrcy ).
     <serv2020>-vl_retencao      += abs( ls_data-whldgtaxamtintransaccrcy ).
 
   ENDLOOP.
